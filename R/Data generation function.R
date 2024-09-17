@@ -1,15 +1,15 @@
 
-# Load dependencies
-library(mvtnorm)
-library(MASS)
-library(VGAM)
-source("yeo-johnsonTransformation.R")
+#' Load dependencies
+#' library(mvtnorm)
+#' library(MASS)
+#' library(VGAM)
+#' source("yeo-johnsonTransformation.R")
 
 #' @title Data generation function for competing risks data
-#' 
+#'
 #' @description This function generates competing risk data that can be used in
 #' simulation studies.
-#' 
+#'
 #' @param n The sample size of the generated data set.
 #' @param par List of parameter vectors for each component of the transformation
 #' model.
@@ -30,25 +30,25 @@ source("yeo-johnsonTransformation.R")
 #' distribution. This can be used to control for the amount of administrative
 #' censoring in the data. Default is \code{A.upper = 15}. \code{A.upper = NULL}
 #' will return a data set without administrative censoring.
-#' 
-#' @importFrom mvtnorm MASS VGAM
-#' 
+#'
+#' @import mvtnorm MASS VGAM
+#'
 #' @return A generated data set.
-#' 
+#'
 
 dat.sim.reg.comp.risks = function(n, par, iseed, s, conf, Zbin, Wbin, type.cov,
                                   A.upper = 15) {
-  
+
   # Check for inconsistencies in the arguments
   n.cov <- length(type.cov) + as.numeric(conf)*2
   n.param <- n.cov + 1
   if (n.param > length(par[[1]])) {
     stop("Too few parameters provided in argument 'par'.")
   }
-  
+
   # Set randomization seed
   set.seed(iseed)
-  
+
   # Extract parameters
   sd.idx <- length(par) - 1
   gamma.idx <- length(par)
@@ -58,16 +58,16 @@ dat.sim.reg.comp.risks = function(n, par, iseed, s, conf, Zbin, Wbin, type.cov,
   }
   sd <- par[[sd.idx]]
   gamma <- par[[gamma.idx]][1:(nrow(beta.mat) - 1)]
-  
+
   # If there is no confounding, the parameters for Z and the control function
   # can be ignored.
   if (!conf) {
     beta.mat <- beta.mat[-c(nrow(beta.mat) - 1, nrow(beta.mat)), ]
   }
-  
+
   # Set some useful parameters
   parl <- nrow(beta.mat)
-  
+
   # Multivariate normal distribution for error terms
   mu <- rep(0, s)
   sigma <- diag(sd[1:s]^2, nrow = s)
@@ -84,10 +84,10 @@ dat.sim.reg.comp.risks = function(n, par, iseed, s, conf, Zbin, Wbin, type.cov,
     }
   }
   err <- mvrnorm(n, mu = mu , Sigma = sigma)
-  
+
   # Intercept
   X <- rep(1, n)
-  
+
   # Covariates
   for (ct in type.cov) {
     if (ct == "b") {
@@ -97,19 +97,19 @@ dat.sim.reg.comp.risks = function(n, par, iseed, s, conf, Zbin, Wbin, type.cov,
     }
   }
   colnames(X) <- paste0("x", 0:(ncol(X) - 1))
-  
+
   # If confounded data set, generate confounder and its instrument
   if (conf) {
-    
+
     # Instrument
     if (Wbin) { # Bernoulli with p = 0.5
       W <- sample(c(0, 1), n, replace = TRUE)
     } else { # Uniform[0, 2]
-      W <- runif(n, 0, 2) 
+      W <- runif(n, 0, 2)
     }
-    
+
     XandW <- as.matrix(cbind(X, W))
-    
+
     # Confounded variable
     if (Zbin) { # Z is binary
       V <- rlogis(n)
@@ -120,15 +120,15 @@ dat.sim.reg.comp.risks = function(n, par, iseed, s, conf, Zbin, Wbin, type.cov,
       Z <- XandW %*% gamma + V
       realV <- Z - (XandW %*% gamma)
     }
-    
+
   }
-  
+
   # Matrix containing all covariates
   Mgen <- X
   if (conf) {
     Mgen <- cbind(Mgen, Z, realV)
   }
-  
+
   # Latent times
   times <- matrix(nrow = n, ncol = s)
   for (j in 1:s) {
@@ -138,16 +138,16 @@ dat.sim.reg.comp.risks = function(n, par, iseed, s, conf, Zbin, Wbin, type.cov,
     A <- runif(n, 0, A.upper)
     times <- cbind(times, A)
   }
-  
+
   # Data matrix
   M <- X
   if (conf) {
     M <- cbind(M, Z, W)
   }
-  
+
   # Observed time
   Y <- apply(X = times, MARGIN = 1, FUN = min)
-  
+
   # Censoring indicators
   delta <- matrix(nrow = n, ncol = s)
   for (i in 1:s) {
@@ -156,7 +156,7 @@ dat.sim.reg.comp.risks = function(n, par, iseed, s, conf, Zbin, Wbin, type.cov,
   if (!is.null(A.upper)) {
     delta <- cbind(delta, as.numeric(Y == times[, s + 1]))
   }
-  
+
   # data consisting of observed time, censoring indicators, all data and the
   # control function.
   data <- cbind(Y, delta, M)
@@ -169,7 +169,7 @@ dat.sim.reg.comp.risks = function(n, par, iseed, s, conf, Zbin, Wbin, type.cov,
   cov.names <- paste0("X", 0:(ncol(X) - 1))
   if (conf) {conf.names <- c("Z", "W", "realV")} else {conf.names <- NULL}
   colnames(data) <- c("Y", cens.names, cov.names, conf.names)
-  
+
   # Return the result
   return(data)
 }
