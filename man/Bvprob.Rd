@@ -7,9 +7,11 @@
 Bvprob(lx, ly, rho)
 }
 \arguments{
-\item{rho}{Association parameter}
+\item{lx}{The first lower bound of integration}
 
-\item{c(lx, ly)}{Lower bounds of double integration}
+\item{ly}{The second lower bound}
+
+\item{rho}{Association parameter}
 }
 \description{
 This function calculates a bivariate survival probability based on multivariate normal distribution.

@@ -52,12 +52,3 @@ Evaluation of the log-likelihood function
 This function implements the second step likelihood function of
 the competing risk model defined in Rutten, Willems et al. (202X).
 }
-\details{
-Import dependencies
-library(OpenMx)
-library(matrixcalc)
-library(nloptr)
-library(stringr)
-library(numDeriv)
-library(pbivnorm)
-}

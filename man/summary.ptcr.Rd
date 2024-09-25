@@ -4,7 +4,7 @@
 \alias{summary.ptcr}
 \title{Print the results from a ptcr model.}
 \usage{
-\method{summary}{ptcr}(output.estimate.cmprsk)
+summary.ptcr(output.estimate.cmprsk)
 }
 \arguments{
 \item{output.estimate.cmprsk}{The output of the estimate.cmprsk.R function.}

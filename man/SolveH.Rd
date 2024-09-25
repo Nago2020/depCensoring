@@ -21,9 +21,9 @@ Returns the estimated transformation function H for a fixed value of parameters 
 }
 \description{
 This function estimates the nonparametric transformation  function H when the survival time and censoring time
-are dependent given covariates.  The estimating equation of H was derived based on the martingale ideas. More details about 
+are dependent given covariates.  The estimating equation of H was derived based on the martingale ideas. More details about
 the derivation of a nonparmaetric estimator of H and its estimation algorithm can be found in Deresa and Van Keilegom (2021).
 }
 \references{
-Deresa, N. and Van Keilegom, I (2021). On semiparametric modelling, estimation and inference for survival data subject to dependent censoring, \textit{Biometrika}, \textbf{108}, 965–979.
+Deresa, N. and Van Keilegom, I. (2021). On semiparametric modelling, estimation and inference for survival data subject to dependent censoring, Biometrika, 108, 965–979.
 }

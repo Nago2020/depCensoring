@@ -16,10 +16,15 @@ NonParTrans(
 )
 }
 \arguments{
-\item{start}{Initial values for the finite dimensional parameters. If \code{start} is NULL, the initial values will be obtained
-by fitting an Accelerated failure time models. 
- @param resData Data matrix with three columns;  Z = the observed survival time, d1 = the censoring indicator of T
+\item{resData}{Data matrix with three columns;  Z = the observed survival time, d1 = the censoring indicator of T
 and  d2 =  the censoring indicator of C.}
+
+\item{X}{Data matrix with covariates related to T}
+
+\item{W}{Data matrix with covariates related to C}
+
+\item{start}{Initial values for the finite dimensional parameters. If \code{start} is NULL, the initial values will be obtained
+by fitting an Accelerated failure time models.}
 
 \item{n.iter}{Number of iterations; the default is \code{n.iter = 20}. The larger the number of iterations, the longer the computational time.}
 
@@ -42,11 +47,11 @@ implementing the dependent censoring methodology can be found in Deresa and Van 
 \examples{
 \donttest{
 # Toy data example to illustrate implementation
-n = 300 
+n = 300
 beta = c(0.5, 1)
 eta = c(1,1.5)
 rho = 0.70
-data = DataGenerator(n=n,beta=beta,eta=eta,rho=rho)
+data = DataGenerator(n,beta,eta,rho)
 data = data[order(data[,1]),]
 Z = data[,1]
 d1 = data[,2]
@@ -58,7 +63,7 @@ colnames(X) = c("X1", "X2")
 colnames(W) = c("W1","W2")
 
 #  Bootstrap False by default
-output = NonParTrans(resData = resData, X = X, W = W)   
+output = NonParTrans(resData = resData, X = X, W = W)
 output
 
 output = NonParTrans(resData = resData, X = X, W = W, bootstrap = TRUE)
@@ -68,5 +73,5 @@ output
 
 }
 \references{
-Deresa, N. and Van Keilegom, I (2021). On semiparametric modelling, estimation and inference for survival data subject to dependent censoring, Biometrika, 108, 965–979.
+Deresa, N. and Van Keilegom, I. (2021). On semiparametric modelling, estimation and inference for survival data subject to dependent censoring, Biometrika, 108, 965–979.
 }

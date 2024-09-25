@@ -1,12 +1,23 @@
 Package: depCensoring
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Statistical Methods for Survival Data With Dependent Censoring 
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Authors@R: c(person("Ilias", "Willems", email = "ilias.willems@kuleuven.be", role = "aut"),
+    person("Gilles", "Crommen", email = "gilles.crommen@kuleuven.be", role = "aut"),
+    person("Negera Wakgari", "Deresa", email = "negera.deresa@gmail.com", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-1302-3725")),
+    person("Ingrid", "Van Keilegom", email = "ingrid.vankeilegom@kuleuven.be", role = "aut", comment = c(ORCID = "0000-0001-8827-7642")))
+Maintainer: Negera Wakgari Deresa <negera.deresa@gmail.com>
+Description: This package contains methods for analyzing survival data subject
+    to various types of dependent censoring. In addition to accounting for
+    dependent censoring, it offers tools to adjust for unmeasured confounding 
+    factors. The implemented approaches allow users to estimate the dependency 
+    between survival time and dependent censoring time, based solely on observed
+    survival data. For more details on the methods, refer to Deresa and Van Keilegom
+    (2021), Czado and Van Keilegom (2023) and Rutten et al. (2024). 
+Imports: survival, foreach, parallel, doParallel, pbivnorm, stat, MASS, nleqslv, OpenMx, 
+    mvtnorm, VGAM, rafalib, rvinecopulib, matrixcalc, nloptr, stringr, numDeriv 
+License: GPL-3
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.3.1
+

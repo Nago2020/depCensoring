@@ -11,7 +11,7 @@ Longfun(Z, T1, H)
 
 \item{T1}{Distinct observed survival time}
 
-\item{Lhat}{Nonparametric transformation function estimate}
+\item{H}{Nonparametric transformation function estimate}
 }
 \description{
 Change a nonparametric transformation function to long format

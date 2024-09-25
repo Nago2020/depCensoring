@@ -79,9 +79,6 @@ function also implements their methodology.
 }
 \examples{
 \donttest{
-library(MASS)
-source("yeo-johnsontransformation.R")
-source("ParamTransfoCompRisks.R")
 
 n <- 200
 
@@ -103,7 +100,8 @@ z <- cbind(x0, x1, x2, w) \%*\% gamma + V
 realV <- z - (cbind(x0, x1, x2, w) \%*\% gamma)
 
 # Generate event times
-err <- mvrnorm(n, mu = c(0, 0), Sigma = matrix(c(3, 1, 1, 2), nrow = 2, byrow = TRUE))
+err <- mvrnorm(n, mu = c(0, 0), Sigma =
+matrix(c(3, 1, 1, 2), nrow = 2, byrow = TRUE))
 bn <- cbind(x0, x1, x2, z, realV) \%*\% cbind(eta1, eta2) + err
 Lambda_T1 <- bn[,1]; Lambda_T2 <- bn[,2]
 T1 <- IYJtrans(Lambda_T1, theta[1]); T2 <- IYJtrans(Lambda_T2, theta[2])
@@ -125,7 +123,8 @@ conf <- TRUE                 # There is confounding in the data (z)
 eoi.indicator.names <- NULL  # We will not impose that T1 and T2 are independent
 Zbin <- FALSE                # The confounding variable z is not binary
 inst <- "cf"                 # Use the control function approach
-realV <- NULL                # Since we don't use the oracle estimator, this argument is ignored anyway
+# Since we don't use the oracle estimator, this argument is ignored anyway
+realV <- NULL
 estimate.cmprsk(data, admin, conf, eoi.indicator.names, Zbin, inst, realV)
 
 }

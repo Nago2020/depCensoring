@@ -1,12 +1,4 @@
 
-#' Import dependencies
-#' library(OpenMx)
-#' library(matrixcalc)
-#' library(nloptr)
-#' library(stringr)
-#' library(numDeriv)
-#' library(pbivnorm)
-
 #' @title Competing risk likelihood function.
 #'
 #' @description This function implements the second step likelihood function of
@@ -164,7 +156,7 @@ cr.lik <- function(n, s, Y, admin, cens.inds, M, Sigma, beta.mat, sigma.vct,
 
 
 
-#' @title First step log-likelihood function for Z continuous.
+#' @title First step log-likelihood function for Z continuous
 #'
 #' @description This function defines the maximum likelihood used to estimate
 #' the control function in the case of a continuous endogenous variable.
@@ -718,7 +710,6 @@ LikI.cmprsk <- function(par, data, eoi.indicator.names, admin, conf, cf) {
 }
 
 
-
 #' @title Wrapper implementing likelihood function assuming independence between
 #' competing risks and censoring using Cholesky factorization.
 #'
@@ -752,7 +743,7 @@ LikI.cmprsk <- function(par, data, eoi.indicator.names, admin, conf, cf) {
 #'
 #' @return Log-likelihood evaluation for the second step in the estimation
 #' procedure.
-#'
+
 
 LikI.cmprsk.Cholesky <- function(par.chol, data, eoi.indicator.names, admin,
                                  conf, cf, eps = 0.001) {
@@ -938,6 +929,8 @@ likIFG.cmprsk.Cholesky <- function(parhatG, data, eoi.indicator.names, admin,
 #' @param gammaest Vector of pre-estimated parameter vector. If \code{NULL},
 #' this function will first estimate \code{gammaest}. Default value is
 #' \code{gammaest = NULL}.
+#' @import nloptr
+#' @importFrom stats lm
 #'
 #' @return List containing the vector of values for the control function and
 #' the regression parameters of the first step.
@@ -1028,7 +1021,7 @@ estimate.cf <- function(XandW, Z, Zbin, gammaest = NULL) {
 #' @param eps Value that will be added to the diagonal of the covariance matrix
 #' during estimation in order to ensure strictly positive variances.
 #'
-#' @importFrom OpenMX matrixcalc nloptr stringr numDeriv pbivnorm mvtnorm
+#' @import OpenMx matrixcalc nloptr stringr numDeriv pbivnorm mvtnorm
 #'
 #' @return A list of parameter estimates in the second stage of the estimation
 #' algorithm (hence omitting the estimates for the control function), as well
@@ -1036,9 +1029,6 @@ estimate.cf <- function(XandW, Z, Zbin, gammaest = NULL) {
 #'
 #' @examples
 #' \donttest{
-#' library(MASS)
-#' source("yeo-johnsontransformation.R")
-#' source("ParamTransfoCompRisks.R")
 #'
 #' n <- 200
 #'
@@ -1060,7 +1050,8 @@ estimate.cf <- function(XandW, Z, Zbin, gammaest = NULL) {
 #' realV <- z - (cbind(x0, x1, x2, w) %*% gamma)
 #'
 #' # Generate event times
-#' err <- mvrnorm(n, mu = c(0, 0), Sigma = matrix(c(3, 1, 1, 2), nrow = 2, byrow = TRUE))
+#' err <- mvrnorm(n, mu = c(0, 0), Sigma =
+#' matrix(c(3, 1, 1, 2), nrow = 2, byrow = TRUE))
 #' bn <- cbind(x0, x1, x2, z, realV) %*% cbind(eta1, eta2) + err
 #' Lambda_T1 <- bn[,1]; Lambda_T2 <- bn[,2]
 #' T1 <- IYJtrans(Lambda_T1, theta[1]); T2 <- IYJtrans(Lambda_T2, theta[2])
@@ -1082,7 +1073,8 @@ estimate.cf <- function(XandW, Z, Zbin, gammaest = NULL) {
 #' eoi.indicator.names <- NULL  # We will not impose that T1 and T2 are independent
 #' Zbin <- FALSE                # The confounding variable z is not binary
 #' inst <- "cf"                 # Use the control function approach
-#' realV <- NULL                # Since we don't use the oracle estimator, this argument is ignored anyway
+#' # Since we don't use the oracle estimator, this argument is ignored anyway
+#' realV <- NULL
 #' estimate.cmprsk(data, admin, conf, eoi.indicator.names, Zbin, inst, realV)
 #'
 #' }
@@ -1436,6 +1428,7 @@ chol2par <- function(par.chol1) {
 #' @return Derivative of the function that transforms the cholesky parameters
 #' to the specified element of the covariance matrix, evaluated at the specified
 #' arguments.
+
 dchol2par.elem <- function(k, q, a, b, par.chol1) {
 
   # Create matrix with Cholesky parameters
@@ -1484,6 +1477,7 @@ dchol2par.elem <- function(k, q, a, b, par.chol1) {
 #'
 #' @return Derivative of the function that transforms the cholesky parameters
 #' to the full covariance matrix.
+
 dchol2par <- function(par.chol1) {
 
   # Create matrix with Cholesky parameters

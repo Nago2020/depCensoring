@@ -2,7 +2,7 @@
 % Please edit documentation in R/ParamTransfoCompRisks.R
 \name{LikGamma1}
 \alias{LikGamma1}
-\title{First step log-likelihood function for Z continuous.}
+\title{First step log-likelihood function for Z continuous}
 \usage{
 LikGamma1(gamma, Z, M)
 }

@@ -21,10 +21,6 @@ and  d2 =  the censoring indicator of C.}
 \item{n.iter}{Number of iterations; the default is \code{n.iter = 15}. The larger the number of iterations, the longer the computational time.}
 
 \item{eps}{Convergence error. This is set by the user in such away that the desired convergence is met; the default is \code{eps = 1e-3}}
-
-\item{H}{Initial values for the non-parametric transformation function obtained from the fit of \code{\link{NonParTrans}} based on the original data.}
-
-\item{k}{Dimension of X}
 }
 \value{
 Bootstrap standard errors for parameter estimates and for estimated cumulative hazard function.

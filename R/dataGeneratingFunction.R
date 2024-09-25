@@ -1,10 +1,4 @@
 
-#' Load dependencies
-#' library(mvtnorm)
-#' library(MASS)
-#' library(VGAM)
-#' source("yeo-johnsonTransformation.R")
-
 #' @title Data generation function for competing risks data
 #'
 #' @description This function generates competing risk data that can be used in
@@ -20,12 +14,12 @@
 #' @param conf Boolean value indicating whether the data set should contain
 #' confounding.
 #' @param Zbin Indicator whether the confounded variable is binary
-#' (\code{Zbin = 1}) or not (\code{Zbin = 0}). If \code{conf = FALSE}, this
+#' \code{Zbin = 1} or not \code{Zbin = 0}. If \code{conf = FALSE}, this
 #' variable is ignored.
 #' @param Wbin Indicator whether the instrument is binary (\code{Zbin = 1}) or
-#' not (\code{Zbin = 0}).
+#' not \code{Zbin = 0}.
 #' @param type.cov Vector of characters "c" and "b", indicating which exogenous
-#' covariates should be continuous (\code{"c"}) or binary (\code{"b"}).
+#' covariates should be continuous \code{"c"} or binary \code{"b"}.
 #' @param A.upper The upper bound on the support of the administrative censoring
 #' distribution. This can be used to control for the amount of administrative
 #' censoring in the data. Default is \code{A.upper = 15}. \code{A.upper = NULL}
@@ -33,7 +27,7 @@
 #'
 #' @import mvtnorm MASS VGAM
 #'
-#' @return A generated data set.
+#' @return A generated data set
 #'
 
 dat.sim.reg.comp.risks = function(n, par, iseed, s, conf, Zbin, Wbin, type.cov,

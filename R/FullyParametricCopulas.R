@@ -5,7 +5,7 @@
 #' @param Delta Censoring indicator.
 #' @param Dist.T The distribution to  be used for the survival time T. This argument can take one of the values from \code{c("lnorm", "weibull", "llogis")}.
 #' @param Dist.C The distribution to  be used for the censoring time C. This argument can take one of the values from \code{c("lnorm", "weibull", "llogis")}.
-#' @import rvinecopulib rafalib
+#' @import rvinecopulib rafalib stats
 #' @return Maximized log-likelihood value.
 
 loglike.indep.unconstrained<-function(para,Y,Delta,Dist.T,Dist.C){
@@ -214,6 +214,7 @@ loglike.gaussian.unconstrained<-function(para,Y,Delta,Dist.T,Dist.C){
 
 #' @title Fit the dependent censoring models.
 #' @description Estimates the model parameters by maximizing the log-likelihood.
+#' @references
 #' @param Y Follow-up time.
 #' @param Delta Censoring indicator.
 #' @param Copula The copula family. This argument can take values from \code{c("frank","gumbel","clayton","gaussian","indep")}.
@@ -370,6 +371,7 @@ ParamCop<-function(Y,Delta,Copula,Dist.T,Dist.C){
 #' @param n Sample size.
 #' @return A list containing the generated follow-up times and censoring indicators.
 #' @import rvinecopulib rafalib
+#' @importFrom stats  qlnorm qweibull qlogis
 #'
 #' @examples
 #' \donttest{

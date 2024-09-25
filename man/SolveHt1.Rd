@@ -13,6 +13,8 @@ SolveHt1(Ht1, Z, nu, t, X, W, theta)
 
 \item{nu}{The censoring indicator for T or C}
 
+\item{t}{A fixed time point}
+
 \item{X}{Data matrix with covariates related to T.}
 
 \item{W}{Data matrix with covariates related to C.}
