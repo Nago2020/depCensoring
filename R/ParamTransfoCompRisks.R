@@ -9,6 +9,8 @@
 #' @param Y The observed times.
 #' @param admin Boolean value indicating whether or not administrative censoring
 #' should be taken into account.
+#' @param cens.inds matrix of censoring indicators (each row corresponds to a
+#' single observation).
 #' @param M Design matrix, consisting of [intercept, exo.cov, Z, cf]. Note that
 #' \code{cf} represents the multiple ways of 'handling' the endogenous covariate
 #' Z, see also the documentation of 'estimate.cmprsk.R'. When there is no
@@ -18,10 +20,10 @@
 #' @param sigma.vct Vector of standard deviations. Should be equal to
 #' \code{sqrt(diag(Sigma))}.
 #' @param rho.mat The correlation matrix.
-#' @param theta.vec Vector containing the parameters of the Yeo-Johnsontrans-
+#' @param theta.vct Vector containing the parameters of the Yeo-Johnsontrans-
 #' formations.
 #'
-#' @import mvtnorm pbivnorm OpenMx
+#' @import mvtnorm pbivnorm OpenMx stats
 #'
 #' @return Evaluation of the log-likelihood function
 #'
@@ -203,6 +205,8 @@ LikGamma1 <- function(gamma, Z, M) {
 #' @param M Design matrix, containing an intercept, the exogenous covariates and
 #' the instrumental variable.
 #'
+#' @import stats
+#'
 #' @return Returns the log-likelihood function corresponding to the data,
 #' evaluated at the point \code{gamma}.
 #'
@@ -225,50 +229,6 @@ LikGamma2 <- function(gamma, Z, M) {
   # In order to be consistent with 'LikGamma1.R' (which should be minimized to
   # find gamma), we return the negative of the log-likelihood, which should also
   # be minimized to find gamma.
-  return(-Logn)
-}
-
-
-
-#' @title First step log-likelihood function for the data application.
-#'
-#' @description This function defines the maximum likelihood used to estimate
-#' the control function for the binary endogenous variable in the data
-#' application. Special attention is required here (i.e. we cannot use
-#' \code{LikGamma2}) given the one-sided non-compliance in the data.
-#'
-#' @param gamma Vector of coefficients in the logistic model used to estimate
-#' the control function.
-#' @param Z Endogenous covariate.
-#' @param M Design matrix, containing an intercept, the exogenous covariates and
-#' the instrumental variable.
-#'
-#' @return Returns the log-likelihood function corresponding to the data,
-#' evaluated at the point \code{gamma}.
-#'
-
-LikGamma_app <- function(gamma, Y, M) {
-
-  # Correcly format the variables
-  W <- as.matrix(M)
-  gamma <- as.matrix(gamma)
-
-  # Extract some useful parameters
-  k <- ncol(W)
-  tilde_W <- W[,k]
-  Xandintercept <- W[,-k]
-
-  # Adapted likelihood contribution
-  tot <- (plogis(Xandintercept%*%gamma)^Y)*((1-plogis(Xandintercept%*%gamma))^(tilde_W-Y))
-
-  # Prevent numeric issues
-  p1 <- pmax(tot,1e-100)
-
-  # Log-likelihood function
-  Logn <- sum(log(p1))
-
-  # Similar to 'LikGamma2.R', return the negative of the log-likelihood, to be
-  # minimized.
   return(-Logn)
 }
 
@@ -483,6 +443,8 @@ likF.cmprsk.Cholesky <- function(par.chol, data, admin, conf, cf, eps = 0.001) {
 #' variable, or (iv) nothing (\code{cf = NULL}). Option (ii) is used when
 #' comparing the two-step estimator to the oracle estimator, and option (iii) is
 #' used to compare the two-step estimator with the naive estimator.
+#'
+#' @import stats
 #'
 #' @return Starting values for subsequent optimization function used in the
 #' second step of the estimation procedure.
@@ -1336,7 +1298,7 @@ estimate.cmprsk <- function(data, admin, conf,
 #'
 #' @param a The row index of the covariance matrix element to be computed.
 #' @param b The column index of the covariance matrix element to be computed.
-#' @param par.chol The vector of Cholesky parameters.
+#' @param par.chol1 The vector of Cholesky parameters.
 #'
 #' @return Specified element of the covariance matrix resulting from the
 #' provided Cholesky decomposition.
@@ -1365,7 +1327,7 @@ chol2par.elem <- function(a, b, par.chol1) {
 #' composition to the covariance matrix, represented as a the row-wise con-
 #' catenation of the upper-triangular elements.
 #'
-#' @param par.chol The vector of Cholesky parameters.
+#' @param par.chol1 The vector of Cholesky parameters.
 #'
 #' @return Covariance matrix corresponding to the provided Cholesky decomposition.
 chol2par <- function(par.chol1) {
@@ -1423,7 +1385,7 @@ chol2par <- function(par.chol1) {
 #' derivative.
 #' @param a The row index of the covariance matrix element to be computed.
 #' @param b The column index of the covariance matrix element to be computed.
-#' @param par.chol The vector of Cholesky parameters.
+#' @param par.chol1 The vector of Cholesky parameters.
 #'
 #' @return Derivative of the function that transforms the cholesky parameters
 #' to the specified element of the covariance matrix, evaluated at the specified
@@ -1473,7 +1435,7 @@ dchol2par.elem <- function(k, q, a, b, par.chol1) {
 #' @description This function defines the derivative of the transformation
 #' function that maps Cholesky parameters to the full covariance matrix.
 #'
-#' @param par.chol The vector of Cholesky parameters.
+#' @param par.chol1 The vector of Cholesky parameters.
 #'
 #' @return Derivative of the function that transforms the cholesky parameters
 #' to the full covariance matrix.
@@ -1564,7 +1526,7 @@ dchol2par <- function(par.chol1) {
 #' @param totparl Total number of covariate effects (including intercepts) in
 #' all of the transformation models combined.
 #'
-#' @import numDeriv stringr
+#' @import numDeriv stringr stats
 #'
 #' @return Variance estimates of the provided vector of estimated parameters.
 #'
@@ -1582,6 +1544,9 @@ variance.cmprsk <- function(parhatc, gammaest, data, admin, conf, inst, cf,
   }
 
   ## Define useful variables
+
+  # Number of observations
+  n <- nrow(data)
 
   # Indicator variable whether eoi.indicator.names is specified. If necessary,
   # determine the indices of the events of interest.
@@ -1899,15 +1864,17 @@ variance.cmprsk <- function(parhatc, gammaest, data, admin, conf, inst, cf,
 #' @title Print the results from a ptcr model.
 #'
 #' @description This function takes the output of the function estimate.cmprsk.R
-#' as an argument and prints a summary of the results. This function is still
-#' in development.
-#' Note: this function is not yet finished!
+#' as an argument and prints a summary of the results.
+#' Note: this function is not yet finished! It should be made a proper S3 method
+#' in the future.
 #'
 #' @param output.estimate.cmprsk The output of the estimate.cmprsk.R function.
 #'
+#' @noRd
+#'
 #' @import stringr
 
-summary.ptcr <- function(output.estimate.cmprsk) {
+mysummary.ptcr <- function(output.estimate.cmprsk) {
 
   # For now, work with dummy values for the variables
   var.names <- c("(intercept)", "var1", "var2", "var3")
