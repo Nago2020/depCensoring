@@ -18,7 +18,7 @@ derivative.}
 
 \item{b}{The column index of the covariance matrix element to be computed.}
 
-\item{par.chol}{The vector of Cholesky parameters.}
+\item{par.chol1}{The vector of Cholesky parameters.}
 }
 \value{
 Derivative of the function that transforms the cholesky parameters

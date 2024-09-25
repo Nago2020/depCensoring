@@ -7,7 +7,7 @@
 dchol2par(par.chol1)
 }
 \arguments{
-\item{par.chol}{The vector of Cholesky parameters.}
+\item{par.chol1}{The vector of Cholesky parameters.}
 }
 \value{
 Derivative of the function that transforms the cholesky parameters

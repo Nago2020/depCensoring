@@ -25,7 +25,8 @@
 #' censoring in the data. Default is \code{A.upper = 15}. \code{A.upper = NULL}
 #' will return a data set without administrative censoring.
 #'
-#' @import mvtnorm MASS VGAM stats
+#' @import mvtnorm MASS
+#' @importFrom stats rlogis runif rnorm
 #'
 #' @return A generated data set
 #'

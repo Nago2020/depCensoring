@@ -28,6 +28,9 @@ cr.lik(
 \item{admin}{Boolean value indicating whether or not administrative censoring
 should be taken into account.}
 
+\item{cens.inds}{matrix of censoring indicators (each row corresponds to a
+single observation).}
+
 \item{M}{Design matrix, consisting of [intercept, exo.cov, Z, cf]. Note that
 \code{cf} represents the multiple ways of 'handling' the endogenous covariate
 Z, see also the documentation of 'estimate.cmprsk.R'. When there is no
@@ -42,7 +45,7 @@ confounding, \code{M} will be [intercept, exo.cov].}
 
 \item{rho.mat}{The correlation matrix.}
 
-\item{theta.vec}{Vector containing the parameters of the Yeo-Johnsontrans-
+\item{theta.vct}{Vector containing the parameters of the Yeo-Johnsontrans-
 formations.}
 }
 \value{
@@ -50,5 +53,5 @@ Evaluation of the log-likelihood function
 }
 \description{
 This function implements the second step likelihood function of
-the competing risk model defined in Rutten, Willems et al. (202X).
+the competing risk model defined in Rutten, Willems et al. (2024+).
 }

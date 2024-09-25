@@ -2,7 +2,8 @@
 % Please edit documentation in R/FullyParametricCopulas.R
 \name{ParamCop}
 \alias{ParamCop}
-\title{Estimation dependent censoring model.}
+\title{Estimation of the specified parametric dependent censoring model without covariates. Note that it is not assumed that the association parameter 
+of the copula function is known, unlike most other papers in the literature. The details for implementing the methodology can be found in Czado and Van Keilegom (2023).}
 \usage{
 ParamCop(Y, Delta, Copula, Dist.T, Dist.C)
 }
@@ -41,4 +42,7 @@ Delta = simdata[[2]]
 ParamCop(Y,Delta,Copula,Dist.T,Dist.C)
 }
 
+}
+\references{
+Czado and Van Keilegom (2023). Dependent censoring based on parametric copulas. Biometrika, 110(3), 721-738.
 }

@@ -7,7 +7,7 @@
 chol2par(par.chol1)
 }
 \arguments{
-\item{par.chol}{The vector of Cholesky parameters.}
+\item{par.chol1}{The vector of Cholesky parameters.}
 }
 \value{
 Covariance matrix corresponding to the provided Cholesky decomposition.

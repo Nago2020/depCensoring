@@ -11,7 +11,7 @@ chol2par.elem(a, b, par.chol1)
 
 \item{b}{The column index of the covariance matrix element to be computed.}
 
-\item{par.chol}{The vector of Cholesky parameters.}
+\item{par.chol1}{The vector of Cholesky parameters.}
 }
 \value{
 Specified element of the covariance matrix resulting from the

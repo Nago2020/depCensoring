@@ -73,7 +73,7 @@ as an estimate of their variance and confidence intervals.
 }
 \description{
 This function estimates the parameters in the competing risks
-model described in Rutten, Willems et al. (20XX). Note that this model
+model described in Rutten, Willems et al. (2024+). Note that this model
 extends the model of Crommen, Beyhum, Van Keilegom (2024) and as such, this
 function also implements their methodology.
 }
@@ -129,4 +129,7 @@ estimate.cmprsk(data, admin, conf, eoi.indicator.names, Zbin, inst, realV)
 
 }
 
+}
+\references{
+Rutten, Willems et al. (2024+) To appear.
 }

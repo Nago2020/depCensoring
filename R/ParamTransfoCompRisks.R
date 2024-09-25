@@ -2,7 +2,7 @@
 #' @title Competing risk likelihood function.
 #'
 #' @description This function implements the second step likelihood function of
-#' the competing risk model defined in Rutten, Willems et al. (202X).
+#' the competing risk model defined in Rutten, Willems et al. (2024+).
 #'
 #' @param n The sample size.
 #' @param s The number of competing risks.
@@ -23,7 +23,9 @@
 #' @param theta.vct Vector containing the parameters of the Yeo-Johnsontrans-
 #' formations.
 #'
-#' @import mvtnorm pbivnorm OpenMx stats
+#' @import mvtnorm pbivnorm
+#' @importFrom OpenMx omxMnor
+#' @importFrom stats dnorm
 #'
 #' @return Evaluation of the log-likelihood function
 #'
@@ -205,7 +207,7 @@ LikGamma1 <- function(gamma, Z, M) {
 #' @param M Design matrix, containing an intercept, the exogenous covariates and
 #' the instrumental variable.
 #'
-#' @import stats
+#' @importFrom stats plogis
 #'
 #' @return Returns the log-likelihood function corresponding to the data,
 #' evaluated at the point \code{gamma}.
@@ -238,7 +240,7 @@ LikGamma2 <- function(gamma, Z, M) {
 #'
 #' @description This function defines the log-likelihood used to estimate
 #' the second step in the competing risks extension of the model described in
-#' Rutten, Willems et al. (20XX).
+#' Rutten, Willems et al. (2024+).
 #'
 #' @param par Vector of all second step model parameters, consisting of the
 #' regression parameters, variance-covariance matrix elements and transformation
@@ -254,7 +256,8 @@ LikGamma2 <- function(gamma, Z, M) {
 #' comparing the two-step estimator to the oracle estimator, and option (iii) is
 #' used to compare the two-step estimator with the naive estimator.
 #'
-#' @import mvtnorm pbivnorm OpenMx
+#' @import mvtnorm pbivnorm
+#' @importFrom OpenMx omxMnor
 #'
 #' @return Log-likelihood evaluation of the second step.
 #'
@@ -351,7 +354,8 @@ LikF.cmprsk <- function(par, data, admin, conf, cf) {
 #' @param eps Minimum value for the diagonal elements in the covariance matrix.
 #' Default is \code{eps = 0.001}.
 #'
-#' @import mvtnorm pbivnorm OpenMx
+#' @import mvtnorm pbivnorm
+#' @importFrom OpenMx omxMnor
 #'
 #' @return Log-likelihood evaluation of the second step.
 #'
@@ -444,7 +448,7 @@ likF.cmprsk.Cholesky <- function(par.chol, data, admin, conf, cf, eps = 0.001) {
 #' comparing the two-step estimator to the oracle estimator, and option (iii) is
 #' used to compare the two-step estimator with the naive estimator.
 #'
-#' @import stats
+#' @importFrom stats dnorm
 #'
 #' @return Starting values for subsequent optimization function used in the
 #' second step of the estimation procedure.
@@ -580,7 +584,8 @@ LikI.bis <- function(par, data, admin, conf, cf) {
 #' comparing the two-step estimator to the oracle estimator, and option (iii) is
 #' used to compare the two-step estimator with the naive estimator.
 #'
-#' @import mvtnorm pbivnorm OpenMx
+#' @import mvtnorm pbivnorm
+#' @importFrom OpenMx omxMnor
 #'
 #' @return Log-likelihood evaluation for the second step in the esimation
 #' procedure.
@@ -672,6 +677,7 @@ LikI.cmprsk <- function(par, data, eoi.indicator.names, admin, conf, cf) {
 }
 
 
+
 #' @title Wrapper implementing likelihood function assuming independence between
 #' competing risks and censoring using Cholesky factorization.
 #'
@@ -701,7 +707,8 @@ LikI.cmprsk <- function(par, data, eoi.indicator.names, admin, conf, cf) {
 #' @param eps Minimum value for the diagonal elements in the covariance matrix.
 #' Default is \code{eps = 0.001}.
 #'
-#' @import mvtnorm pbivnorm OpenMx
+#' @import mvtnorm pbivnorm
+#' @importFrom OpenMx omxMnor
 #'
 #' @return Log-likelihood evaluation for the second step in the estimation
 #' procedure.
@@ -823,7 +830,8 @@ LikI.cmprsk.Cholesky <- function(par.chol, data, eoi.indicator.names, admin,
 #' binary.
 #' @param inst Type of instrumental function to be used.
 #'
-#' @import mvtnorm pbivnorm OpenMx
+#' @import mvtnorm pbivnorm
+#' @importFrom OpenMx omxMnor
 #'
 #' @return Full model log-likelihood evaluation.
 #'
@@ -936,9 +944,11 @@ estimate.cf <- function(XandW, Z, Zbin, gammaest = NULL) {
 #' @title Estimate the competing risks model of Rutten, Willems et al. (20XX).
 #'
 #' @description This function estimates the parameters in the competing risks
-#' model described in Rutten, Willems et al. (20XX). Note that this model
+#' model described in Rutten, Willems et al. (2024+). Note that this model
 #' extends the model of Crommen, Beyhum, Van Keilegom (2024) and as such, this
 #' function also implements their methodology.
+#'
+#' @references Rutten, Willems et al. (2024+) To appear.
 #'
 #' @param data A data frame, adhering to the following formatting rules:
 #' \itemize{
@@ -983,7 +993,8 @@ estimate.cf <- function(XandW, Z, Zbin, gammaest = NULL) {
 #' @param eps Value that will be added to the diagonal of the covariance matrix
 #' during estimation in order to ensure strictly positive variances.
 #'
-#' @import OpenMx matrixcalc nloptr stringr numDeriv pbivnorm mvtnorm
+#' @import matrixcalc nloptr stringr numDeriv pbivnorm mvtnorm
+#' @importFrom OpenMx omxMnor
 #'
 #' @return A list of parameter estimates in the second stage of the estimation
 #' algorithm (hence omitting the estimates for the control function), as well
@@ -1526,7 +1537,8 @@ dchol2par <- function(par.chol1) {
 #' @param totparl Total number of covariate effects (including intercepts) in
 #' all of the transformation models combined.
 #'
-#' @import numDeriv stringr stats
+#' @import numDeriv stringr
+#' @importFrom stats dlogis plogis var
 #'
 #' @return Variance estimates of the provided vector of estimated parameters.
 #'
