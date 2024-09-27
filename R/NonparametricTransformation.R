@@ -467,7 +467,7 @@ SolveScore = function(theta,resData,X,W,H, eps = 1e-3){   # Estimate model param
 #' @importFrom stats pnorm  qnorm sd
 #' @importFrom survival survreg Surv
 #' @importFrom MASS mvrnorm
-#' @import pbivnorm nleqslv
+#' @import pbivnorm nleqslv SemiPar.depCens
 #'
 #' @return This function returns a fit of a semiparametric transformation model; parameter estimates, estimate of the non-parametric transformation function, bootstrap standard
 #' errors for finite-dimensional parameters, the nonparametric cumulative hazard function, etc.
@@ -496,7 +496,7 @@ SolveScore = function(theta,resData,X,W,H, eps = 1e-3){   # Estimate model param
 #' output = NonParTrans(resData = resData, X = X, W = W, n.iter = 10)
 #' output$parameterEstimates
 #' # Make inferene using bootstrap = TRUE
-#' # output = NonParTrans(resData = resData, X = X, W = W, n.iter = 7,bootstrap = TRUE)
+#' # output = NonParTrans(resData = resData, X = X, W = W, n.iter = 3,bootstrap = TRUE)
 #' # output
 #'
 #' }

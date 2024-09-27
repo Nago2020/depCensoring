@@ -68,7 +68,7 @@ colnames(W) = c("W1","W2")
 output = NonParTrans(resData = resData, X = X, W = W, n.iter = 10)
 output$parameterEstimates
 # Make inferene using bootstrap = TRUE
-# output = NonParTrans(resData = resData, X = X, W = W, n.iter = 7,bootstrap = TRUE)
+# output = NonParTrans(resData = resData, X = X, W = W, n.iter = 3,bootstrap = TRUE)
 # output
 
 }
