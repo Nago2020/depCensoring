@@ -53,5 +53,8 @@ Evaluation of the log-likelihood function
 }
 \description{
 This function implements the second step likelihood function of
-the competing risk model defined in Rutten, Willems et al. (2024+).
+the competing risk model defined in Willems et al. (2024+).
+}
+\references{
+Willems et al. (2024+). Flexible control function approach under competing risks (in preparation).
 }

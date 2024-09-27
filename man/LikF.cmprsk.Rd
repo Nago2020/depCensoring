@@ -31,5 +31,8 @@ Log-likelihood evaluation of the second step.
 \description{
 This function defines the log-likelihood used to estimate
 the second step in the competing risks extension of the model described in
-Rutten, Willems et al. (2024+).
+Willems et al. (2024+).
+}
+\references{
+Willems et al. (2024+). Flexible control function approach under competing risks (in preparation).
 }

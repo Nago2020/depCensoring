@@ -48,29 +48,30 @@ implementing the dependent censoring methodology can be found in Deresa and Van 
 \donttest{
 # Toy data example to illustrate implementation
 n = 300
-beta = c(0.5, 1)
-eta = c(1,1.5)
-rho = 0.70
-data = DataGenerator(n,beta,eta,rho)
-data = data[order(data[,1]),]
-Z = data[,1]
-d1 = data[,2]
-d2 = data[,3]
-resData = data.frame("Z" = Z,"d1" = d1, "d2" = d2)   # should be data frame
-X = data[,4:5]
-W = X
+beta = c(0.5, 1); eta = c(1,1.5); rho = 0.70
+sigma = matrix(c(1,rho,rho,1),ncol=2)
+err = MASS::mvrnorm(n, mu = c(0,0) , Sigma=sigma)
+err1 = err[,1]; err2 = err[,2]
+x1 = rbinom(n,1,0.5); x2 = runif(n,-1,1)
+X = matrix(c(x1,x2),ncol=2,nrow=n); W = X   # data matrix
+T1 = X\%*\%beta+err1
+C =  W\%*\%eta+err2
+T1 = exp(T1); C = exp(C)
+A = runif(n,0,8); Y = pmin(T1,C,A)
+d1 = as.numeric(Y==T1)
+d2 = as.numeric(Y==C)
+resData = data.frame("Z" = Y,"d1" = d1, "d2" = d2)   # should be data frame
 colnames(X) = c("X1", "X2")
 colnames(W) = c("W1","W2")
 
-#  Bootstrap False by default
-output = NonParTrans(resData = resData, X = X, W = W)
-output
-
-output = NonParTrans(resData = resData, X = X, W = W, bootstrap = TRUE)
-output
+#  Bootstrap is False by default
+output = NonParTrans(resData = resData, X = X, W = W, n.iter = 10)
+output$parameterEstimates
+# Make inferene using bootstrap = TRUE
+# output = NonParTrans(resData = resData, X = X, W = W, n.iter = 7,bootstrap = TRUE)
+# output
 
 }
-
 }
 \references{
 Deresa, N. and Van Keilegom, I. (2021). On semiparametric modelling, estimation and inference for survival data subject to dependent censoring, Biometrika, 108, 965–979.
