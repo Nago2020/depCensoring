@@ -492,12 +492,9 @@ SolveScore = function(theta,resData,X,W,H, eps = 1e-3){   # Estimate model param
 #' colnames(X) = c("X1", "X2")
 #' colnames(W) = c("W1","W2")
 #'
-#' #  Bootstrap is False by default
-#' output = NonParTrans(resData = resData, X = X, W = W, n.iter = 10)
+#' #  Bootstrap is false by default
+#' output = NonParTrans(resData = resData, X = X, W = W, n.iter = 2)
 #' output$parameterEstimates
-#' # Make inferene using bootstrap = TRUE
-#' # output = NonParTrans(resData = resData, X = X, W = W, n.iter = 3,bootstrap = TRUE)
-#' # output
 #'
 #' }
 #
@@ -632,8 +629,7 @@ boot.nonparTrans = function(init,resData,X,W,n.boot, n.iter, eps){
     Wb = Wb[order(Zb),]
     nu = resData_b$d1+resData_b$d2
     Tb1 = c(-Inf,Zb[nu==1])
-    Tb1 = unique(Tb1)   # distinct observed survival time
-    print(init)
+    Tb1 = unique(Tb1)       # distinct observed survival time
 
     TransHat = SolveH(init, resData_b, Xb, Wb)
     T1 = TransHat[,1]
@@ -652,10 +648,8 @@ boot.nonparTrans = function(init,resData,X,W,n.boot, n.iter, eps){
 
     while (Distance(b,a)>eps){
       a = b
-      print(a)
       TransHat = SolveH(a, resData_b, Xb, Wb)
       H = TransHat[,2]
-      print(b)
       parhat = SolveScore(a, resData_b, Xb, Wb, H, eps)
       b = parhat
       if(b[m]>0.99){

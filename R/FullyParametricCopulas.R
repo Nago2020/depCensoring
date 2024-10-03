@@ -249,16 +249,15 @@ optimlikelihood<-function(Y,Delta,Copula,Dist.T,Dist.C){
   }
 }
 
-#' @title Estimation of the specified parametric dependent censoring model without covariates. Note that it is not assumed that the association parameter
-#' of the copula function is known, unlike most other papers in the literature. The details for implementing the methodology can be found in Czado and Van Keilegom (2023).
+#' @title Estimation of  a parametric dependent censoring model without covariates.
+#' @description  Note that it is not assumed that the association parameter of the copula function is known,
+#' unlike most other papers in the literature. The details for implementing the methodology can be found in Czado and Van Keilegom (2023).
 #' @references Czado and Van Keilegom (2023). Dependent censoring based on parametric copulas. Biometrika, 110(3), 721-738.
-#' @description Returns the estimated the model parameters.
 #' @inheritParams optimlikelihood
 #' @import rvinecopulib rafalib stats
 #' @return A table containing the minimized negative log-likelihood using the independence copula model, the estimated parameter values for the model with the independence copula, the minimized negative log-likelihood using the specified copula model and the estimated parameter values for the model with the specified copula.
 #'
 #' @examples
-#' \donttest{
 #'tau = 0.75
 #'Copula = "frank"
 #'Dist.T = "weibull"
@@ -273,27 +272,21 @@ optimlikelihood<-function(Y,Delta,Copula,Dist.T,Dist.C){
 #'Delta = simdata[[2]]
 #'
 #'ParamCop(Y,Delta,Copula,Dist.T,Dist.C)
-#' }
 #'
 #' @export
 
-ParamCop<-function(Y,Delta,Copula,Dist.T,Dist.C){
+ParamCop <- function(Y,Delta,Copula,Dist.T,Dist.C){
 
   if(!(Copula %in% c("frank","gumbel","clayton","gaussian","indep"))){
-    print("ERROR : Copula needs to be frank, gumbel, clayton, gaussian or indep")
-    return(NA)
+    stop("ERROR : Copula needs to be frank, gumbel, clayton, gaussian or indep")
   }else if(!(Dist.T %in% c("lnorm","weibull","llogis"))){
-    print("ERROR : Dist.T needs to be lnorm, weibull or llogis")
-    return(NA)
+    stop("ERROR : Dist.T needs to be lnorm, weibull or llogis")
   }else if(!(Dist.C %in% c("lnorm","weibull","llogis"))){
-    print("ERROR : Dist.C needs to be lnorm, weibull or llogis")
-    return(NA)
+    stop("ERROR : Dist.C needs to be lnorm, weibull or llogis")
   }else if( (Copula == "gumbel" | Copula == "clayton" | Copula == "gaussian") & (Dist.T == "llogis" | Dist.C == "llogis")){
-    print("ERROR : log-logistic marginals cannot be specified with the gumbel, clayton or gaussian copula")
-    return(NA)
+    stop("ERROR : log-logistic marginals cannot be specified with the gumbel, clayton or gaussian copula")
   }else if( (Copula == "gumbel" | Copula == "clayton" | Copula == "gaussian") & (Dist.T != Dist.C)){
-    print("ERROR : marginals need to be both lnorm or both weibull")
-    return(NA)
+    stop("ERROR : marginals need to be both lnorm or both weibull")
   } else {
 
     result = optimlikelihood(Y,Delta,Copula,Dist.T,Dist.C)
@@ -377,7 +370,6 @@ ParamCop<-function(Y,Delta,Copula,Dist.T,Dist.C){
 #' @import rvinecopulib rafalib stats
 #'
 #' @examples
-#' \donttest{
 #' tau = 0.5
 #' Copula = "gaussian"
 #' Dist.T = "lnorm"
@@ -389,10 +381,8 @@ ParamCop<-function(Y,Delta,Copula,Dist.T,Dist.C){
 #' simdata <- TCsim(tau,Copula,Dist.T,Dist.C,par.T,par.C,n)
 #' Y = simdata[[1]]
 #' Delta = simdata[[2]]
-#'
 #' hist(Y)
 #' mean(Delta)
-#' }
 #'
 #' @export
 
@@ -435,7 +425,3 @@ TCsim<-function(tau=0,Copula="frank",Dist.T="lnorm",Dist.C="lnorm",
   Y<-pmin(xT,xC)
   return(list(Y,Delta))
 }
-
-
-
-
