@@ -36,7 +36,6 @@ A list containing the generated follow-up times and censoring indicators.
 Generates the follow-up time and censoring indicator according to the specified model.
 }
 \examples{
-\donttest{
 tau = 0.5
 Copula = "gaussian"
 Dist.T = "lnorm"
@@ -48,9 +47,7 @@ n=1000
 simdata <- TCsim(tau,Copula,Dist.T,Dist.C,par.T,par.C,n)
 Y = simdata[[1]]
 Delta = simdata[[2]]
-
 hist(Y)
 mean(Delta)
-}
 
 }

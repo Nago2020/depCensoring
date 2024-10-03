@@ -64,12 +64,9 @@ resData = data.frame("Z" = Y,"d1" = d1, "d2" = d2)   # should be data frame
 colnames(X) = c("X1", "X2")
 colnames(W) = c("W1","W2")
 
-#  Bootstrap is False by default
-output = NonParTrans(resData = resData, X = X, W = W, n.iter = 10)
+#  Bootstrap is false by default
+output = NonParTrans(resData = resData, X = X, W = W, n.iter = 2)
 output$parameterEstimates
-# Make inferene using bootstrap = TRUE
-# output = NonParTrans(resData = resData, X = X, W = W, n.iter = 3,bootstrap = TRUE)
-# output
 
 }
 }
