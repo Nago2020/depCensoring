@@ -35,8 +35,8 @@ loglike.indep.unconstrained<-function(para,Y,Delta,Dist.T,Dist.C){
     fC<-(1/(Y*exp(par.C[2])))*exp((log(Y)-par.C[1])/exp(par.C[2]))*(1+exp((log(Y)-par.C[1])/exp(par.C[2])))^(-2)
   }
 
-  l1<-sum(log(fT[Delta==1])+log(1-FC[Delta==1]))
-  l0<-sum(log(fC[Delta==0])+log(1-FT[Delta==0]))
+  l1<-sum(log(pmax(fT[Delta==1],1e-100))+log(pmax(1-FC[Delta==1],1e-100)))
+  l0<-sum(log(pmax(fC[Delta==0],1e-100))+log(pmax(1-FT[Delta==0],1e-100)))
   l1+l0
 }
 
@@ -83,8 +83,8 @@ loglike.frank.unconstrained<-function(para,Y,Delta,Dist.T,Dist.C){
   frank_cop<-bicop_dist("frank",0,par.cop)
   hC.condT<-hbicop(cbind(FT,FC), 1,frank_cop)
   hT.condC<-hbicop(cbind(FT,FC), 2,frank_cop)
-  l1<-sum(log(fT[Delta==1])+log(1-hC.condT[Delta==1]))
-  l0<-sum(log(fC[Delta==0])+log(1-hT.condC[Delta==0]))
+  l1<-sum(log(pmax(fT[Delta==1],1e-100))+log(pmax(1-hC.condT[Delta==1],1e-100)))
+  l0<-sum(log(pmax(fC[Delta==0],1e-100))+log(pmax(1-hT.condC[Delta==0],1e-100)))
   l1+l0
 }
 
@@ -127,8 +127,8 @@ loglike.gumbel.unconstrained<-function(para,Y,Delta,Dist.T,Dist.C){
   gumbel_cop<-bicop_dist("gumbel",0,par.cop)
   hC.condT<-hbicop(cbind(FT,FC), 1,gumbel_cop)
   hT.condC<-hbicop(cbind(FT,FC), 2,gumbel_cop)
-  l1<-sum(log(fT[Delta==1])+log(1-hC.condT[Delta==1]))
-  l0<-sum(log(fC[Delta==0])+log(1-hT.condC[Delta==0]))
+  l1<-sum(log(pmax(fT[Delta==1],1e-100))+log(pmax(1-hC.condT[Delta==1],1e-100)))
+  l0<-sum(log(pmax(fC[Delta==0],1e-100))+log(pmax(1-hT.condC[Delta==0],1e-100)))
   l1+l0
 }
 
@@ -149,7 +149,7 @@ loglike.clayton.unconstrained<-function(para,Y,Delta,Dist.T,Dist.C){
   par.tau<-exp(par.z)/(1+exp(par.z))
   par.cop<-sign(par.tau) * ktau_to_par("clayton", max(1e-9, abs(par.tau)))
   par.cop<-min(28,par.cop)
-  par.cop<-max(1e-10,par.cop)
+  par.cop<-max(1e-100,par.cop)
   n=length(Y)
 
   if(Dist.T=="lnorm"){
@@ -171,8 +171,8 @@ loglike.clayton.unconstrained<-function(para,Y,Delta,Dist.T,Dist.C){
   clayton_cop<-bicop_dist("clayton",0,par.cop)
   hC.condT<-hbicop(cbind(FT,FC), 1,clayton_cop)
   hT.condC<-hbicop(cbind(FT,FC), 2,clayton_cop)
-  l1<-sum(log(fT[Delta==1])+log(1-hC.condT[Delta==1]))
-  l0<-sum(log(fC[Delta==0])+log(1-hT.condC[Delta==0]))
+  l1<-sum(log(pmax(fT[Delta==1],1e-100))+log(pmax(1-hC.condT[Delta==1],1e-100)))
+  l0<-sum(log(pmax(fC[Delta==0],1e-100))+log(pmax(1-hT.condC[Delta==0],1e-100)))
   l1+l0
 }
 
@@ -213,8 +213,8 @@ loglike.gaussian.unconstrained<-function(para,Y,Delta,Dist.T,Dist.C){
   gaussian_cop<-bicop_dist("gaussian",0,par.cop)
   hC.condT<-hbicop(cbind(FT,FC), 1,gaussian_cop)
   hT.condC<-hbicop(cbind(FT,FC), 2,gaussian_cop)
-  l1<-sum(log(fT[Delta==1])+log(1-hC.condT[Delta==1]))
-  l0<-sum(log(fC[Delta==0])+log(1-hT.condC[Delta==0]))
+  l1<-sum(log(pmax(fT[Delta==1],1e-100))+log(pmax(1-hC.condT[Delta==1],1e-100)))
+  l0<-sum(log(pmax(fC[Delta==0],1e-100))+log(pmax(1-hT.condC[Delta==0],1e-100)))
   l1+l0
 }
 
@@ -225,12 +225,13 @@ loglike.gaussian.unconstrained<-function(para,Y,Delta,Dist.T,Dist.C){
 #' @param Copula The copula family. This argument can take values from \code{c("frank","gumbel","clayton","gaussian","indep")}.
 #' @param Dist.T The distribution to  be used for the survival time T. This argument can take one of the values from \code{c("lnorm", "weibull", "llogis")}.
 #' @param Dist.C The distribution to  be used for the censoring time C. This argument can take one of the values from \code{c("lnorm", "weibull", "llogis")}.
+#' @param Start Starting values
 #' @import rvinecopulib rafalib stats
 #' @return A list containing the minimized negative log-likelihood using the independence copula model, the estimated parameter values for the model with the independence copula, the minimized negative log-likelihood using the specified copula model and the estimated parameter values for the model with the specified copula.
 
-optimlikelihood<-function(Y,Delta,Copula,Dist.T,Dist.C){
+optimlikelihood<-function(Y,Delta,Copula,Dist.T,Dist.C,start){
 
-  para.start=optim(c(1,1,1,1),loglike.indep.unconstrained,Y=Y,Delta=Delta,Dist.T=Dist.T,Dist.C=Dist.C,control=list(fnscale=-1),method="BFGS")
+  para.start=optim(start,loglike.indep.unconstrained,Y=Y,Delta=Delta,Dist.T=Dist.T,Dist.C=Dist.C,control=list(fnscale=-1),method="BFGS")
 
   if(Copula=="frank"){
     result=optim(c(para.start$par,0),loglike.frank.unconstrained,Y=Y,Delta=Delta,Dist.T=Dist.T,Dist.C=Dist.C,control=list(fnscale=-1),method="BFGS")
@@ -275,7 +276,7 @@ optimlikelihood<-function(Y,Delta,Copula,Dist.T,Dist.C){
 #'
 #' @export
 
-ParamCop <- function(Y,Delta,Copula,Dist.T,Dist.C){
+ParamCop <- function(Y,Delta,Copula,Dist.T,Dist.C,start=c(1,1,1,1)){
 
   if(!(Copula %in% c("frank","gumbel","clayton","gaussian","indep"))){
     stop("ERROR : Copula needs to be frank, gumbel, clayton, gaussian or indep")
@@ -289,7 +290,7 @@ ParamCop <- function(Y,Delta,Copula,Dist.T,Dist.C){
     stop("ERROR : marginals need to be both lnorm or both weibull")
   } else {
 
-    result = optimlikelihood(Y,Delta,Copula,Dist.T,Dist.C)
+    result = optimlikelihood(Y,Delta,Copula,Dist.T,Dist.C,start)
 
     if (Copula == "indep"){
       par.mat<-rbind(c(result[[1]],result[[2]]))
@@ -425,3 +426,4 @@ TCsim<-function(tau=0,Copula="frank",Dist.T="lnorm",Dist.C="lnorm",
   Y<-pmin(xT,xC)
   return(list(Y,Delta))
 }
+
