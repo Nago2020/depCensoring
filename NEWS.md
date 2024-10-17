@@ -1,5 +1,7 @@
 # depCensoring 0.1.3
 
+* Adding a co-author
+
 # depCensoring 0.1.2
 
 * Correcting the issues in Description

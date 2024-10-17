@@ -1,5 +1,5 @@
 ## R CMD check results
 
-0 errors | 0 warnings | 2 note
+0 errors | 0 warnings | 0 note
 
-* Correcting the issues in Description.
+* Fixing bug issues in a fully parametric copula model.
