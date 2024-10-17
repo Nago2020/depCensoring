@@ -225,7 +225,7 @@ loglike.gaussian.unconstrained<-function(para,Y,Delta,Dist.T,Dist.C){
 #' @param Copula The copula family. This argument can take values from \code{c("frank","gumbel","clayton","gaussian","indep")}.
 #' @param Dist.T The distribution to  be used for the survival time T. This argument can take one of the values from \code{c("lnorm", "weibull", "llogis")}.
 #' @param Dist.C The distribution to  be used for the censoring time C. This argument can take one of the values from \code{c("lnorm", "weibull", "llogis")}.
-#' @param Start Starting values
+#' @param start Starting values
 #' @import rvinecopulib rafalib stats
 #' @return A list containing the minimized negative log-likelihood using the independence copula model, the estimated parameter values for the model with the independence copula, the minimized negative log-likelihood using the specified copula model and the estimated parameter values for the model with the specified copula.
 

@@ -5,7 +5,8 @@ Version: 0.1.2
 Authors@R: c(person("Ilias", "Willems", email = "ilias.willems@kuleuven.be", role = "aut", comment = c(ORCID = "0009-0001-9463-9942")),
     person("Gilles", "Crommen", email = "gilles.crommen@kuleuven.be", role = "aut", comment = c(ORCID = "0000-0001-8380-1900")),
     person("Negera Wakgari", "Deresa", email = "negera.deresa@gmail.com", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-1302-3725")),
-    person("Ingrid", "Van Keilegom", email = "ingrid.vankeilegom@kuleuven.be", role = "aut", comment = c(ORCID = "0000-0001-8827-7642")))
+    person("Ingrid", "Van Keilegom", email = "ingrid.vankeilegom@kuleuven.be", role = "aut", comment = c(ORCID = "0000-0001-8827-7642")),
+    person("Claudia","Czado", email = "cczado@cit.tum.de", role = "aut", comment = c(ORCID = "0000-0002-6329-5438")))
 Maintainer: Negera Wakgari Deresa <negera.deresa@gmail.com>
 Description: Several statistical methods for analyzing survival data under various forms of dependent
     censoring are implemented in the package. In addition to accounting for dependent censoring, it 

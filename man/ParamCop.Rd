@@ -4,7 +4,7 @@
 \alias{ParamCop}
 \title{Estimation of  a parametric dependent censoring model without covariates.}
 \usage{
-ParamCop(Y, Delta, Copula, Dist.T, Dist.C)
+ParamCop(Y, Delta, Copula, Dist.T, Dist.C, start = c(1, 1, 1, 1))
 }
 \arguments{
 \item{Y}{Follow-up time.}
@@ -16,6 +16,8 @@ ParamCop(Y, Delta, Copula, Dist.T, Dist.C)
 \item{Dist.T}{The distribution to  be used for the survival time T. This argument can take one of the values from \code{c("lnorm", "weibull", "llogis")}.}
 
 \item{Dist.C}{The distribution to  be used for the censoring time C. This argument can take one of the values from \code{c("lnorm", "weibull", "llogis")}.}
+
+\item{start}{Starting values}
 }
 \value{
 A table containing the minimized negative log-likelihood using the independence copula model, the estimated parameter values for the model with the independence copula, the minimized negative log-likelihood using the specified copula model and the estimated parameter values for the model with the specified copula.
