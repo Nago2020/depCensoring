@@ -1,7 +1,7 @@
 Package: depCensoring
 Type: Package
 Title: Statistical Methods for Survival Data with Dependent Censoring 
-Version: 0.1.2
+Version: 0.1.3
 Authors@R: c(person("Ilias", "Willems", email = "ilias.willems@kuleuven.be", role = "aut", comment = c(ORCID = "0009-0001-9463-9942")),
     person("Gilles", "Crommen", email = "gilles.crommen@kuleuven.be", role = "aut", comment = c(ORCID = "0000-0001-8380-1900")),
     person("Negera Wakgari", "Deresa", email = "negera.deresa@gmail.com", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-1302-3725")),

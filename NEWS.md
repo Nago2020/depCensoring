@@ -1,3 +1,5 @@
+# depCensoring 0.1.3
+
 # depCensoring 0.1.2
 
 * Correcting the issues in Description
