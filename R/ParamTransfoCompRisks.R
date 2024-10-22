@@ -990,6 +990,10 @@ estimate.cf <- function(XandW, Z, Zbin, gammaest = NULL) {
 #' @param realV Vector of numerics with length equal to the number of rows in
 #' \code{data}. Used to provide the true values of the instrumental function
 #' to the estimation procedure.
+#' @param compute.var Boolean value indicating whether the variance of the
+#' parameter estimates should be computed as well (this can be very
+#' computationally intensive, so may want to be disabled). Default is
+#' \code{estimate.var = TRUE}.
 #' @param eps Value that will be added to the diagonal of the covariance matrix
 #' during estimation in order to ensure strictly positive variances.
 #'
@@ -1046,9 +1050,11 @@ estimate.cf <- function(XandW, Z, Zbin, gammaest = NULL) {
 #' eoi.indicator.names <- NULL  # We will not impose that T1 and T2 are independent
 #' Zbin <- FALSE                # The confounding variable z is not binary
 #' inst <- "cf"                 # Use the control function approach
+#' compute.var <- TRUE          # Variance of estimates should be computed.
 #' # Since we don't use the oracle estimator, this argument is ignored anyway
 #' realV <- NULL
-#' estimate.cmprsk(data, admin, conf, eoi.indicator.names, Zbin, inst, realV)
+#' estimate.cmprsk(data, admin, conf, eoi.indicator.names, Zbin, inst, realV,
+#'                 compute.var)
 #'
 #' }
 #'
@@ -1057,7 +1063,8 @@ estimate.cf <- function(XandW, Z, Zbin, gammaest = NULL) {
 
 estimate.cmprsk <- function(data, admin, conf,
                             eoi.indicator.names = NULL, Zbin = NULL,
-                            inst = "cf", realV = NULL, eps = 0.001) {
+                            inst = "cf", realV = NULL, compute.var = TRUE,
+                            eps = 0.001) {
 
   #### Conformity checks ####
 
@@ -1258,40 +1265,50 @@ estimate.cmprsk <- function(data, admin, conf,
                                   "xtol_abs" = 1.0e-30)
     )$solution
 
-    ## Obtain variance of estimates
+    ## Obtain variance of estimates, if necessary.
 
-    var.out <- variance.cmprsk(parhatc, gammaest, data, admin, conf, inst, cf,
-                               eoi.indicator.names, Zbin, use.chol, n.trans,
-                               totparl)
+    if (compute.var) {
+
+      # Compute the variance
+      var.out <- variance.cmprsk(parhatc, gammaest, data, admin, conf, inst, cf,
+                                 eoi.indicator.names, Zbin, use.chol, n.trans,
+                                 totparl)
+
+      # Store the results
+      res <- var.out
+    }
 
     ## Backtransform the cholesky parameters
+    #
+    # (if not already done in variance computations)
 
-    # Extract parameters
-    par.chol <- parhatc[(totparl + 1):(length(parhatc) - n.trans)]
-    par.chol1 <- par.chol[1:(choose(s1, 2) + s1)]
-    par.sd2 <- par.chol[(choose(s1, 2) + s1 + 1):length(par.chol)]
+    if (!compute.var) {
 
-    # Reconstruct covariance matrix for events of interest
-    mat.chol1 <- matrix(0, nrow = s1, ncol = s1)
-    mat.chol1[lower.tri(mat.chol1, diag = TRUE)] <- par.chol1
-    var1 <- mat.chol1 %*% t(mat.chol1)
+      # Extract parameters
+      par.chol <- parhatc[(totparl + 1):(length(parhatc) - n.trans)]
+      par.chol1 <- par.chol[1:(choose(s1, 2) + s1)]
+      par.sd2 <- par.chol[(choose(s1, 2) + s1 + 1):length(par.chol)]
 
-    # Reconstruct full covariance matrix and correlation matrix
-    var <- matrix(0, nrow = n.trans, ncol = n.trans)
-    var[eoi.inds, eoi.inds] <- var1
-    diag(var)[setdiff(1:n.trans, eoi.inds)] <- par.sd2^2
-    rho.mat <- var / sqrt(outer(diag(var), diag(var), FUN = "*"))
+      # Reconstruct covariance matrix for events of interest
+      mat.chol1 <- matrix(0, nrow = s1, ncol = s1)
+      mat.chol1[lower.tri(mat.chol1, diag = TRUE)] <- par.chol1
+      var1 <- mat.chol1 %*% t(mat.chol1)
 
-    # Construct full parameter vector.
-    parhat1 <- c(parhatc[1:totparl], diag(var),
-                 rho.mat[lower.tri(rho.mat, diag = FALSE)],
-                 parhatc[(length(parhatc) - n.trans + 1):length(parhatc)])
+      # Reconstruct full covariance matrix and correlation matrix
+      var <- matrix(0, nrow = n.trans, ncol = n.trans)
+      var[eoi.inds, eoi.inds] <- var1
+      diag(var)[setdiff(1:n.trans, eoi.inds)] <- par.sd2^2
+      rho.mat <- var / sqrt(outer(diag(var), diag(var), FUN = "*"))
 
-    # parhat1 is not returned as it is already computed during variance
-    # estimation.
+      # Construct full parameter vector.
+      parhat1 <- c(parhatc[1:totparl], diag(var),
+                   rho.mat[lower.tri(rho.mat, diag = FALSE)],
+                   parhatc[(length(parhatc) - n.trans + 1):length(parhatc)])
 
-    # Store the results
-    res <- var.out
+      # Store the results
+      res <- parhat1
+
+      }
     }
 
   #### Return the results ####
