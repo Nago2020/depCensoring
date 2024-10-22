@@ -33,7 +33,10 @@ second step of the estimation procedure.
 \description{
 This function defines the log-likelihood used in estimating
 the second step in the competing risks extension of the model described in
-Rutten, Willems et al. (20XX). The results of this function will serve as
+Willems et al. (2024+). The results of this function will serve as
 starting values for subsequent optimizations (LikI.comprsk.R and
 LikF.cmprsk.R)
+}
+\references{
+Willems et al. (2024+). Flexible control function approach under competing risks (in preparation).
 }

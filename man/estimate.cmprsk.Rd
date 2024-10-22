@@ -73,8 +73,8 @@ as an estimate of their variance and confidence intervals.
 }
 \description{
 This function estimates the parameters in the competing risks
-model described in Rutten, Willems et al. (2024+). Note that this model
-extends the model of Crommen, Beyhum, Van Keilegom (2024) and as such, this
+model described in Willems et al. (2024+). Note that this model
+extends the model of Crommen, Beyhum and Van Keilegom (2024) and as such, this
 function also implements their methodology.
 }
 \examples{
@@ -100,12 +100,18 @@ z <- cbind(x0, x1, x2, w) \%*\% gamma + V
 realV <- z - (cbind(x0, x1, x2, w) \%*\% gamma)
 
 # Generate event times
-err <- mvrnorm(n, mu = c(0, 0), Sigma =
+err <- MASS::mvrnorm(n, mu = c(0, 0), Sigma =
 matrix(c(3, 1, 1, 2), nrow = 2, byrow = TRUE))
 bn <- cbind(x0, x1, x2, z, realV) \%*\% cbind(eta1, eta2) + err
 Lambda_T1 <- bn[,1]; Lambda_T2 <- bn[,2]
-T1 <- IYJtrans(Lambda_T1, theta[1]); T2 <- IYJtrans(Lambda_T2, theta[2])
-
+x.ind = (Lambda_T1>0)
+y.ind <- (Lambda_T2>0)
+T1 <- rep(0,length(Lambda_T1))
+T2 <- rep(0,length(Lambda_T2))
+T1[x.ind] = ((theta[1]*Lambda_T1[x.ind]+1)^(1/theta[1])-1)
+T1[!x.ind] = 1-(1-(2-theta[1])*Lambda_T1[!x.ind])^(1/(2-theta[1]))
+T2[y.ind] = ((theta[2]*Lambda_T2[y.ind]+1)^(1/theta[2])-1)
+T2[!y.ind] = 1-(1-(2-theta[2])*Lambda_T2[!y.ind])^(1/(2-theta[2]))
 # Generate adminstrative censoring time
 C <- runif(n, 0, 40)
 
@@ -131,5 +137,7 @@ estimate.cmprsk(data, admin, conf, eoi.indicator.names, Zbin, inst, realV)
 
 }
 \references{
-Rutten, Willems et al. (2024+) To appear.
+Willems et al. (2024+). Flexible control function approach under competing risks (in preparation).
+
+Crommen, G., Beyhum, J., and Van Keilegom, I. (2024). An instrumental variable approach under dependent censoring. Test, 33(2), 473-495.
 }

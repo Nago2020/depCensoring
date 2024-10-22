@@ -38,6 +38,8 @@ procedure.
 \description{
 This function defines the log-likelihood used to estimate
 the second step in the competing risks extension assuming independence of
-some of the competing risks in the model described in Rutten, Willems et al.
-(20XX).
+some of the competing risks in the model described in Willems et al. (2024+).
+}
+\references{
+Willems et al. (2024+). Flexible control function approach under competing risks (in preparation).
 }

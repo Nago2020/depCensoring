@@ -2,10 +2,9 @@
 % Please edit documentation in R/FullyParametricCopulas.R
 \name{ParamCop}
 \alias{ParamCop}
-\title{Estimation of the specified parametric dependent censoring model without covariates. Note that it is not assumed that the association parameter 
-of the copula function is known, unlike most other papers in the literature. The details for implementing the methodology can be found in Czado and Van Keilegom (2023).}
+\title{Estimation of  a parametric dependent censoring model without covariates.}
 \usage{
-ParamCop(Y, Delta, Copula, Dist.T, Dist.C)
+ParamCop(Y, Delta, Copula, Dist.T, Dist.C, start = c(1, 1, 1, 1))
 }
 \arguments{
 \item{Y}{Follow-up time.}
@@ -17,15 +16,17 @@ ParamCop(Y, Delta, Copula, Dist.T, Dist.C)
 \item{Dist.T}{The distribution to  be used for the survival time T. This argument can take one of the values from \code{c("lnorm", "weibull", "llogis")}.}
 
 \item{Dist.C}{The distribution to  be used for the censoring time C. This argument can take one of the values from \code{c("lnorm", "weibull", "llogis")}.}
+
+\item{start}{Starting values}
 }
 \value{
 A table containing the minimized negative log-likelihood using the independence copula model, the estimated parameter values for the model with the independence copula, the minimized negative log-likelihood using the specified copula model and the estimated parameter values for the model with the specified copula.
 }
 \description{
-Returns the estimated the model parameters.
+Note that it is not assumed that the association parameter of the copula function is known,
+unlike most other papers in the literature. The details for implementing the methodology can be found in Czado and Van Keilegom (2023).
 }
 \examples{
-\donttest{
 tau = 0.75
 Copula = "frank"
 Dist.T = "weibull"
@@ -40,7 +41,6 @@ Y = simdata[[1]]
 Delta = simdata[[2]]
 
 ParamCop(Y,Delta,Copula,Dist.T,Dist.C)
-}
 
 }
 \references{

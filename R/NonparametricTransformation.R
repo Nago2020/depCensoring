@@ -1,4 +1,3 @@
-
 #' @title Estimate a nonparametric transformation function
 #'
 #' @description This function estimates the nonparametric transformation  function H when the survival time and censoring time
@@ -21,7 +20,7 @@
 #' @export
 
 
-SolveH = function(theta,resData, X, W){                                 # Z,nu,X,W,beta,eta,rho
+SolveH <- function(theta,resData, X, W){                                 # Z,nu,X,W,beta,eta,rho
   k = ncol(X)
   l = ncol(W)
   beta = theta[1:k]
@@ -77,7 +76,7 @@ SolveH = function(theta,resData, X, W){                                 # Z,nu,X
 #' @param X Data matrix with covariates related to T.
 #' @param W Data matrix with covariates related to C.
 
-SolveHt1 = function(Ht1,Z,nu,t,X,W,theta){
+SolveHt1 <- function(Ht1,Z,nu,t,X,W,theta){
   k = ncol(X)
   l = ncol(W)
   beta = theta[1:k]
@@ -110,8 +109,6 @@ SearchIndicate = function(t,T1){
   }
   return(i)
 }
-
-
 
 #' @title Distance between vectors
 #' @description This function computes distance between two vectors based on L2-norm
@@ -159,40 +156,6 @@ Longfun = function(Z,T1,H){
     Hlong[i] = H[j]
   }
 return(Hlong)
-}
-
-#' @title Data generating model
-#' @description This function simulates data from a bivariate normal distribution.
-#'
-#' @param n Sample size
-#' @param beta Coefficients of survival model
-#' @param eta Coefficients of censoring model
-#' @param rho Correlation parameter
-#' @importFrom stats runif rbinom
-#' @import MASS
-#'
-#' @return This function returns a simulated data in matrix form.
-
-
-DataGenerator = function(n,beta,eta,rho){ # Data generator
-  mu = c(0,0)
-  sigma = matrix(c(1,rho,rho,1),ncol=2)
-  err = mvrnorm(n, mu = mu , Sigma=sigma)
-  err1 = err[,1]
-  err2 = err[,2]
-  x1 = rbinom(n,1,0.5)
-  x2 = runif(n,-1,1)
-  M = matrix(c(x1,x2),ncol=2,nrow=n)   # data matrix
-  T1 = M%*%beta+err1                   # beta = c(1, -1.2); eta = c(0.75,1.2)
-  C = M%*%eta+err2
-  T1 = exp(T1)                         #Consider inverse trans: Exponential
-  C = exp(C)
-  A = runif(n,0,8)
-  Y = pmin(T1,C,A)
-  d1 = as.numeric(Y==T1)
-  d2 = as.numeric(Y==C)
-  data = cbind(Y,d1,d2,M)
-  return(data)
 }
 
 
@@ -490,7 +453,6 @@ SolveScore = function(theta,resData,X,W,H, eps = 1e-3){   # Estimate model param
 #'
 #' @references Deresa, N. and Van Keilegom, I. (2021). On semiparametric modelling, estimation and inference for survival data subject to dependent censoring, Biometrika, 108, 965–979.
 #'
-#'
 #' @param start Initial values for the finite dimensional parameters. If \code{start} is NULL, the initial values will be obtained
 #' by fitting an Accelerated failure time models.
 #' @param resData Data matrix with three columns;  Z = the observed survival time, d1 = the censoring indicator of T
@@ -504,7 +466,8 @@ SolveScore = function(theta,resData,X,W,H, eps = 1e-3){   # Estimate model param
 #' values  of \code{n.boot} are recommended for obtaining good estimates of bootstrap standard errors.
 #' @importFrom stats pnorm  qnorm sd
 #' @importFrom survival survreg Surv
-#' @import pbivnorm MASS mvtnorm nleqslv
+#' @importFrom MASS mvrnorm
+#' @import pbivnorm nleqslv SemiPar.depCens
 #'
 #' @return This function returns a fit of a semiparametric transformation model; parameter estimates, estimate of the non-parametric transformation function, bootstrap standard
 #' errors for finite-dimensional parameters, the nonparametric cumulative hazard function, etc.
@@ -513,29 +476,28 @@ SolveScore = function(theta,resData,X,W,H, eps = 1e-3){   # Estimate model param
 #' \donttest{
 #' # Toy data example to illustrate implementation
 #' n = 300
-#' beta = c(0.5, 1)
-#' eta = c(1,1.5)
-#' rho = 0.70
-#' data = DataGenerator(n,beta,eta,rho)
-#' data = data[order(data[,1]),]
-#' Z = data[,1]
-#' d1 = data[,2]
-#' d2 = data[,3]
-#' resData = data.frame("Z" = Z,"d1" = d1, "d2" = d2)   # should be data frame
-#' X = data[,4:5]
-#' W = X
+#' beta = c(0.5, 1); eta = c(1,1.5); rho = 0.70
+#' sigma = matrix(c(1,rho,rho,1),ncol=2)
+#' err = MASS::mvrnorm(n, mu = c(0,0) , Sigma=sigma)
+#' err1 = err[,1]; err2 = err[,2]
+#' x1 = rbinom(n,1,0.5); x2 = runif(n,-1,1)
+#' X = matrix(c(x1,x2),ncol=2,nrow=n); W = X   # data matrix
+#' T1 = X%*%beta+err1
+#' C =  W%*%eta+err2
+#' T1 = exp(T1); C = exp(C)
+#' A = runif(n,0,8); Y = pmin(T1,C,A)
+#' d1 = as.numeric(Y==T1)
+#' d2 = as.numeric(Y==C)
+#' resData = data.frame("Z" = Y,"d1" = d1, "d2" = d2)   # should be data frame
 #' colnames(X) = c("X1", "X2")
 #' colnames(W) = c("W1","W2")
 #'
-#' #  Bootstrap False by default
-#' output = NonParTrans(resData = resData, X = X, W = W)
-#' output
-#'
-#' output = NonParTrans(resData = resData, X = X, W = W, bootstrap = TRUE)
-#' output
+#' #  Bootstrap is false by default
+#' output = NonParTrans(resData = resData, X = X, W = W, n.iter = 2)
+#' output$parameterEstimates
 #'
 #' }
-#'
+#
 #' @export
 
 NonParTrans = function(resData, X, W, start = NULL, n.iter = 15,  bootstrap = FALSE, n.boot = 50, eps = 1e-3){
@@ -592,8 +554,6 @@ NonParTrans = function(resData, X, W, start = NULL, n.iter = 15,  bootstrap = FA
     }else b[m] = b[m]
 
     flag = flag+1
-    print(flag)
-    print(b)
     if (flag>n.iter)
     {
       flag=0;
@@ -607,12 +567,19 @@ NonParTrans = function(resData, X, W, start = NULL, n.iter = 15,  bootstrap = FA
   paramsBootstrap = list("init" = parhat,"resData" = resData, "X" = X, "W" = W,"n.boot" = n.boot, "n.iter" = n.iter, "eps" = eps)
 
   fitNonTrans <- NULL
-  if(bootstrap)                                                   # Obtain bootstrap standard error
+  if(bootstrap) {                                                          # Obtain bootstrap standard error
     fitNonTrans <- do.call(boot.nonparTrans, paramsBootstrap)
-
-  rownames(parhat) <- c(colnames(X), colnames(W),"rho")
-
-  output <- c(list("parameterEstimates" = parhat, "bootstrap" = bootstrap, "dimX" = ncol(X), "dimW" = ncol(W),"observedTime" = T1,"H" = H),fitNonTrans)
+    stError <- fitNonTrans$parEst.std.error
+    Z <- parhat/stError
+    pvalue <- 2*(1-pnorm(abs(Z)))
+    out.res <- cbind(parhat,stError,pvalue)
+    rownames(out.res) <- c(colnames(X), colnames(W),"rho")
+    colnames(out.res) <- c("coef.", "BootSE", "Pvalue")
+    output <- list("parameterEstimates" = out.res, "bootstrap" = bootstrap, "dimX" = ncol(X), "dimW" = ncol(W),"observedTime" = T1,"H" = H)
+  }else{
+    rownames(parhat) <- c(colnames(X), colnames(W),"rho")
+    output <- c(list("parameterEstimates" = parhat, "bootstrap" = bootstrap, "dimX" = ncol(X), "dimW" = ncol(W),"observedTime" = T1,"H" = H),fitNonTrans)
+  }
   class(output) <- append(class(output), "fitNonPar")                              # dependent censoring fit object
 
   return(output)
@@ -639,11 +606,10 @@ NonParTrans = function(resData, X, W, start = NULL, n.iter = 15,  bootstrap = FA
 #' @import pbivnorm MASS mvtnorm nleqslv foreach parallel
 #'
 #' @return Bootstrap standard errors for parameter estimates and for estimated cumulative hazard function.
-#'
 
 
 boot.nonparTrans = function(init,resData,X,W,n.boot, n.iter, eps){
-  B = n.boot                                    # number of bootstrap samples
+  B = n.boot                                               # number of bootstrap samples
   n.cores <- parallel::detectCores() - 1
 
   my.cluster <- parallel::makeCluster(
@@ -663,8 +629,7 @@ boot.nonparTrans = function(init,resData,X,W,n.boot, n.iter, eps){
     Wb = Wb[order(Zb),]
     nu = resData_b$d1+resData_b$d2
     Tb1 = c(-Inf,Zb[nu==1])
-    Tb1 = unique(Tb1)   # distinct observed survival time
-    print(init)
+    Tb1 = unique(Tb1)       # distinct observed survival time
 
     TransHat = SolveH(init, resData_b, Xb, Wb)
     T1 = TransHat[,1]
@@ -683,10 +648,8 @@ boot.nonparTrans = function(init,resData,X,W,n.boot, n.iter, eps){
 
     while (Distance(b,a)>eps){
       a = b
-      print(a)
       TransHat = SolveH(a, resData_b, Xb, Wb)
       H = TransHat[,2]
-      print(b)
       parhat = SolveScore(a, resData_b, Xb, Wb, H, eps)
       b = parhat
       if(b[m]>0.99){

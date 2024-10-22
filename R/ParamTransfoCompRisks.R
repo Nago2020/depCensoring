@@ -2,7 +2,9 @@
 #' @title Competing risk likelihood function.
 #'
 #' @description This function implements the second step likelihood function of
-#' the competing risk model defined in Rutten, Willems et al. (2024+).
+#' the competing risk model defined in Willems et al. (2024+).
+#'
+#' @references Willems et al. (2024+). Flexible control function approach under competing risks (in preparation).
 #'
 #' @param n The sample size.
 #' @param s The number of competing risks.
@@ -240,7 +242,9 @@ LikGamma2 <- function(gamma, Z, M) {
 #'
 #' @description This function defines the log-likelihood used to estimate
 #' the second step in the competing risks extension of the model described in
-#' Rutten, Willems et al. (2024+).
+#' Willems et al. (2024+).
+#'
+#'@references Willems et al. (2024+). Flexible control function approach under competing risks (in preparation).
 #'
 #' @param par Vector of all second step model parameters, consisting of the
 #' regression parameters, variance-covariance matrix elements and transformation
@@ -430,9 +434,11 @@ likF.cmprsk.Cholesky <- function(par.chol, data, admin, conf, cf, eps = 0.001) {
 #'
 #' @description This function defines the log-likelihood used in estimating
 #' the second step in the competing risks extension of the model described in
-#' Rutten, Willems et al. (20XX). The results of this function will serve as
+#' Willems et al. (2024+). The results of this function will serve as
 #' starting values for subsequent optimizations (LikI.comprsk.R and
 #' LikF.cmprsk.R)
+#'
+#' @references Willems et al. (2024+). Flexible control function approach under competing risks (in preparation).
 #'
 #' @param par Vector of all second step model parameters, consisting of the
 #' regression parameters, variance-covariance matrix elements and transformation
@@ -562,8 +568,9 @@ LikI.bis <- function(par, data, admin, conf, cf) {
 #'
 #' @description This function defines the log-likelihood used to estimate
 #' the second step in the competing risks extension assuming independence of
-#' some of the competing risks in the model described in Rutten, Willems et al.
-#' (20XX).
+#' some of the competing risks in the model described in Willems et al. (2024+).
+#'
+#' @references Willems et al. (2024+). Flexible control function approach under competing risks (in preparation).
 #'
 #' @param par Vector of all second step model parameters, consisting of the
 #' regression parameters, variance-covariance matrix elements and transformation
@@ -944,11 +951,12 @@ estimate.cf <- function(XandW, Z, Zbin, gammaest = NULL) {
 #' @title Estimate the competing risks model of Rutten, Willems et al. (20XX).
 #'
 #' @description This function estimates the parameters in the competing risks
-#' model described in Rutten, Willems et al. (2024+). Note that this model
-#' extends the model of Crommen, Beyhum, Van Keilegom (2024) and as such, this
+#' model described in Willems et al. (2024+). Note that this model
+#' extends the model of Crommen, Beyhum and Van Keilegom (2024) and as such, this
 #' function also implements their methodology.
 #'
-#' @references Rutten, Willems et al. (2024+) To appear.
+#' @references Willems et al. (2024+). Flexible control function approach under competing risks (in preparation).
+#' @references Crommen, G., Beyhum, J., and Van Keilegom, I. (2024). An instrumental variable approach under dependent censoring. Test, 33(2), 473-495.
 #'
 #' @param data A data frame, adhering to the following formatting rules:
 #' \itemize{
@@ -997,8 +1005,9 @@ estimate.cf <- function(XandW, Z, Zbin, gammaest = NULL) {
 #' @param eps Value that will be added to the diagonal of the covariance matrix
 #' during estimation in order to ensure strictly positive variances.
 #'
-#' @import matrixcalc nloptr stringr numDeriv pbivnorm mvtnorm
+#' @import matrixcalc nloptr stringr numDeriv pbivnorm mvtnorm stats
 #' @importFrom OpenMx omxMnor
+#' @importFrom MASS mvrnorm
 #'
 #' @return A list of parameter estimates in the second stage of the estimation
 #' algorithm (hence omitting the estimates for the control function), as well
@@ -1027,12 +1036,18 @@ estimate.cf <- function(XandW, Z, Zbin, gammaest = NULL) {
 #' realV <- z - (cbind(x0, x1, x2, w) %*% gamma)
 #'
 #' # Generate event times
-#' err <- mvrnorm(n, mu = c(0, 0), Sigma =
+#' err <- MASS::mvrnorm(n, mu = c(0, 0), Sigma =
 #' matrix(c(3, 1, 1, 2), nrow = 2, byrow = TRUE))
 #' bn <- cbind(x0, x1, x2, z, realV) %*% cbind(eta1, eta2) + err
 #' Lambda_T1 <- bn[,1]; Lambda_T2 <- bn[,2]
-#' T1 <- IYJtrans(Lambda_T1, theta[1]); T2 <- IYJtrans(Lambda_T2, theta[2])
-#'
+#' x.ind = (Lambda_T1>0)
+#' y.ind <- (Lambda_T2>0)
+#' T1 <- rep(0,length(Lambda_T1))
+#' T2 <- rep(0,length(Lambda_T2))
+#' T1[x.ind] = ((theta[1]*Lambda_T1[x.ind]+1)^(1/theta[1])-1)
+#' T1[!x.ind] = 1-(1-(2-theta[1])*Lambda_T1[!x.ind])^(1/(2-theta[1]))
+#' T2[y.ind] = ((theta[2]*Lambda_T2[y.ind]+1)^(1/theta[2])-1)
+#' T2[!y.ind] = 1-(1-(2-theta[2])*Lambda_T2[!y.ind])^(1/(2-theta[2]))
 #' # Generate adminstrative censoring time
 #' C <- runif(n, 0, 40)
 #'
