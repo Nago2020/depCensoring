@@ -147,7 +147,7 @@ Bvprob = function(lx,ly,rho) { # compute bivariate prob.
 #' @param T1 Distinct observed survival time
 #' @param H Nonparametric transformation function estimate
 
-Longfun = function(Z,T1,H){
+LongNPT = function(Z,T1,H){
   n = length(Z)
   Hlong = rep(0,n)
 
@@ -467,7 +467,7 @@ SolveScore = function(theta,resData,X,W,H, eps = 1e-3){   # Estimate model param
 #' @importFrom stats pnorm  qnorm sd
 #' @importFrom survival survreg Surv
 #' @importFrom MASS mvrnorm
-#' @import pbivnorm nleqslv SemiPar.depCens
+#' @import pbivnorm nleqslv
 #'
 #' @return This function returns a fit of a semiparametric transformation model; parameter estimates, estimate of the non-parametric transformation function, bootstrap standard
 #' errors for finite-dimensional parameters, the nonparametric cumulative hazard function, etc.
@@ -618,7 +618,7 @@ boot.nonparTrans = function(init,resData,X,W,n.boot, n.iter, eps){
   )
   doParallel::registerDoParallel(cl = my.cluster)
 
-  boot = foreach(b = 1:B, .packages= c('survival', 'pbivnorm','nleqslv','MASS','mvtnorm'), .export = c("SolveH","SolveScore","Bvprob","Distance","ScoreEqn","Longfun" ,"SearchIndicate","SolveHt1")) %dopar% {
+  boot = foreach(b = 1:B, .packages= c('survival', 'pbivnorm','nleqslv','MASS','mvtnorm'), .export = c("SolveH","SolveScore","Bvprob","Distance","ScoreEqn","LongNPT" ,"SearchIndicate","SolveHt1")) %dopar% {
     samp1 = sample(length(resData$Z),replace = TRUE)
     resData_b = resData[samp1,]
     resData_b = resData_b[order(resData_b$Z),]
@@ -665,7 +665,7 @@ boot.nonparTrans = function(init,resData,X,W,n.boot, n.iter, eps){
         break;
       }
     }
-    longB = Longfun(Zb,Tb1,H)
+    longB = LongNPT(Zb,Tb1,H)
     longB[longB == -Inf] = -5
     list("beta.star" = b, "H.star" = longB)
   }
