@@ -1,5 +1,5 @@
 ## R CMD check results
 
-0 errors | 0 warnings | 0 note
+0 errors | 0 warnings | 1 note
 
-* Fixing bug issues in a fully parametric copula model.
+* Adding a new source code for copula based Cox model.
