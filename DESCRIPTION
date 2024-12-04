@@ -18,7 +18,7 @@ Description: Several statistical methods for analyzing survival data under vario
     Deresa and Van Keilegom (2024) <doi:10.1080/01621459.2022.2161387>
     and Willems et al. (2024+) <doi:10.48550/arXiv.2403.11860>.
 Imports: survival, foreach, parallel, doParallel, pbivnorm, stats, MASS, nleqslv, OpenMx, 
-    mvtnorm, rafalib, rvinecopulib, matrixcalc, nloptr, stringr, numDeriv 
+    mvtnorm, rafalib, rvinecopulib, matrixcalc, nloptr, stringr, numDeriv, copula 
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
