@@ -16,4 +16,4 @@
 
 # depCensoring 0.1.0
 
-* Initial CRAN submission.
+* Adding a cure model approach
