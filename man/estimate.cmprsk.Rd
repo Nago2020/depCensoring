@@ -12,6 +12,7 @@ estimate.cmprsk(
   Zbin = NULL,
   inst = "cf",
   realV = NULL,
+  compute.var = TRUE,
   eps = 0.001
 )
 }
@@ -62,6 +63,11 @@ for the control function. Default is \code{inst = "cf"}.}
 \item{realV}{Vector of numerics with length equal to the number of rows in
 \code{data}. Used to provide the true values of the instrumental function
 to the estimation procedure.}
+
+\item{compute.var}{Boolean value indicating whether the variance of the
+parameter estimates should be computed as well (this can be very
+computationally intensive, so may want to be disabled). Default is
+\code{estimate.var = TRUE}.}
 
 \item{eps}{Value that will be added to the diagonal of the covariance matrix
 during estimation in order to ensure strictly positive variances.}
@@ -129,9 +135,11 @@ conf <- TRUE                 # There is confounding in the data (z)
 eoi.indicator.names <- NULL  # We will not impose that T1 and T2 are independent
 Zbin <- FALSE                # The confounding variable z is not binary
 inst <- "cf"                 # Use the control function approach
+compute.var <- TRUE          # Variance of estimates should be computed.
 # Since we don't use the oracle estimator, this argument is ignored anyway
 realV <- NULL
-estimate.cmprsk(data, admin, conf, eoi.indicator.names, Zbin, inst, realV)
+estimate.cmprsk(data, admin, conf, eoi.indicator.names, Zbin, inst, realV,
+                compute.var)
 
 }
 
