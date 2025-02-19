@@ -19,7 +19,7 @@ value.}
 \item{evaluations}{Matrix containing each point that was already evaluated,
 alongside the corresponding test statistic and critical value, as its rows.}
 
-\item{Verbose}{Verbosity parameter.}
+\item{verbose}{Verbosity parameter.}
 }
 \value{
 Results of the E-step.

@@ -9,6 +9,7 @@ M_step(
   evaluations,
   theta.hash,
   fit.krige,
+  test.fun,
   c,
   par.space,
   hyperparams,
@@ -26,6 +27,9 @@ alongside the corresponding test statistic and critical value, as its rows.}
 \item{theta.hash}{Tentative best value of theta. Obtained from the E-step.}
 
 \item{fit.krige}{Kriging model obtained from the A-step.}
+
+\item{test.fun}{The test function to be inverted in order to obtain the
+identified set.}
 
 \item{c}{Projection vector.}
 

@@ -72,13 +72,14 @@ event time.
 }
 \examples{
 \donttest{
-  ## Example 1:
-
   #     - Link function: AFT link function (default setting)
   #     - Number of IF: 5 IF per continuous covariate (default setting)
   #     - Search method: Binary search
   #     - Type of IF: Cubic spline functions for continuous covariate, indicator
   #       function for discrete covariate (default setting).
+
+  # Load the 'depCensoring' package
+  library("depCensoring")
 
   # Load 'survival' package in R.
   library("survival")
@@ -99,38 +100,6 @@ event time.
 
   # Estimate the identified intervals
   pi.surv(data, idx.param.of.interest, idxs.c, t, par.space, search.method)
-
-  # Example 2:
-
-  #     - Link function: Cox link function
-  #     - Number of IF: 7 IF per continuous covariate
-  #     - Search method: EAM algorithm
-  #     - Type of IF: Cubic spline functions for continuous covariate, indicator
-  #       function for discrete covariate (default setting).
-  #     - Confidence level: 1 - 0.05/3 (e.g. for Bonferroni correction)
-
-  # Load 'survival' package in R.
-  library("survival")
-
-  # Load and preprocess data
-  data <- survival::lung
-  data[, "intercept"] <- rep(1, nrow(data))
-  data[, "status"] <- data[, "status"] - 1
-  data <- data[, c("time", "status", "intercept", "age", "sex")]
-  colnames(data) <- c("Y", "Delta", "X0", "X1", "X2")
-
-  # Settings for main estimation function
-  idx.param.of.interest <- 1                  # Interest in effect of age
-  idxs.c <- 1                                 # X1 (age) is continuous
-  t <- 200                                    # Model imposed at t = 200
-  search.method <- "EAM"                      # Use EAM algorithm
-  add.options <- list(alpha = 1 - 0.05/3,     # Specify confidence level of test
-                      n.if.per.cov = 5)       # Specify nbr. of inst. func.
-  par.space <- matrix(rep(c(-10, 10), 3), nrow = 3, byrow = TRUE)
-
-  # Estimate the identified intervals
-  pi.surv(data, idx.param.of.interest, idxs.c, t, par.space, search.method,
-          add.options)
 }
 
 

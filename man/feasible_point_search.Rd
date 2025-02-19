@@ -16,22 +16,16 @@ feasible_point_search(
 \item{test.fun}{Function that takes a parameter vector as a first argument
 and returns the test statistic, as well as the critical value.}
 
+\item{hyperparams}{List of hyperparameters.}
+
+\item{verbose}{Verbosity parameter.}
+
 \item{picturose}{Picturosity flag. If \code{TRUE}, a plot illustrating the
 workings of the algorithm will updated during runtime. Default is
 \code{picturose = FALSE}.}
 
 \item{parallel}{Flag for whether or not parallel computing should be used.
 Default is \code{parallel = FALSE}.}
-
-\item{lb.theta}{Lower bound on theta.}
-
-\item{ub.theta}{Upper bound on theta}
-
-\item{min.eval}{Minimum number of theta values at which to evaluate the test
-statistic and critical value.}
-
-\item{max.eval}{Maximum number of theta values at which to evaluate the test
-statistic and critical value.}
 }
 \value{
 Results of the initial feasible point search.

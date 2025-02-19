@@ -45,9 +45,14 @@ structure of the instrumental functions of this class. If
 \item{cov.ranges}{Matrix containing as its rows the lower and upper bounds
 for each continuous covariate. Default is \code{cov.ranges = NULL}.}
 
+\item{norm.cov.out}{Output of function that normalizes the covariates.}
+
 \item{degree}{Degree of the spline functions to be used as instrumental
 functions for the continuous covariates (if applicable). Default is
 \code{degree = 3}.}
+
+\item{...}{Arguments specified here will be ignored. Used for compatibility
+with other instrumental function classes.}
 }
 \description{
 This function defines the family of discrete/continuous

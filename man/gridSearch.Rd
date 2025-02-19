@@ -37,6 +37,9 @@ in the EAM algorithm. Requires \code{chronometer.R}. Default is
 
 \item{verbose}{Boolean value indicating whether or not to print run time
 updates to the console. Default is \code{verbose = FALSE}.}
+
+\item{picturose}{Boolean value indicating whether or not to visualize the
+identified set search. Default is \code{FALSE}.}
 }
 \value{
 List containing the evaluations of the test statistic and critical

@@ -15,7 +15,11 @@ get.mi.mat(data, beta, t, hp, inst.func.evals = NULL)
 be a vector of time points (used in estimating the model under assumed time-
 independent coefficients).}
 
-\item{i}{Index of observation}
+\item{hp}{List of hyperparameters}
+
+\item{inst.func.evals}{Matrix of instrumental function evaluations. If
+\code{NULL}, it will be computed during execution of this function. Default
+value is \code{inst.func.evals = NULL}.}
 }
 \description{
 This function obtains the moment function evaluations.

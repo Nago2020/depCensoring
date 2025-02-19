@@ -1,16 +1,15 @@
 
 #### Dependencies ####
 
-require("survival")
-require("EnvStats")
-require("splines2")
-require("copula")
-require("nloptr")
-require("SPOT")
-require("doParallel")
-require("lubridate")
-require("R6")
-
+# require("survival")
+# require("EnvStats")
+# require("splines2")
+# require("copula")
+# require("nloptr")
+# require("SPOT")
+# require("doParallel")
+# require("lubridate")
+# require("R6")
 
 #### Chronometer ####
 
@@ -638,62 +637,6 @@ check_create.dir <- function(dir.name, path = NULL) {
 }
 
 #### Low level functions: data generation function ####
-
-#' @title Compute the average censoring in a simulation design.
-#'
-#' @description This function computes the average censoring in a simulation
-#' design as defined in generateData_simMain.R. This function assumes that
-#' parameters 'beta.true', 'n', 'n.cov' and 'options' are already devined in the
-#' global environment.
-#'
-#' @param DGP The index of the DGP for for which to compute the average
-#' censoring.
-#' @param DGPset Value indicating which DGP function should be called. Default
-#' is \code{DGPset = "Main"}.
-#'
-#' @note
-#' This function is deprecated and should not be used.
-#'
-#' @noRd
-#'
-get.average.censoring <- function(DGP, DGPset = "Main") {
-
-  # NOTE: DEPRECATED
-  warning("The function 'get.average.censoring' is deprecated!")
-
-  # Make sure the code in the environment is up-to-date
-  source("lowLevelFunctions.R")
-
-  # Generate K data sets and compute the censoring percentage in each
-  K <- 250
-  cens.per.vec <- rep(0, K)
-  for (i in 1:K) {
-    if (DGPset == "Main") {
-
-      # Set correct DGP
-      options.copy <- options
-      options.copy[["DGP"]] <- DGP
-
-      # Generate data
-      data <- generateData_simMain(beta.true, n, n.cov, options.copy, H0.inv,
-                                   plot.data = i == 1)
-    } else if (DGPset == "Miss") {
-
-      # Set correct DGP
-      options.data.gen.copy <- options.data.gen
-      options.data.gen.copy[["DGP"]] <- DGP
-
-      # Generate data
-      data <- generateData_simMiss(beta.true, n, n.cov, options.data.gen.copy, H0.inv,
-                                   plot.data = i == 1)
-    }
-
-    cens.per.vec[i] <- 1 - sum(data$Delta)/nrow(data)
-  }
-
-  # Return the result
-  mean(cens.per.vec)
-}
 
 #' @title Test whether covariates lie inside {1}^d.d x [0.5, 1.5]^d.c
 #'
@@ -1806,7 +1749,7 @@ generateData_simMain <- function(beta.true, n, n.cov, options, H0.inv,
   DGP <- options[["DGP"]]
 
   # Subset the parameter vector to the first n.cov covariate effects.
-  if (class(beta.true) == "function") {
+  if (is(beta.true, "function")) {
     beta.true <- beta.true(0)[2:(n.cov + 1)]
   }
 
@@ -2155,7 +2098,7 @@ generateData_simAdd <- function(beta.true, n, n.cov, options, H0.inv,
   DGP <- options[["DGP"]]
 
   # Subset the parameter vector to the first n.cov covariate effects.
-  if (class(beta.true) == "function") {
+  if (is(beta.true, "function")) {
     beta.true <- beta.true(0)[2:(n.cov + 1)]
   }
 
@@ -2516,7 +2459,7 @@ generateData_simMiss <- function(beta.true, n, n.cov, options.data.gen, H0.inv,
   DGP <- options.data.gen[["DGP"]]
 
   # Subset the parameter vector to the first n.cov covariate effects.
-  if (class(beta.true) == "function") {
+  if (is(beta.true, "function")) {
     beta.true <- beta.true(0)[2:(n.cov + 1)]
   }
 
@@ -2562,10 +2505,6 @@ generateData_simMiss <- function(beta.true, n, n.cov, options.data.gen, H0.inv,
     lambda.c <- 0.12
     C <- (-1/lambda.c) * log(1 - runif(n))
 
-    if (test.mode) {
-      get.average.censoring(1, DGPset = "Miss")
-    }
-
   } else if (DGP %% 20 == 2) { # For AFT_ll: Pos. dep., C ~ Unif, ~25% cens.
 
     # Specify copula
@@ -2583,10 +2522,6 @@ generateData_simMiss <- function(beta.true, n, n.cov, options.data.gen, H0.inv,
     lambda.c <- 0.18
     C <- (-1/lambda.c) * log(1 - u2)
 
-    if (test.mode) {
-      get.average.censoring(2, DGPset = "Miss")
-    }
-
   } else if (DGP %% 20 == 4) { # For AFT_ll: Independence, C ~ Exp, ~65% cens.
 
     # Latent event time T
@@ -2595,10 +2530,6 @@ generateData_simMiss <- function(beta.true, n, n.cov, options.data.gen, H0.inv,
     # Latent censoring time C
     lambda.c <- 1
     C <- (-1/lambda.c) * log(1 - runif(n))
-
-    if (test.mode) {
-      get.average.censoring(4, DGPset = "Miss")
-    }
 
   } else if (DGP %% 20 == 5) { # For AFT_ll: Pos. dep., C ~ Exp, ~65% cens.
 
@@ -2616,10 +2547,6 @@ generateData_simMiss <- function(beta.true, n, n.cov, options.data.gen, H0.inv,
     # Latent censoring time C
     lambda.c <- 0.75
     C <- (-1/lambda.c) * log(1 - u2)
-
-    if (test.mode) {
-      get.average.censoring(5, DGPset = "Miss")
-    }
 
   }
 
@@ -2673,7 +2600,7 @@ generateData_simManyCov <- function(beta.true, n, n.cov, options, H0.inv,
   DGP <- options[["DGP"]]
 
   # Subset the parameter vector to the first n.cov covariate effects.
-  if (class(beta.true) == "function") {
+  if (is(beta.true, "function")) {
     beta.true <- beta.true(0)[2:(n.cov + 1)]
   }
 
@@ -3188,7 +3115,7 @@ normalize.covariates2 <- function(data = NULL, x = NULL, idxs.c = "all",
     covariate.names <- colnames(data)[cov.idxs]
 
     # Only retain names of continuous covariates
-    idxs.c <- if (class(idxs.c) == "character") {1:length(covariate.names)} else {idxs.c}
+    idxs.c <- if (is(idxs.c, "character")) {1:length(covariate.names)} else {idxs.c}
     cont.cov.names <- covariate.names[idxs.c]
 
     # Obtain matrix of continuous covariates
@@ -3611,9 +3538,12 @@ G.cd <- function(x, g.idx, data, n.if.per.cov, idxs.c, G.c, norm.func,
 #' \code{info.manycov = NULL}.
 #' @param cov.ranges Matrix containing as its rows the lower and upper bounds
 #' for each continuous covariate. Default is \code{cov.ranges = NULL}.
+#' @param norm.cov.out Output of function that normalizes the covariates.
 #' @param degree Degree of the spline functions to be used as instrumental
 #' functions for the continuous covariates (if applicable). Default is
 #' \code{degree = 3}.
+#' @param ... Arguments specified here will be ignored. Used for compatibility
+#' with other instrumental function classes.
 #'
 G.cd.mc <- function(x, g.idx, data, n.if.per.cov, idxs.c, G.c, norm.func,
                     info.manycov = NULL, cov.ranges = NULL,
@@ -3869,13 +3799,15 @@ get.cond.moment.evals <- function(data, beta, t, hp) {
 #' @description
 #' This function obtains the moment function evaluations.
 #'
-#'
-#' @param i Index of observation
 #' @param data Data frame.
 #' @param beta Vector of coefficients.
 #' @param t Time point at which to compute the moment function. Also allowed to
 #' be a vector of time points (used in estimating the model under assumed time-
 #' independent coefficients).
+#' @param hp List of hyperparameters
+#' @param inst.func.evals Matrix of instrumental function evaluations. If
+#' \code{NULL}, it will be computed during execution of this function. Default
+#' value is \code{inst.func.evals = NULL}.
 #'
 get.mi.mat <- function(data, beta, t, hp, inst.func.evals = NULL) {
 
@@ -3898,7 +3830,7 @@ get.mi.mat <- function(data, beta, t, hp, inst.func.evals = NULL) {
   # Get conditional moment evaluations at each time point
   cmfe <- NULL
   for (time.point in t) {
-    if (class(beta) == "function") {
+    if (is(beta, "function")) {
       beta.t <- beta(time.point)
     } else if (length(t) == 1) {
       beta.t <- beta
@@ -4124,7 +4056,7 @@ get.dmi.tens <- function(data, beta, t, hp, inst.func.evals = NULL) {
   # each observation.
   deriv.mom.evals.list <- list()
   for (time.point in t) {
-    if (class(beta) == "function") {
+    if (is(beta, "function")) {
       beta.t <- beta(time.point)
     } else if (length(t) == 1) {
       beta.t <- beta
@@ -4172,8 +4104,8 @@ get.dmi.tens <- function(data, beta, t, hp, inst.func.evals = NULL) {
 #' be a vector of time points (used in estimating the model under assumed time-
 #' independent coefficients).
 #' @param hp List of hyperparameters.
-#' @param dmi.mat Matrix of derivative moment function evaluations. Can be used
-#' to avoid some computation. Default is \code{mi.mat = NULL}.
+#' @param dmi.tens Tensor of derivative moment function evaluations. Can be used
+#' to avoid some computation. Default is \code{dmi.tens = NULL}.
 #'
 #' @returns A matrix containing the sample average of the partial derivatives of
 #' the moment functions. Each row corresponds to a moment function, each column
@@ -4380,7 +4312,7 @@ dD.hat <- function(data, beta, t, hp, mi.mat = NULL, m.avg = NULL,
 
   # Sample average of the derivatives of moment functions
   if (is.null(dm.avg)) {
-    dm.avg <- dm.bar(data, beta, t, hp, dmi.tens = mi.tens)
+    dm.avg <- dm.bar(data, beta, t, hp, dmi.tens = dmi.tens)
   }
 
   # Compute dD.hat
@@ -5226,6 +5158,7 @@ get.starting.values <- function(theta.hash, dir, EI.Mstep, hyperparams) {
 #' @returns Maximum of the expected imrpovement function.
 #'
 #' @import stats
+#' @importFrom utils tail
 #'
 do.optimization.Mstep <- function(start.vals, EI.Mstep, hyperparams) {
 
@@ -5330,12 +5263,8 @@ get.extra.Estep.points <- function(dir, theta.hash, maxviol.hash,
 #'
 #' @param test.fun Function that takes a parameter vector as a first argument
 #' and returns the test statistic, as well as the critical value.
-#' @param lb.theta Lower bound on theta.
-#' @param ub.theta Upper bound on theta
-#' @param min.eval Minimum number of theta values at which to evaluate the test
-#' statistic and critical value.
-#' @param max.eval Maximum number of theta values at which to evaluate the test
-#' statistic and critical value.
+#' @param hyperparams List of hyperparameters.
+#' @param verbose Verbosity parameter.
 #' @param picturose Picturosity flag. If \code{TRUE}, a plot illustrating the
 #' workings of the algorithm will updated during runtime. Default is
 #' \code{picturose = FALSE}.
@@ -5374,6 +5303,16 @@ feasible_point_search <- function(test.fun, hyperparams, verbose,
   # evaluations
   if (min.eval > max.eval) {
     stop("min.eval should be smaller than max.eval.")
+  }
+
+  # If parallel computing is selected, a cluster should be initialized
+  if (parallel) {
+    if (!("clust" %in% names(hyperparams))) {
+      stop(paste0("When parallel = TRUE, a parallel cluster should be ",
+      "initialized and added to list of hyperparameters"))
+    } else {
+      clust <- hyperparams$clust
+    }
   }
 
   #### Initial points to evaluate. If feasible point is found, return ####
@@ -5589,7 +5528,7 @@ feasible_point_search <- function(test.fun, hyperparams, verbose,
 #' \code{dir = 1}, for finding lower bounds, set \code{dir = -1}.
 #' @param evaluations Matrix containing each point that was already evaluated,
 #' alongside the corresponding test statistic and critical value, as its rows.
-#' @param Verbose Verbosity parameter.
+#' @param verbose Verbosity parameter.
 #'
 #' @returns Results of the E-step.
 #'
@@ -5652,7 +5591,7 @@ E_step <- function(thetas, test.fun, dir, evaluations, verbose) {
 #'
 #' @returns Results of the A-step.
 #'
-#' @importFrom SPOT buildKrigingDACE
+#' @importFrom SPOT buildKrigingDACE regpoly0 corrkriging
 #' @importFrom graphics abline lines
 #'
 A_step <- function(evaluations, verbose = 0) {
@@ -5707,6 +5646,8 @@ A_step <- function(evaluations, verbose = 0) {
 #' alongside the corresponding test statistic and critical value, as its rows.
 #' @param theta.hash Tentative best value of theta. Obtained from the E-step.
 #' @param fit.krige Kriging model obtained from the A-step.
+#' @param test.fun The test function to be inverted in order to obtain the
+#' identified set.
 #' @param c Projection vector.
 #' @param par.space Bounds of the parameter space.
 #' @param hyperparams Parameters used in obtaining initial values
@@ -5716,8 +5657,8 @@ A_step <- function(evaluations, verbose = 0) {
 #'
 #' @importFrom graphics abline
 #'
-M_step <- function(dir, evaluations, theta.hash, fit.krige, c, par.space,
-                   hyperparams, verbose) {
+M_step <- function(dir, evaluations, theta.hash, fit.krige, test.fun, c,
+                   par.space, hyperparams, verbose) {
 
   #### Set some useful variables ####
 
@@ -6353,6 +6294,8 @@ set.EAM.hyperparameters <- function(options) {
 #' \code{time.run.duration = FALSE}.
 #' @param verbose Boolean value indicating whether or not to print run time
 #' updates to the console. Default is \code{verbose = FALSE}.
+#' @param picturose Boolean value indicating whether or not to visualize the
+#' identified set search. Default is \code{picturose = FALSE}.
 #'
 #' @returns List containing the evaluations of the test statistic and critical
 #' values, convergence information, and run times.
@@ -6362,6 +6305,9 @@ set.EAM.hyperparameters <- function(options) {
 #'
 EAM <- function(dir, test.fun, hyperparams, evaluations = NULL,
                 time.run.duration = FALSE, verbose = 0, picturose = FALSE) {
+
+  # Extract parameter space
+  par.space <- hyperparams$par.space
 
   # If the run times should be recorded, initialize a chronometer object
   if (time.run.duration) {
@@ -6442,8 +6388,8 @@ EAM <- function(dir, test.fun, hyperparams, evaluations = NULL,
     # Find promising value(s) of theta to be checked in the next iteration of
     # this algorithm. To counter greediness of the search, also include some
     # randomly selected points.
-    M_step.out <- M_step(dir, evaluations, theta.hash, fit.krige, c, par.space,
-                         hyperparams, verbose)
+    M_step.out <- M_step(dir, evaluations, theta.hash, fit.krige, test.fun, c,
+                         par.space, hyperparams, verbose)
     opt.res <- M_step.out[["opt.res"]]
     extra.points <- M_step.out[["extra.points"]]
 
@@ -6569,6 +6515,8 @@ set.GS.hyperparameters <- function(options) {
 #' \code{time.run.duration = FALSE}.
 #' @param verbose Boolean value indicating whether or not to print run time
 #' updates to the console. Default is \code{verbose = FALSE}.
+#' @param picturose Boolean value indicating whether or not to visualize the
+#' identified set search. Default is \code{FALSE}.
 #'
 #' @returns List containing the evaluations of the test statistic and critical
 #' values, convergence information, and run times.
@@ -6693,7 +6641,7 @@ check.args.pisurv <- function(data, idx.param.of.interest, idxs.c, t, par.space,
   #### Checks for the data ####
 
   # The provided data should be given as a data frame
-  if (class(data) != "data.frame") {
+  if (!is(data, "data.frame")) {
     stop("The provided data should be given as a data frame.")
   }
 
@@ -6751,7 +6699,7 @@ check.args.pisurv <- function(data, idx.param.of.interest, idxs.c, t, par.space,
   # Check correct specification of idx.param.of.interest
   n.cov <- sum(grepl("X[[:digit:]]+$", colnames(data))) - 1
   n.param <- n.cov + 1
-  if (class(idx.param.of.interest) == "character") {
+  if (is(idx.param.of.interest, "character")) {
     if (idx.param.of.interest != "all") {
       stop("Invalid specification for idx.param.of.interest.")
     }
@@ -6779,7 +6727,7 @@ check.args.pisurv <- function(data, idx.param.of.interest, idxs.c, t, par.space,
   }
 
   # Check valid specification of time point of interest
-  if (class(t) != "numeric") {
+  if (!is(t, "numeric")) {
     stop("Time point of interest t should be numeric.")
   }
 
@@ -6803,7 +6751,7 @@ check.args.pisurv <- function(data, idx.param.of.interest, idxs.c, t, par.space,
   }
 
   # Check correct specification of search.method.
-  if (class(search.method) != "character") {
+  if (!is(search.method, "character")) {
     stop("Invalid specification of search method.")
   }
   if (!(search.method %in% c("EAM", "GS"))) {
@@ -6856,18 +6804,21 @@ check.args.pisurv <- function(data, idx.param.of.interest, idxs.c, t, par.space,
 #' coefficients, as well as corresponding convergence information of the
 #' estimation algorithm.
 #'
+#' @export
+#'
 #' @importFrom doParallel registerDoParallel
 #' @importFrom parallel detectCores makeCluster stopCluster
 #'
 #' @examples
 #' \donttest{
-#'   ## Example 1:
-#'
 #'   #     - Link function: AFT link function (default setting)
 #'   #     - Number of IF: 5 IF per continuous covariate (default setting)
 #'   #     - Search method: Binary search
 #'   #     - Type of IF: Cubic spline functions for continuous covariate, indicator
 #'   #       function for discrete covariate (default setting).
+#'
+#'   # Load the 'depCensoring' package
+#'   library("depCensoring")
 #'
 #'   # Load 'survival' package in R.
 #'   library("survival")
@@ -6888,38 +6839,6 @@ check.args.pisurv <- function(data, idx.param.of.interest, idxs.c, t, par.space,
 #'
 #'   # Estimate the identified intervals
 #'   pi.surv(data, idx.param.of.interest, idxs.c, t, par.space, search.method)
-#'
-#'   # Example 2:
-#'
-#'   #     - Link function: Cox link function
-#'   #     - Number of IF: 7 IF per continuous covariate
-#'   #     - Search method: EAM algorithm
-#'   #     - Type of IF: Cubic spline functions for continuous covariate, indicator
-#'   #       function for discrete covariate (default setting).
-#'   #     - Confidence level: 1 - 0.05/3 (e.g. for Bonferroni correction)
-#'
-#'   # Load 'survival' package in R.
-#'   library("survival")
-#'
-#'   # Load and preprocess data
-#'   data <- survival::lung
-#'   data[, "intercept"] <- rep(1, nrow(data))
-#'   data[, "status"] <- data[, "status"] - 1
-#'   data <- data[, c("time", "status", "intercept", "age", "sex")]
-#'   colnames(data) <- c("Y", "Delta", "X0", "X1", "X2")
-#'
-#'   # Settings for main estimation function
-#'   idx.param.of.interest <- 1                  # Interest in effect of age
-#'   idxs.c <- 1                                 # X1 (age) is continuous
-#'   t <- 200                                    # Model imposed at t = 200
-#'   search.method <- "EAM"                      # Use EAM algorithm
-#'   add.options <- list(alpha = 1 - 0.05/3,     # Specify confidence level of test
-#'                       n.if.per.cov = 5)       # Specify nbr. of inst. func.
-#'   par.space <- matrix(rep(c(-10, 10), 3), nrow = 3, byrow = TRUE)
-#'
-#'   # Estimate the identified intervals
-#'   pi.surv(data, idx.param.of.interest, idxs.c, t, par.space, search.method,
-#'           add.options)
 #' }
 #'
 #'
@@ -6936,13 +6855,12 @@ pi.surv <- function(data, idx.param.of.interest, idxs.c, t, par.space,
   check.args.pisurv(data, idx.param.of.interest, idxs.c, t, par.space,
                     search.method, add.options)
 
-  # If required, set-up parallel back-end. The variable 'clust' is defined
-  # globally to facilitate usage of parallel cluster throughout the
-  # implementation
+  # If required, set-up parallel back-end.
   if (parallel) {
     n.cores <- min(detectCores() - 1, 10)
-    clust <<- makeCluster(n.cores)
+    clust <- makeCluster(n.cores)
     registerDoParallel(clust)
+    add.options$clust <- clust
   }
 
   #### Set the hyperparameters of the algorithm ####
@@ -6953,7 +6871,7 @@ pi.surv <- function(data, idx.param.of.interest, idxs.c, t, par.space,
   # Transform argument 'idx.param.of.interest' to list of unit vectors with a
   # 1 placed at the respective index.
   c.to.check <- list()
-  if (class(idx.param.of.interest) == "character") {
+  if (is(idx.param.of.interest, "character")) {
     for (i in 1:(n.cov + 1)) {
       c.vec <- rep(0, n.cov + 1)
       c.vec[i] <- 1
@@ -7353,7 +7271,7 @@ set.hyperparameters <- function(data, par.space, c, search.method, options) {
   }
   ignore.empty.IF <- FALSE
   if ("ignore.empty.IF" %in% names(options)) {
-    if (class(options[["ignore.empty.IF"]]) == "logical") {
+    if (is(options[["ignore.empty.IF"]], "logical")) {
       ignore.empty.IF <- options[["ignore.empty.IF"]]
     } else {
       stop("Specified value for 'ignore.empty.IF' should be TRUE/FALSE.")
@@ -7551,6 +7469,9 @@ set.hyperparameters <- function(data, par.space, c, search.method, options) {
     # Bounds of the parameter space for theta
     "theta.lb" = par.space[which(c == 1), 1],
     "theta.ub" = par.space[which(c == 1), 2],
+
+    # Full parameter space
+    "par.space" = par.space,
 
     # Hyperparameters for computing the test statistic and critical value
     "K.bar" = K.bar,    # Number of initial values in step 4 of algorithm
@@ -7767,7 +7688,7 @@ find.identified.set <- function(c, t, par.space, data, search.method, options,
 get.file.name <- function(comb, sim.iter.nbr, seed, master.dir,
                           shortened = FALSE, defaults = NULL) {
 
-  if (class(comb)[1] == "matrix") {
+  if (is(comb, "matrix")) {
 
     # Shorten inst.func.family name, if applicable.
     if (comb[, "inst.func.family"] == "cd.manycov") {
@@ -7832,7 +7753,7 @@ get.file.name <- function(comb, sim.iter.nbr, seed, master.dir,
       file.name <- paste(components.shortened, collapse = "__")
     }
 
-  } else if (class(comb) == "list") {
+  } else if (is(comb, "list")) {
 
     # Shorten inst.func.family name, if applicable.
     if (comb[["inst.func.family"]] == "cd.manycov") {
@@ -7910,7 +7831,8 @@ get.file.name <- function(comb, sim.iter.nbr, seed, master.dir,
 #' @description This function takes a list of simulation parameters as argument
 #' and returns a matrix where each row in the matrix corresponds to a setting
 #' that should be simulated. This is especially handy if we want to work with
-#' the 'worker' module on the VSC. This function is used in 'run.simulations.R'.
+#' the 'worker' module on the VSC. This function is used in 'run.simulations.R',
+#' which is not included here.
 #'
 #' @param sim.params List of simulation paramerers.
 #' @param for.VSC Boolean value indicating whether the matrix returned by
@@ -8173,7 +8095,8 @@ get.simulation.variable.matrix <- function(sim.params, for.VSC = FALSE,
 
 #' @title Run a simulation for a specific set of variables
 #'
-#' @description This function is used in 'run.simulations.R'
+#' @description This function is used in 'run.simulations.R', which is not
+#' included here.
 #'
 #' @param comb Data frame of one single row containing the parameter settings to
 #' be used in the simulation.
@@ -8187,6 +8110,8 @@ get.simulation.variable.matrix <- function(sim.params, for.VSC = FALSE,
 #' @param master.dir Name of the directory in which the simulation results
 #' should be stored.
 #' @param verbose Verbosity parameter.
+#'
+#' @importFrom utils write.csv
 #'
 #' @note [ToDo] Also allow for simulation using other link functions
 #'
@@ -8334,77 +8259,6 @@ simulate1D <- function(comb, beta.true, idx.param.of.interest, par.space,
   # Return the number of simulations ran (used in updating the initial seed for
   # the next simulation)
   n.sim
-}
-
-#' @title Run simulation for all combinations of given parameters.
-#'
-#' @description This function runs the specified simulations.
-#'
-#' @param sim.params List of parameters to be used in the simulation. For each
-#' parameter, a vector of values can be provided. The function will run the
-#' simulation for each combination of values for the parameters that can be
-#' created.
-#' @param verbose Integer value indicating the degree to which the function
-#' should present run time updates to the user.
-#'
-#' @importFrom foreach foreach
-#'
-#' @noRd
-#'
-run.simulations <- function(sim.params, verbose) {
-
-  #### Obtain matrix for variables of the simulation ####
-
-  combinations <- get.simulation.variable.matrix(sim.params)
-
-  # Update the user
-  if (verbose >= 1) {
-    message("\n \n")
-    message(sprintf("--- Starting simulation over the %d combinations ---",
-                    nrow(combinations)))
-    message("\n \n")
-  }
-
-  #### Run the simulations ####
-
-  # Initialize some variables
-  iseed <- sim.params[["iseed"]]
-  seed.to.use <- iseed
-
-  # Run the simulations
-  foreach(row.idx = 1:nrow(combinations)) %dopar% {
-
-    # Load dependencies
-    source("simulationFunctions.R")
-
-    # Update the user
-    if (verbose >= 1) {
-      message(sprintf("Simulation configuration %d / %d", row.idx,
-                      nrow(combinations)))
-    }
-
-    # Increment the seed to be used
-    if (row.idx > 1) {
-      seed.to.use <- iseed + sum(combinations[1:(row.idx - 1), "n.sim"])
-    }
-
-    # Get the parameter values corresponding to this iteration
-    comb <- combinations[row.idx, ]
-
-    # Get true values for coefficients, alongside their parameter space
-    beta.true <- sim.params[["beta.true"]]
-    par.space <- sim.params[["par.space"]]
-
-    # Get index of the parameter of interest
-    idx.param.of.interest <- sim.params[["idx.param.of.interest"]]
-
-    # Get name of master directory
-    master.dir <- sim.params[["master.dir"]]
-
-    # Run the simulation.
-    simulate1D(comb, beta.true, idx.param.of.interest, par.space, iseed,
-               master.dir, verbose)
-  }
 }
 
 #' @title Estimate an identified model assuming independence.

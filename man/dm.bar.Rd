@@ -19,8 +19,8 @@ independent coefficients).}
 
 \item{hp}{List of hyperparameters.}
 
-\item{dmi.mat}{Matrix of derivative moment function evaluations. Can be used
-to avoid some computation. Default is \code{mi.mat = NULL}.}
+\item{dmi.tens}{Tensor of derivative moment function evaluations. Can be used
+to avoid some computation. Default is \code{dmi.tens = NULL}.}
 }
 \value{
 A matrix containing the sample average of the partial derivatives of
