@@ -1,3 +1,7 @@
+# depCensoring 0.1.5
+
+# depCensoring 0.1.4
+
 # depCensoring 0.1.3
 
 * Adding a co-author
@@ -12,4 +16,4 @@
 
 # depCensoring 0.1.0
 
-* Initial CRAN submission.
+* Adding a cure model approach
