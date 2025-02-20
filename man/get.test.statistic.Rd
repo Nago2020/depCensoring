@@ -3,7 +3,7 @@
 \name{get.test.statistic}
 \alias{get.test.statistic}
 \title{Obtain the test statistic by minimizing the S-function over the
-feasible region \eqn{\Beta(r)}.}
+feasible region \eqn{\beta(r)}.}
 \usage{
 get.test.statistic(
   beta.init,
@@ -44,5 +44,5 @@ at which this value was attained.
 }
 \description{
 Obtain the test statistic by minimizing the S-function over the
-feasible region \eqn{\Beta(r)}.
+feasible region \eqn{\beta(r)}.
 }

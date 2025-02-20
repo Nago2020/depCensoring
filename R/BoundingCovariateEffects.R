@@ -311,7 +311,7 @@ test.point_Bei <- function(r, c, t, par.space, data, hp, verbose = FALSE,
     # Reduce it to only the unique parameter vectors
     t.stat.evals <- t.stat.evals[which.unique(t.stat.evals[, 1:n.param]), , drop = FALSE]
 
-    # Compute \hat{\Beta}_I(r)
+    # Compute \hat{\beta}_I(r)
     t.stat.evals <- t.stat.evals[which(t.stat.evals[, n.param + 1] <= Jnrh + delta.n), , drop = FALSE]
   }
 
@@ -498,7 +498,7 @@ test.point_Bei_MT <- function(r, c, t, par.space, data, hp, verbose = FALSE,
     # Reduce it to only the unique parameter vectors
     t.stat.evals <- t.stat.evals[which.unique(t.stat.evals[, 1:n.param]), , drop = FALSE]
 
-    # Compute \hat{\Beta}_I(r)
+    # Compute \hat{\beta}_I(r)
     t.stat.evals <- t.stat.evals[which(t.stat.evals[, n.param + 1] <= Jnrh + delta.n), , drop = FALSE]
   }
 
@@ -4489,7 +4489,7 @@ lf.ts <- function(beta.sub, data, t, hp, c, r, inst.func.evals = NULL) {
 }
 
 #' @title Obtain the test statistic by minimizing the S-function over the
-#' feasible region \eqn{\Beta(r)}.
+#' feasible region \eqn{\beta(r)}.
 #'
 #' @param beta.init Starting value of minimization algorithm.
 #' @param data Data frame.
@@ -5591,10 +5591,23 @@ E_step <- function(thetas, test.fun, dir, evaluations, verbose) {
 #'
 #' @returns Results of the A-step.
 #'
-#' @importFrom SPOT buildKrigingDACE regpoly0 corrkriging
 #' @importFrom graphics abline lines
+#' @importFrom utils install.packages
+#' @seealso Package \pkg{SPOT} on \url{https://CRAN.R-project.org/package=SPOT}.
 #'
 A_step <- function(evaluations, verbose = 0) {
+
+  # Make sure package SPOT is installed and loaded
+  while (!requireNamespace("SPOT", quietly = TRUE)) {
+    ans <- readline("Package SPOT is required for EAM algorithm but not available. Would you like to install it? (Y/N)")
+    if (regexpr(ans, 'y', ignore.case = TRUE) == 1) {
+      install.packages("SPOT")
+    } else if (regexpr(ans, 'n', ignore.case = TRUE) == 1) {
+      stop("Unable to run EAM algorithm. Please specify a different root finding algorithm.")
+    } else {
+      message("Invalid answer. Please only answer with 'y' (yes) or 'n' (no). Returning to original input line...")
+    }
+  }
 
   # Matrix of theta values
   theta.mat <- matrix(evaluations[, "theta"], nrow = nrow(evaluations))
@@ -5608,10 +5621,10 @@ A_step <- function(evaluations, verbose = 0) {
   violations.vct <- evaluations[idxs.unique, "t.stat"] - evaluations[idxs.unique, "crit.val"]
 
   # Control parameters
-  control = list(regr = regpoly0, corr = corrkriging, target = c("y", "s"))
+  control = list(regr = SPOT::regpoly0, corr = SPOT::corrkriging, target = c("y", "s"))
 
   # Fit the Kriging model
-  fit.krige <- buildKrigingDACE(theta.mat, violations.vct, control = control)
+  fit.krige <- SPOT::buildKrigingDACE(theta.mat, violations.vct, control = control)
 
   # If asked, plot the Kriging model
   if (verbose >= 3) {

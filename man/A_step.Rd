@@ -20,3 +20,6 @@ This function performs the approximation step in the EAM
 algorithm. More specifically, it fits a Gaussian-process regression model
 (Kriging) to the evaluated data points \eqn{(\theta, c(\theta))}.
 }
+\seealso{
+Package \pkg{SPOT} on \url{https://CRAN.R-project.org/package=SPOT}.
+}
