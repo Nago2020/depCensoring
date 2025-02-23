@@ -1,4 +1,4 @@
-# depCensoring 0.1.6
+# depCensoring 0.1.7
 
 * Added partially identified model methodology.
 
