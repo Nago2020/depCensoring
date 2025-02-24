@@ -1,3 +1,7 @@
+# depCensoring 0.1.7
+
+* Added partially identified model methodology.
+
 # depCensoring 0.1.5
 
 # depCensoring 0.1.4
@@ -15,5 +19,3 @@
 * Increment version number to 0.1.1
 
 # depCensoring 0.1.0
-
-* Adding a cure model approach
