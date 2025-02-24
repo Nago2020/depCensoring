@@ -9,13 +9,13 @@ set.GS.hyperparameters(options)
 \arguments{
 \item{options}{A list of user-specified values for (some of) the
 hyperparameters. These hyperparameters could include:
-\itemize{
- \item{'min.eval'/'max.eval'}{Minimum and maximum number of evaluations.}
- \item{'next.gs.point'}{Function that determines the next point in the grid
+\describe{
+ \item{min.eval/max.eval:}{Minimum and maximum number of evaluations.}
+ \item{next.gs.point'}{Function that determines the next point in the grid
  search sequence.}
- \item{'step.size'}{Step size of the grid.}
- \item{'bin.search.tol'}{Binary search tolerance.}
- \item{'max.iter'}{Maximum number of iterations that the algorithm can run.}
+ \item{step.size:}{Step size of the grid.}
+ \item{bin.search.tol:}{Binary search tolerance.}
+ \item{max.iter:}{Maximum number of iterations that the algorithm can run.}
 }}
 }
 \value{

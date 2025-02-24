@@ -9,29 +9,29 @@ set.EAM.hyperparameters(options)
 \arguments{
 \item{options}{A list of user-specified values for (some of) the
 hyperparameters. These hyperparameters can include:
-\itemize{
- \item{'min.dist'/'max.dist'}{The minimum/maximum distance of sampled points
+\describe{
+ \item{min.dist/max.dist:}{The minimum/maximum distance of sampled points
  from the current best value for the coefficient of interest.}
- \item{'min.eval'/'max.eval'}{The minimum/maximum number of points evaluated
+ \item{min.eval/max.eval:}{The minimum/maximum number of points evaluated
  in the initial feasible point search.}
- \item{'nbr.init.sample.points'}{The total number of drawn points required in
+ \item{nbr.init.sample.points:}{The total number of drawn points required in
  the initial drawing process.}
- \item{'nbr.init.unif'}{The total number of uniformly drawn points in the
+ \item{nbr.init.unif:}{The total number of uniformly drawn points in the
  initial set of starting values.}
- \item{'nbr.points.per.iter.init'}{Number of points sampled per iteration in
+ \item{nbr.points.per.iter.init:}{Number of points sampled per iteration in
  the initial drawing process.}
- \item{'nbr.start.vals'}{Number of starting values for which to run the
+ \item{nbr.start.vals:}{Number of starting values for which to run the
  optimization algorithm for the expected improvement.}
- \item{'nbr.opt.EI'}{Number of optimal theta values found by the optimization
+ \item{nbr.opt.EI:}{Number of optimal theta values found by the optimization
  algorithm to return.}
- \item{'nbr.extra'}{Number of extra randomly drawn points to add to the set
+ \item{nbr.extra:}{Number of extra randomly drawn points to add to the set
  of optimal theta values (to be supplied to the next E-step).}
- \item{'min.improvement'}{Minimum amount that the current best root of the
+ \item{min.improvement:}{Minimum amount that the current best root of the
  violation curve should improve by wrt. the its previous value.}
- \item{'min.possible.improvement'}{Minimum amount that the next iteration
+ \item{min.possible.improvement:}{Minimum amount that the next iteration
  should be able to improve upon the current best value of the root.}
- \item{'EAM.min.iter'}{Minimum amount of EAM iterations to run.}
- \item{'max.iter'}{Maximum amount of EAM iterations to run.}
+ \item{EAM.min.iter:}{Minimum amount of EAM iterations to run.}
+ \item{max.iter:}{Maximum amount of EAM iterations to run.}
 }}
 }
 \value{

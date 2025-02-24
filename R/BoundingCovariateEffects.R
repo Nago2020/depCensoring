@@ -798,8 +798,8 @@ inRegion6 <- function (X, type.cov) {
 #' @param n Sample size.
 #' @param n.cov Number of covariates.
 #' @param options List of additional arguments.
-#' @param plot.data Boolean value indicating whether or not to plot the
-#' generated data set. Default value is \code{plot.data = FALSE}.
+#' @param plot_data Boolean value indicating whether or not to plot the
+#' generated data set. Default value is \code{plot_data = FALSE}.
 #'
 #' @import stats
 #' @importFrom graphics hist
@@ -807,7 +807,7 @@ inRegion6 <- function (X, type.cov) {
 #'
 #' @noRd
 #'
-generateData <- function(beta.true, n, n.cov, options, plot.data = FALSE) {
+generateData <- function(beta.true, n, n.cov, options, plot_data = FALSE) {
 
   # Extract the necessary hyperparameters
   if (options[["link.function"]] == "AFT_ll") {
@@ -1226,7 +1226,7 @@ generateData <- function(beta.true, n, n.cov, options, plot.data = FALSE) {
   colnames(data) <- c("Y", "Delta", colnames(X))
 
   # Histogram of the observed times
-  if (plot.data) {
+  if (plot_data) {
     print(sprintf("Percentage of censored observations: %.2f%%",
                   100*(1 - sum(data$Delta)/n)))
     hist(Y)
@@ -1246,8 +1246,8 @@ generateData <- function(beta.true, n, n.cov, options, plot.data = FALSE) {
 #' @param n Sample size.
 #' @param n.cov Number of covariates.
 #' @param options List of additional arguments.
-#' @param plot.data Boolean value indicating whether or not to plot the
-#' generated data set. Default value is \code{plot.data = FALSE}.
+#' @param plot_data Boolean value indicating whether or not to plot the
+#' generated data set. Default value is \code{plot_data = FALSE}.
 #'
 #' @import stats
 #' @importFrom graphics hist
@@ -1255,7 +1255,7 @@ generateData <- function(beta.true, n, n.cov, options, plot.data = FALSE) {
 #'
 #' @noRd
 #'
-generateData_add <- function(beta.true, n, n.cov, options, plot.data = FALSE) {
+generateData_add <- function(beta.true, n, n.cov, options, plot_data = FALSE) {
 
   # Extract the necessary hyperparameters
   if (options[["link.function"]] == "AFT_ll") {
@@ -1708,7 +1708,7 @@ generateData_add <- function(beta.true, n, n.cov, options, plot.data = FALSE) {
   colnames(data) <- c("Y", "Delta", colnames(X))
 
   # Histogram of the observed times
-  if (plot.data) {
+  if (plot_data) {
     print(sprintf("Percentage of censored observations: %.2f%%",
                   100*(1 - sum(data$Delta)/n)))
     hist(Y)
@@ -1728,8 +1728,8 @@ generateData_add <- function(beta.true, n, n.cov, options, plot.data = FALSE) {
 #' @param n.cov Number of covariates.
 #' @param options List of additional arguments.
 #' @param H0.inv Inverse of the intercept (function of time).
-#' @param plot.data Boolean value indicating whether or not to plot the
-#' generated data set. Default value is \code{plot.data = FALSE}.
+#' @param plot_data Boolean value indicating whether or not to plot the
+#' generated data set. Default value is \code{plot_data = FALSE}.
 #'
 #' @import stats
 #' @importFrom graphics hist
@@ -1738,7 +1738,7 @@ generateData_add <- function(beta.true, n, n.cov, options, plot.data = FALSE) {
 #' @noRd
 #'
 generateData_simMain <- function(beta.true, n, n.cov, options, H0.inv,
-                                 plot.data = FALSE) {
+                                 plot_data = FALSE) {
 
   # Extract the necessary hyperparameters
   if (options[["link.function"]] == "AFT_ll") {
@@ -2055,7 +2055,7 @@ generateData_simMain <- function(beta.true, n, n.cov, options, H0.inv,
   colnames(data) <- c("Y", "Delta", colnames(X))
 
   # Histogram of the observed times
-  if (plot.data) {
+  if (plot_data) {
     print(sprintf("Percentage of censored observations: %.2f%%",
                   100*(1 - sum(data$Delta)/n)))
     hist(Y)
@@ -2077,8 +2077,8 @@ generateData_simMain <- function(beta.true, n, n.cov, options, H0.inv,
 #' @param n.cov Number of covariates.
 #' @param options List of additional arguments.
 #' @param H0.inv Inverse of the intercept (function of time).
-#' @param plot.data Boolean value indicating whether or not to plot the
-#' generated data set. Default value is \code{plot.data = FALSE}.
+#' @param plot_data Boolean value indicating whether or not to plot the
+#' generated data set. Default value is \code{plot_data = FALSE}.
 #'
 #' @import stats
 #' @importFrom graphics hist
@@ -2087,7 +2087,7 @@ generateData_simMain <- function(beta.true, n, n.cov, options, H0.inv,
 #' @noRd
 #'
 generateData_simAdd <- function(beta.true, n, n.cov, options, H0.inv,
-                                plot.data = FALSE) {
+                                plot_data = FALSE) {
 
   # Extract the necessary hyperparameters
   if (options[["link.function"]] == "AFT_ll") {
@@ -2411,7 +2411,7 @@ generateData_simAdd <- function(beta.true, n, n.cov, options, H0.inv,
   colnames(data) <- c("Y", "Delta", colnames(X))
 
   # Histogram of the observed times
-  if (plot.data) {
+  if (plot_data) {
     print(sprintf("Percentage of censored observations: %.2f%%",
                   100*(1 - sum(data$Delta)/n)))
     hist(Y)
@@ -2433,8 +2433,8 @@ generateData_simAdd <- function(beta.true, n, n.cov, options, H0.inv,
 #' @param n.cov Number of covariates.
 #' @param options.data.gen List of additional arguments.
 #' @param H0.inv Inverse of the intercept (function of time).
-#' @param plot.data Boolean value indicating whether or not to plot the
-#' generated data set. Default value is \code{plot.data = FALSE}.
+#' @param plot_data Boolean value indicating whether or not to plot the
+#' generated data set. Default value is \code{plot_data = FALSE}.
 #'
 #' @import stats
 #' @importFrom graphics hist
@@ -2443,7 +2443,7 @@ generateData_simAdd <- function(beta.true, n, n.cov, options, H0.inv,
 #' @noRd
 #'
 generateData_simMiss <- function(beta.true, n, n.cov, options.data.gen, H0.inv,
-                                 plot.data = FALSE) {
+                                 plot_data = FALSE) {
 
   # Parameter used for development of this function. Set to TRUE MANUALLY if
   # desired.
@@ -2559,7 +2559,7 @@ generateData_simMiss <- function(beta.true, n, n.cov, options.data.gen, H0.inv,
   colnames(data) <- c("Y", "Delta", colnames(X))
 
   # Histogram of the observed times
-  if (plot.data) {
+  if (plot_data) {
     print(sprintf("Percentage of censored observations: %.2f%%",
                   100*(1 - sum(data$Delta)/n)))
     hist(Y)
@@ -2579,8 +2579,8 @@ generateData_simMiss <- function(beta.true, n, n.cov, options.data.gen, H0.inv,
 #' @param n.cov Number of covariates.
 #' @param options List of additional arguments.
 #' @param H0.inv Inverse of the intercept (function of time).
-#' @param plot.data Boolean value indicating whether or not to plot the
-#' generated data set. Default value is \code{plot.data = FALSE}.
+#' @param plot_data Boolean value indicating whether or not to plot the
+#' generated data set. Default value is \code{plot_data = FALSE}.
 #'
 #' @import stats
 #' @importFrom graphics hist
@@ -2589,7 +2589,7 @@ generateData_simMiss <- function(beta.true, n, n.cov, options.data.gen, H0.inv,
 #' @noRd
 #'
 generateData_simManyCov <- function(beta.true, n, n.cov, options, H0.inv,
-                                    plot.data = FALSE) {
+                                    plot_data = FALSE) {
 
   # Extract the necessary hyperparameters
   if (options[["link.function"]] == "AFT_ll") {
@@ -2820,7 +2820,7 @@ generateData_simManyCov <- function(beta.true, n, n.cov, options, H0.inv,
   colnames(data) <- c("Y", "Delta", colnames(X))
 
   # Histogram of the observed times
-  if (plot.data) {
+  if (plot_data) {
     print(sprintf("Percentage of censored observations: %.2f%%",
                   100*(1 - sum(data$Delta)/n)))
     hist(Y)
@@ -5322,7 +5322,7 @@ feasible_point_search <- function(test.fun, hyperparams, verbose,
 
   # If plot of estimation procedure should be drawn, do so
   if (picturose) {
-    plot.addpte(pte, col = "white")
+    plot_addpte(pte, col = "white")
   }
 
   # Initialize object that will store the test statistics and critical value for
@@ -5349,7 +5349,7 @@ feasible_point_search <- function(test.fun, hyperparams, verbose,
 
       # If required, add points to plot
       if (picturose) {
-        plot.addpte(pte[i.start:i.end])
+        plot_addpte(pte[i.start:i.end])
       }
 
       # Evaluate batch of points.
@@ -5374,7 +5374,7 @@ feasible_point_search <- function(test.fun, hyperparams, verbose,
 
       # If required, add points to plot
       if (picturose) {
-        plot.addpte.eval(evaluations[i.start:i.end, , drop = FALSE])
+        plot_addpte.eval(evaluations[i.start:i.end, , drop = FALSE])
       }
     }
 
@@ -5390,7 +5390,7 @@ feasible_point_search <- function(test.fun, hyperparams, verbose,
 
       # If necessary, plot it
       if (picturose) {
-        plot.addpte(theta)
+        plot_addpte(theta)
       }
 
       # Run the test
@@ -5401,7 +5401,7 @@ feasible_point_search <- function(test.fun, hyperparams, verbose,
 
       # If plot of estimation procedure should be drawn, do so.
       if (picturose) {
-        plot.addpte.eval(evaluations[i, , drop = FALSE])
+        plot_addpte.eval(evaluations[i, , drop = FALSE])
       }
     }
   }
@@ -5484,7 +5484,7 @@ feasible_point_search <- function(test.fun, hyperparams, verbose,
         message(sprintf("Checking additional points (%s / %s)", eval.nbr, max.eval))
       }
       if (picturose) {
-        plot.addpte(theta.next)
+        plot_addpte(theta.next)
       }
 
       # Run the test for this point
@@ -5505,7 +5505,7 @@ feasible_point_search <- function(test.fun, hyperparams, verbose,
 
       # Update plot
       if (picturose) {
-        plot.addpte.eval(evaluations[nrow(evaluations), , drop = FALSE])
+        plot_addpte.eval(evaluations[nrow(evaluations), , drop = FALSE])
       }
     }
 
@@ -6191,29 +6191,29 @@ gs.interpolation <- function(evaluations, dir, iter.nbr, hp) {
 #'
 #' @param options A list of user-specified values for (some of) the
 #' hyperparameters. These hyperparameters can include:
-#' \itemize{
-#'  \item{'min.dist'/'max.dist'}{The minimum/maximum distance of sampled points
+#' \describe{
+#'  \item{min.dist/max.dist:}{The minimum/maximum distance of sampled points
 #'  from the current best value for the coefficient of interest.}
-#'  \item{'min.eval'/'max.eval'}{The minimum/maximum number of points evaluated
+#'  \item{min.eval/max.eval:}{The minimum/maximum number of points evaluated
 #'  in the initial feasible point search.}
-#'  \item{'nbr.init.sample.points'}{The total number of drawn points required in
+#'  \item{nbr.init.sample.points:}{The total number of drawn points required in
 #'  the initial drawing process.}
-#'  \item{'nbr.init.unif'}{The total number of uniformly drawn points in the
+#'  \item{nbr.init.unif:}{The total number of uniformly drawn points in the
 #'  initial set of starting values.}
-#'  \item{'nbr.points.per.iter.init'}{Number of points sampled per iteration in
+#'  \item{nbr.points.per.iter.init:}{Number of points sampled per iteration in
 #'  the initial drawing process.}
-#'  \item{'nbr.start.vals'}{Number of starting values for which to run the
+#'  \item{nbr.start.vals:}{Number of starting values for which to run the
 #'  optimization algorithm for the expected improvement.}
-#'  \item{'nbr.opt.EI'}{Number of optimal theta values found by the optimization
+#'  \item{nbr.opt.EI:}{Number of optimal theta values found by the optimization
 #'  algorithm to return.}
-#'  \item{'nbr.extra'}{Number of extra randomly drawn points to add to the set
+#'  \item{nbr.extra:}{Number of extra randomly drawn points to add to the set
 #'  of optimal theta values (to be supplied to the next E-step).}
-#'  \item{'min.improvement'}{Minimum amount that the current best root of the
+#'  \item{min.improvement:}{Minimum amount that the current best root of the
 #'  violation curve should improve by wrt. the its previous value.}
-#'  \item{'min.possible.improvement'}{Minimum amount that the next iteration
+#'  \item{min.possible.improvement:}{Minimum amount that the next iteration
 #'  should be able to improve upon the current best value of the root.}
-#'  \item{'EAM.min.iter'}{Minimum amount of EAM iterations to run.}
-#'  \item{'max.iter'}{Maximum amount of EAM iterations to run.}
+#'  \item{EAM.min.iter:}{Minimum amount of EAM iterations to run.}
+#'  \item{max.iter:}{Maximum amount of EAM iterations to run.}
 #' }
 #'
 #' @returns List of hyperparameters for the EAM algotithm.
@@ -6457,13 +6457,13 @@ EAM <- function(dir, test.fun, hyperparams, evaluations = NULL,
 #'
 #' @param options A list of user-specified values for (some of) the
 #' hyperparameters. These hyperparameters could include:
-#' \itemize{
-#'  \item{'min.eval'/'max.eval'}{Minimum and maximum number of evaluations.}
-#'  \item{'next.gs.point'}{Function that determines the next point in the grid
+#' \describe{
+#'  \item{min.eval/max.eval:}{Minimum and maximum number of evaluations.}
+#'  \item{next.gs.point:}{Function that determines the next point in the grid
 #'  search sequence.}
-#'  \item{'step.size'}{Step size of the grid.}
-#'  \item{'bin.search.tol'}{Binary search tolerance.}
-#'  \item{'max.iter'}{Maximum number of iterations that the algorithm can run.}
+#'  \item{step.size:}{Step size of the grid.}
+#'  \item{bin.search.tol:}{Binary search tolerance.}
+#'  \item{max.iter:}{Maximum number of iterations that the algorithm can run.}
 #' }
 #'
 #' @returns List of hyperparameters for the gridsearch and binary search
@@ -6590,7 +6590,7 @@ gridSearch <- function(dir, test.fun, hyperparams, evaluations = NULL,
         message(sprintf("Iteration %s. Testing for r = %.3f", iter.nbr, r))
       }
       if (picturose) {
-        plot.addpte(r)
+        plot_addpte(r)
       }
 
       # Perform the test
@@ -6606,7 +6606,7 @@ gridSearch <- function(dir, test.fun, hyperparams, evaluations = NULL,
 
       # Update plot
       if (picturose) {
-        plot.addpte.eval(evaluations[nrow(evaluations), , drop = FALSE])
+        plot_addpte.eval(evaluations[nrow(evaluations), , drop = FALSE])
       }
 
     } else if (!stop) {
@@ -7139,7 +7139,7 @@ clear.plt.wdw <- function() {
 #' @param c Projection vector
 #' @param hp List of hyperparameters
 #'
-plot.base <- function(c, hp) {
+plot_base <- function(c, hp) {
 
   # Clear plotting window
   clear.plt.wdw()
@@ -7161,7 +7161,7 @@ plot.base <- function(c, hp) {
 #'
 #' @importFrom graphics points
 #'
-plot.addpte <- function(pte, col = "orange") {
+plot_addpte <- function(pte, col = "orange") {
   points(x = pte, y = rep(0, length(pte)), pch = 16, col = col)
   points(x = pte, y = rep(0, length(pte)), pch = 1, col = "black")
 }
@@ -7175,7 +7175,7 @@ plot.addpte <- function(pte, col = "orange") {
 #'
 #' @importFrom graphics points
 #'
-plot.addpte.eval <- function(evaluations) {
+plot_addpte.eval <- function(evaluations) {
   feas <- evaluations[, 2] <= evaluations[, 3]
   col <- ifelse(feas, "green", "red")
   points(x = evaluations[, 1], y = rep(0, nrow(evaluations)), col = col, pch = 16)
@@ -7200,31 +7200,31 @@ plot.addpte.eval <- function(evaluations) {
 #' @param search.method Search method to use (\code{"EAM"} or \code{"GS"})
 #' @param options List of user specified hyperparameters that will substitute
 #' the corresponding default values. This list can contain the entries:
-#' \itemize{
-#'  \item{'cov.ranges'}{known bounds on each of the covariates in the data set.}
-#'  \item{'norm.func.name'}{Name of the normalization function to be used. Can
+#' \describe{
+#'  \item{cov.ranges:}{known bounds on each of the covariates in the data set.}
+#'  \item{norm.func.name:}{Name of the normalization function to be used. Can
 #'  be either "normalize.covariates1" or "normalize.covariates2" (default).
 #'  The former is a simple elementwise rescaling. The latter uses the PCA
 #'  approach as discussed in Willems et al. (2024+).}
-#'  \item{'inst.func.family'}{Family of instrumental functions to be used for
+#'  \item{inst.func.family:}{Family of instrumental functions to be used for
 #'  all covariates. Options are "box", "spline" and "cd". The former two are
 #'  only applicable for continuous covariates. The latter can also handle
 #'  discrete covariates. Default is "cd".}
-#'  \item{'G.c'}{The class of instrumental functions used for the continuous
+#'  \item{G.c:}{The class of instrumental functions used for the continuous
 #'  covariates in the model, in case "cd" is selected as
-#'  \code{inst.func.family}. Options are "box" and "spline". Default is
+#'  \code{inst.func.family:}. Options are "box" and "spline". Default is
 #'  "spline".}
-#'  \item{'degree'}{The degree of the B-spline functions, should they be used as
+#'  \item{degree:}{The degree of the B-spline functions, should they be used as
 #'  instrumental functions for the continuous covariates. Default is 3.}
-#'  \item{'link.function'}{Name of the link function to be used. Options are
+#'  \item{link.function:}{Name of the link function to be used. Options are
 #'  "AFT_ll" for the AFT model with log-logistic baseline, or "Cox_wb" for the
 #'  Cox PH model (originally with Weibull baseline, but now for a general)
 #'  baseline hazard).}
-#'  \item{'K.bar'}{Number of refinement steps when obtaining the critical value.
+#'  \item{K.bar:}{Number of refinement steps when obtaining the critical value.
 #'  See Bei (2024).}
-#'  \item{'B'}{Number of bootstrap samples to be used when obtaining the
+#'  \item{B:}{Number of bootstrap samples to be used when obtaining the
 #'  bootstrap distribution of the test statistic.}
-#'  \item{'ignore.empty.IF'}{Boolean value indicating whether instrumental
+#'  \item{ignore.empty.IF:}{Boolean value indicating whether instrumental
 #'  functions with empty support should be ignored (cf. Willems et al., 2024).
 #'  Default is FALSE. The feature \code{ignore.empty.IF = TRUE} is experimental,
 #'  so there might exist edge cases for which the implementation will fail to
@@ -7630,7 +7630,7 @@ find.identified.set <- function(c, t, par.space, data, search.method, options,
     message("  Starting search for initial feasible points...")
   }
   if (picturose) {
-    plot.base(c, hp)
+    plot_base(c, hp)
   }
 
   # Pre-search for feasible points
@@ -8228,7 +8228,7 @@ simulate1D <- function(comb, beta.true, idx.param.of.interest, par.space,
     set.seed(seed.to.use)
 
     # Generate data
-    data <- generateData(beta.true, n, n.cov, options, plot.data = (verbose >= 3))
+    data <- generateData(beta.true, n, n.cov, options, plot_data = (verbose >= 3))
 
     # Find the identified set based on Bei (2024)
     fis.out <- find.identified.set(c, t.eval, par.space, data, search.method,
