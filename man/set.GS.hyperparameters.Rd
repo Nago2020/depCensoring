@@ -11,7 +11,7 @@ set.GS.hyperparameters(options)
 hyperparameters. These hyperparameters could include:
 \describe{
  \item{min.eval/max.eval:}{Minimum and maximum number of evaluations.}
- \item{next.gs.point'}{Function that determines the next point in the grid
+ \item{next.gs.point:}{Function that determines the next point in the grid
  search sequence.}
  \item{step.size:}{Step size of the grid.}
  \item{bin.search.tol:}{Binary search tolerance.}

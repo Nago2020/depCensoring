@@ -2,9 +2,7 @@
 % Please edit documentation in R/BoundingCovariateEffects.R
 \name{pi.surv}
 \alias{pi.surv}
-\title{Partially identify the coefficients in the model
-\eqn{\Lambda(x^\top \beta(t))} for the given data set. This methodology
-implements the one described in Willems et al. (2024+).}
+\title{Estimate the model of Willems et al. (2024+).}
 \usage{
 pi.surv(
   data,
@@ -14,6 +12,7 @@ pi.surv(
   par.space,
   search.method = "GS",
   add.options = list(),
+  verbose = 0,
   picturose = FALSE,
   parallel = FALSE
 )
@@ -26,7 +25,8 @@ indicators, 'X0' = intercept column, 'X1' - 'Xp' = covariates.}
 \item{idx.param.of.interest}{Index of element in the covariate vector for
 which the identified interval should be estimated. It can also be specified
 as \code{idx.param.of.interest = "all"}, in which case identified intervals
-will be computed for all elements in the parameter vector.}
+will be computed for all elements in the parameter vector. Note that
+\code{idx.param.of.interest = 1} corresponds to the intercept parameter.}
 
 \item{idxs.c}{Vector of indices of the continuous covariates. Suppose the
 given data contains 5 covariates, of which 'X2' and 'X5' are continuous, this
@@ -43,13 +43,20 @@ row corresponds to the bounds on the i'th element in the parameter vector.}
 interval. Default is \code{search.method = "GS"}.}
 
 \item{add.options}{List of additional options to be specified to the method.
-These options can range from 'standard' hyperparameters such as the
+Notably, it can be used to select the link function \eqn{\Lambda(t))} that
+should be considered. Currently, the link function leading to an accelerated
+failure time model (\code{"AFT_ll"}, default) and the link function
+leading to a Cox proportional hazards model (\code{"Cox_wb"}) are implemented.
+Other options can range from 'standard' hyperparameters such as the
 confidence level of the test and number of instrumental functions to be used,
 to technical hyperparameters regarding the search method and test
 implementation. For the latter, we refer to the documentations of
 \code{set.hyperparameters}, \code{set.EAM.hyperparameters} and
 \code{set.GS.hyperparameters}. We recommend to use the default parameters,
 unless you really know what you are doing.}
+
+\item{verbose}{Verbosity level. The higher the value, the more verbose the
+method will be. Default is \code{verbose = 0}.}
 
 \item{picturose}{Picturosity flag. If \code{TRUE}, a plot illustrating the
 workings of the algorithm will updated during runtime. Default is
@@ -67,39 +74,52 @@ estimation algorithm.
 }
 \description{
 This function estimates bounds on the coefficients the single-
-index model \eqn{\Lambda(x^\top \beta(t))} for the conditional CDF of the
-event time.
+index model \eqn{\Lambda(x^\top \beta(t))} for the conditional cumulative
+distribution function of the event time.
 }
 \examples{
 \donttest{
-  #     - Link function: AFT link function (default setting)
-  #     - Number of IF: 5 IF per continuous covariate (default setting)
-  #     - Search method: Binary search
-  #     - Type of IF: Cubic spline functions for continuous covariate, indicator
-  #       function for discrete covariate (default setting).
 
-  # Load the 'depCensoring' package
-  library("depCensoring")
-
-  # Load 'survival' package in R.
-  library("survival")
-
+  # Clear workspace
+  rm(list = ls())
+  
+  # Load the survival package
+  library(survival)
+  
+  # Set random seed
+  set.seed(123)
+  
   # Load and preprocess data
   data <- survival::lung
   data[, "intercept"] <- rep(1, nrow(data))
   data[, "status"] <- data[, "status"] - 1
   data <- data[, c("time", "status", "intercept", "age", "sex")]
   colnames(data) <- c("Y", "Delta", "X0", "X1", "X2")
-
+  
+  # Standardize age variable
+  data[, "X1"] <- scale(data[, "X1"])
+  
+  ## Example:
+  ## - Link function: AFT link function (default setting)
+  ## - Number of IF: 5 IF per continuous covariate (default setting)
+  ## - Search method: Binary search
+  ## - Type of IF: Cubic spline functions for continuous covariate, indicator
+  ##   function for discrete covariate (default setting).
+  
   # Settings for main estimation function
-  idx.param.of.interest <- 1 # Interest in effect of age
+  idx.param.of.interest <- 2 # Interest in effect of age
   idxs.c <- 1                # X1 (age) is continuous
   t <- 200                   # Model imposed at t = 200
   search.method <- "GS"      # Use binary search
   par.space <- matrix(rep(c(-10, 10), 3), nrow = 3, byrow = TRUE)
-
+  add.options <- list()
+  picturose <- TRUE
+  parallel <- FALSE
+  
   # Estimate the identified intervals
-  pi.surv(data, idx.param.of.interest, idxs.c, t, par.space, search.method)
+  pi.surv(data, idx.param.of.interest, idxs.c, t, par.space,
+          search.method = search.method, add.options = add.options,
+          picturose = picturose, parallel = parallel)
 }
 
 

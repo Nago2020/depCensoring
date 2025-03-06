@@ -22,7 +22,8 @@ indicators, 'X0' = intercept column, 'X1' - 'Xp' = covariates.}
 \item{idx.param.of.interest}{Index of element in the covariate vector for
 which the identified interval should be estimated. It can also be specified
 as \code{idx.param.of.interest = "all"}, in which case identified intervals
-will be computed for all elements in the parameter vector.}
+will be computed for all elements in the parameter vector. Note that
+\code{idx.param.of.interest = 1} corresponds to the intercept parameter.}
 
 \item{idxs.c}{Vector of indices of the continuous covariates. Suppose the
 given data contains 5 covariates, of which 'X2' and 'X5' are continuous, this
@@ -39,7 +40,11 @@ row corresponds to the bounds on the i'th element in the parameter vector.}
 interval. Default is \code{search.method = "GS"}.}
 
 \item{add.options}{List of additional options to be specified to the method.
-These options can range from 'standard' hyperparameters such as the
+Notably, it can be used to select the link function \eqn{\Lambda(t))} that
+should be considered. Currently, the link function leading to an accelerated
+failure time model (\code{"AFT_ll"}, default) and the link function
+leading to a Cox proportional hazards model (\code{"Cox_wb"}) are implemented.
+Other options can range from 'standard' hyperparameters such as the
 confidence level of the test and number of instrumental functions to be used,
 to technical hyperparameters regarding the search method and test
 implementation. For the latter, we refer to the documentations of
