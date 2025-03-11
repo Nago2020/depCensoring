@@ -17,8 +17,7 @@ Description: Several statistical methods for analyzing survival data under vario
     Keilegom (2021) <doi:10.1093/biomet/asaa095>, Czado and Van Keilegom (2023)
     <doi:10.1093/biomet/asac067>, Crommen et al. (2024) <doi:10.1007/s11749-023-00903-9>,
     Deresa and Van Keilegom (2024) <doi:10.1080/01621459.2022.2161387>, Rutten et al. (2024+) 
-    <doi:10.48550/arXiv.2403.11860> and  Ding and Van Keilegom (2024). The suggested package 'SPOT' is available at
-    <https://cran.r-project.org/src/contrib/Archive/SPOT/SPOT_2.11.14.tar.gz>.
+    <doi:10.48550/arXiv.2403.11860> and  Ding and Van Keilegom (2024).
 Imports: survival, foreach, parallel, doParallel, pbivnorm, stats, MASS, nleqslv, OpenMx, methods, Matrix, EnvStats,  
     mvtnorm, rafalib, rvinecopulib, matrixcalc, nloptr, stringr, numDeriv, copula, R6, lubridate, splines2
 License: GPL-3
@@ -26,5 +25,5 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.3.2
 Suggests: 
-    testthat (>= 3.0.0), SPOT
+    testthat (>= 3.0.0), rkriging
 Config/testthat/edition: 3

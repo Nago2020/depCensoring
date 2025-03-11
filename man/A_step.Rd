@@ -10,7 +10,7 @@ A_step(evaluations, verbose = 0)
 \item{evaluations}{Matrix containing each point that was already evaluated,
 alongside the corresponding test statistic and critical value, as its rows.}
 
-\item{verbose}{Verosity parameter.}
+\item{verbose}{Verbosity parameter.}
 }
 \value{
 Results of the A-step.
@@ -21,5 +21,5 @@ algorithm. More specifically, it fits a Gaussian-process regression model
 (Kriging) to the evaluated data points \eqn{(\theta, c(\theta))}.
 }
 \seealso{
-Package \pkg{SPOT} on \url{https://CRAN.R-project.org/package=SPOT}.
+Package \pkg{rkriging}.
 }

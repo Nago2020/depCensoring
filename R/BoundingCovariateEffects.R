@@ -6,7 +6,7 @@
 # require("splines2")
 # require("copula")
 # require("nloptr")
-# require("SPOT")
+# require("rkriging")
 # require("doParallel")
 # require("lubridate")
 # require("R6")
@@ -273,22 +273,25 @@ test.point_Bei <- function(r, c, t, par.space, data, hp, verbose = FALSE,
     colnames(t.stat.evals) <- c(paste0("X", 0:n.cov), "val")
 
     if (parallel) { # Using parallel computing
-
-      t.stat.evals[] <-
-        foreach(col.idx = 1:ncol(initial.values), .combine = 'rbind') %dopar% {
-
-          source("lowLevelFunctions.R")
-
-          # Select the parameter corresponding to this iteration
-          beta.start <- initial.values[, col.idx]
-
-          # Compute the test statistic
-          out <- get.test.statistic(beta.start, data, par.space, t, hp, c, r,
-                                    inst.func.evals)
-
-          # Store the results
-          c(out[[2]], out[[1]])
-        }
+      
+      suppressWarnings(
+        t.stat.evals[] <-
+          foreach(col.idx = 1:ncol(initial.values),
+                  .combine = 'rbind') %dopar% {
+  
+            library("depCensoring")
+  
+            # Select the parameter corresponding to this iteration
+            beta.start <- initial.values[, col.idx]
+  
+            # Compute the test statistic
+            out <- get.test.statistic(beta.start, data, par.space, t, hp, c, r,
+                                      inst.func.evals)
+  
+            # Store the results
+            c(out[[2]], out[[1]])
+          }
+      )
 
     } else { # Using sequential computing
 
@@ -460,22 +463,25 @@ test.point_Bei_MT <- function(r, c, t, par.space, data, hp, verbose = FALSE,
     }
 
     if (parallel) { # Using parallel computing
-
-      t.stat.evals[] <-
-        foreach(col.idx = 1:ncol(initial.values), .combine = 'rbind') %dopar% {
-
-          source("lowLevelFunctions.R")
-
-          # Select the parameter corresponding to this iteration
-          beta.start <- initial.values[, col.idx]
-
-          # Compute the test statistic
-          out <- get.test.statistic(beta.start, data, par.space, t, hp, c, r,
-                                    inst.func.evals)
-
-          # Store the results
-          c(out[[2]], out[[1]])
-        }
+      
+      suppressWarnings(
+        t.stat.evals[] <-
+          foreach(col.idx = 1:ncol(initial.values),
+                  .combine = 'rbind') %dopar% {
+  
+            library("depCensoring")
+  
+            # Select the parameter corresponding to this iteration
+            beta.start <- initial.values[, col.idx]
+  
+            # Compute the test statistic
+            out <- get.test.statistic(beta.start, data, par.space, t, hp, c, r,
+                                      inst.func.evals)
+  
+            # Store the results
+            c(out[[2]], out[[1]])
+          }
+      )
 
     } else { # Using sequential computing
 
@@ -633,6 +639,54 @@ check_create.dir <- function(dir.name, path = NULL) {
   # If the directory does not exist yet, create it
   if (!dir.exists(dir.path)) {
     dir.create(dir.path)
+  }
+}
+
+#' @title Wrap message in console.
+#' 
+#' @description
+#' This function extends the \code{base::message()} function to wrap text onto
+#' a new line without splitting words.
+#' 
+#' @param ... Strings to be concatenated (adding a space in between) and printed
+#' to the console.
+#' 
+#' @noRd
+#' 
+wrap_msg <- function(...) {
+  
+  # Get message to print
+  to_print <- paste(unlist(list(...)), collapse = " ")
+  
+  # Get console width
+  console.width <- getOption("width")
+  
+  # Split the message at each newline indicator '\n', and run the method for
+  # each component
+  if (grepl("\n", to_print)) {
+    to_print_parts <- trimws(strsplit(to_print, "\n")[[1]])
+    for (to_print_part in to_print_parts) {
+      wrap_msg(to_print_part)
+    }
+  } else {
+    
+    # Split message into words
+    words <- strsplit(to_print, split = " ")
+    
+    # Get word lengths
+    word.lengths <- unlist(lapply(words, nchar))
+    
+    # Add spaces to word lengths
+    word.lengths[1:(length(word.lengths) - 1)] <- word.lengths[1:(length(word.lengths) - 1)] + 1
+    
+    # Get line for each word
+    word.lengths.cum <- cumsum(word.lengths)
+    word.line.nbr <- word.lengths.cum %/% console.width + 1
+    
+    # Print each line
+    for (line.nbr in unique(word.line.nbr)) {
+      message(paste(words[[1]][word.line.nbr == line.nbr], collapse = " "))
+    }
   }
 }
 
@@ -4066,7 +4120,7 @@ get.dmi.tens <- function(data, beta, t, hp, inst.func.evals = NULL) {
 
     # Compute the derivatives of the moment functions at each time point wrt the
     # appropriate intercept parameter. Derivatives wrt intercept parameters at
-    # other time points are zero
+    # other time points are zero.
     deriv.mom.func <- array(0, dim = c(n, n.param, 2))
     deriv.mom.func[, c(which(t == time.point), (length(t)+1):n.param), ] <-
       get.deriv.mom.func(data, beta.t, time.point, hp)
@@ -4767,9 +4821,10 @@ get.cvLLn <- function(BetaI.r, data, t, hp, c, r, par.space,
       for (comb.nbr in 1:2^(n.param - 1)) {
 
         # Define the parameter bounds for the optimization
-        optim.lb <- sqrt(n) * (par.space[which(c == 0), 1] + epsilon.n - beta[which(c == 0)])
-        optim.ub <- sqrt(n) * (par.space[which(c == 0), 2] - epsilon.n - beta[which(c == 0)])
-
+        epsilon.nj <- (par.space[which(c == 0), 2] - par.space[which(c == 0), 1])/2 * epsilon.n
+        optim.lb <- sqrt(n) * pmin(par.space[which(c == 0), 1] + epsilon.nj - beta[which(c == 0)], 0)
+        optim.ub <- sqrt(n) * pmax(par.space[which(c == 0), 2] - epsilon.nj - beta[which(c == 0)], 0)
+        
         # Get the corner point corresponding to this iteration
         comb <- base(comb.nbr - 1, 2, num.digits = n.param - 1)
         corner.point <- (1 - comb) * optim.lb + comb * optim.ub
@@ -4946,11 +5001,11 @@ EI <- function(theta, test.fun, fit.krige, theta.hash, dir) {
   other.point <- theta + 1
 
   # Predicted (test statistic - critical value) based on kriging model
-  pred.kriging <- predict(fit.krige, matrix(c(theta, other.point), nrow = 2))
-  violation.theta <- pred.kriging[1, "y"]
+  pred.kriging <- rkriging::Predict.Kriging(fit.krige, matrix(c(theta, other.point), nrow = 2))
+  violation.theta <- pred.kriging$mean[1]
 
   # Standard deviation of prediction
-  sL.theta <- sqrt(pred.kriging[1, "s"])
+  sL.theta <- pred.kriging$sd[1]
 
   # Expected improvement
   dir * (theta - theta.hash) * (1 - pnorm(violation.theta/sL.theta))
@@ -5337,6 +5392,11 @@ feasible_point_search <- function(test.fun, hyperparams, verbose,
     if (verbose >= 3) {
       message("Evaluating initial points in parallel")
     }
+    
+    # Resolve possible issues in 'foreach' method due to some variables not 
+    # beign found.
+    hp <- hyperparams
+    inst.func.evals <- hp$inst.func.evals
 
     # Compute batch size and batch indices
     batch.size <- length(clust)
@@ -5353,14 +5413,18 @@ feasible_point_search <- function(test.fun, hyperparams, verbose,
       }
 
       # Evaluate batch of points.
-      suppressWarnings({evaluations[i.start:i.end, ] <-
-        foreach(i = i.start:i.end, .combine = 'rbind',
-                .export = c("par.space", "hp", "c", "inst.func.evals", "t",
-                            "data", "test.fun", "options")
+      suppressWarnings(
+        evaluations[i.start:i.end, ] <-
+          foreach(i = i.start:i.end,
+                  .combine = 'rbind',
+                  .export = c("par.space", "hyperparams", "c", "t", "data",
+                              "test.fun", "options", "hp", "inst.func.evals"),
+                  .packages = c("R6", "nloptr", "EnvStats", "splines2",
+                                "rkriging", "lubridate")
         ) %dopar% {
-
-          # Load all necessary packages
-          source("simulationFunctions.R")
+          
+          # Load all functions
+          library("depCensoring")
 
           # Select theta of this iteration
           theta <- pte[i]
@@ -5370,7 +5434,7 @@ feasible_point_search <- function(test.fun, hyperparams, verbose,
 
           # Return the results
           c(theta, test.out[["t.stat"]], test.out[["crit.val"]])
-        }})
+        })
 
       # If required, add points to plot
       if (picturose) {
@@ -5437,27 +5501,45 @@ feasible_point_search <- function(test.fun, hyperparams, verbose,
         pte <- c(pte, theta.next)
         pte.idxafter <- c(pte.idxafter, idx.after)
       }
+      
+      # Plot points to evaluate
+      if (picturose) {
+        plot_addpte(pte)
+      }
 
       # Evaluate batch
-      evaluations.add <-
-        foreach(i = 1:batch.size, .combine = 'rbind') %dopar% {
-
-          # Load all necessary packages
-          source("simulationFunctions.R")
-
-          # Select theta of this iteration
-          theta <- pte[i]
-
-          # Run the test
-          test.out <- test.fun(theta)
-
-          # Return the results
-          c(theta, test.out[["t.stat"]], test.out[["crit.val"]])
-        }
+      suppressWarnings(
+        evaluations.add <-
+          foreach(i = 1:batch.size,
+                  .combine = 'rbind',
+                  .export = c("par.space", "hyperparams", "c", "t", "data",
+                              "test.fun", "options", "hp", "inst.func.evals"),
+                  .packages = c("R6", "nloptr", "EnvStats", "splines2",
+                                "rkriging", "lubridate")
+          ) %dopar% {
+  
+            # Load all necessary packages
+            library("depCensoring")
+  
+            # Select theta of this iteration
+            theta <- pte[i]
+  
+            # Run the test
+            test.out <- test.fun(theta)
+  
+            # Return the results
+            c(theta, test.out[["t.stat"]], test.out[["crit.val"]])
+          }
+      )
 
       # Store the results
       for (i in 1:batch.size) {
         evaluations <- insert.row(evaluations, evaluations.add[i, ], pte.idxafter[i])
+      }
+      
+      # Update plot
+      if (picturose) {
+        plot_addpte.eval(evaluations.add)
       }
 
       # Update stopping criteria
@@ -5505,14 +5587,14 @@ feasible_point_search <- function(test.fun, hyperparams, verbose,
 
       # Update plot
       if (picturose) {
-        plot_addpte.eval(evaluations[nrow(evaluations), , drop = FALSE])
+        plot_addpte.eval(matrix(row, nrow = 1, ncol = 3))
       }
     }
 
   }
 
   #### Return the results ####
-
+  
   list(evaluations = evaluations)
 }
 
@@ -5587,21 +5669,21 @@ E_step <- function(thetas, test.fun, dir, evaluations, verbose) {
 #'
 #' @param evaluations Matrix containing each point that was already evaluated,
 #' alongside the corresponding test statistic and critical value, as its rows.
-#' @param verbose Verosity parameter.
+#' @param verbose Verbosity parameter.
 #'
 #' @returns Results of the A-step.
 #'
 #' @importFrom graphics abline lines
 #' @importFrom utils install.packages
-#' @seealso Package \pkg{SPOT} on \url{https://CRAN.R-project.org/package=SPOT}.
+#' @seealso Package \pkg{rkriging}.
 #'
 A_step <- function(evaluations, verbose = 0) {
 
-  # Make sure package SPOT is installed and loaded
-  while (!requireNamespace("SPOT", quietly = TRUE)) {
-    ans <- readline("Package SPOT is required for EAM algorithm but not available. Would you like to install it? (Y/N)")
+  # Make sure package rkriging is installed and loaded
+  while (!requireNamespace("rkriging", quietly = TRUE)) {
+    ans <- readline("Package rkriging is required for EAM algorithm but not available. Would you like to install it? (Y/N)")
     if (regexpr(ans, 'y', ignore.case = TRUE) == 1) {
-      install.packages("SPOT")
+      install.packages("rkriging")
     } else if (regexpr(ans, 'n', ignore.case = TRUE) == 1) {
       stop("Unable to run EAM algorithm. Please specify a different root finding algorithm.")
     } else {
@@ -5619,20 +5701,18 @@ A_step <- function(evaluations, verbose = 0) {
 
   # Vector of violations (test statistic - critical value)
   violations.vct <- evaluations[idxs.unique, "t.stat"] - evaluations[idxs.unique, "crit.val"]
-
-  # Control parameters
-  control = list(regr = SPOT::regpoly0, corr = SPOT::corrkriging, target = c("y", "s"))
-
+  
   # Fit the Kriging model
-  fit.krige <- SPOT::buildKrigingDACE(theta.mat, violations.vct, control = control)
+  fit.krige <- rkriging::Fit.Kriging(theta.mat, violations.vct,
+                                     kernel.parameters = list(type = "Gaussian"))
 
   # If asked, plot the Kriging model
   if (verbose >= 3) {
     x.vals <- seq(min(evaluations[, "theta"]), max(evaluations[, "theta"]),
                   length.out = 500)
-    predictions <- predict(fit.krige, matrix(x.vals, nrow = length(x.vals)))
-    y.vals <- predictions$y
-    sd.vals <- predictions$s
+    predictions <- rkriging::Predict.Kriging(fit.krige, matrix(x.vals, nrow = length(x.vals)))
+    y.vals <- predictions$mean
+    sd.vals <- predictions$sd
 
     plot(x.vals, y.vals, type = 'l', xlab = "theta", ylab = "predicted violation",
          main = "Kriging model")
@@ -5668,7 +5748,7 @@ A_step <- function(evaluations, verbose = 0) {
 #' Default is \code{hyperparams = NULL}.
 #' @param verbose Verbosity parameter.
 #'
-#' @importFrom graphics abline
+#' @importFrom graphics abline legend
 #'
 M_step <- function(dir, evaluations, theta.hash, fit.krige, test.fun, c,
                    par.space, hyperparams, verbose) {
@@ -5720,6 +5800,11 @@ M_step <- function(dir, evaluations, theta.hash, fit.krige, test.fun, c,
          main = "Expected improvement function M-step")
     abline(v = theta.hash, col = "red")
     abline(v = opt.res[1], col = "green")
+    
+    legend.txt <- sprintf(c("Current best %s", "Candidate %s based on kriging model"),
+                          ifelse(dir == 1, "upper bound", "lower bound"))
+    legend("bottomleft", legend = legend.txt, col = c("red", "green"),
+           lty = 1)
   }
 
   # Return the results
@@ -6772,13 +6857,11 @@ check.args.pisurv <- function(data, idx.param.of.interest, idxs.c, t, par.space,
   }
 }
 
-#' @title Partially identify the coefficients in the model
-#' \eqn{\Lambda(x^\top \beta(t))} for the given data set. This methodology
-#' implements the one described in Willems et al. (2024+).
+#' @title Estimate the model of Willems et al. (2024+).
 #'
 #' @description This function estimates bounds on the coefficients the single-
-#' index model \eqn{\Lambda(x^\top \beta(t))} for the conditional CDF of the
-#' event time.
+#' index model \eqn{\Lambda(x^\top \beta(t))} for the conditional cumulative
+#' distribution function of the event time. 
 #'
 #' @param data Data frame containing the data on which to fit the model. The
 #' columns should be named as follows: 'Y' = observed timed, 'Delta' = censoring
@@ -6786,7 +6869,8 @@ check.args.pisurv <- function(data, idx.param.of.interest, idxs.c, t, par.space,
 #' @param idx.param.of.interest Index of element in the covariate vector for
 #' which the identified interval should be estimated. It can also be specified
 #' as \code{idx.param.of.interest = "all"}, in which case identified intervals
-#' will be computed for all elements in the parameter vector.
+#' will be computed for all elements in the parameter vector. Note that
+#' \code{idx.param.of.interest = 1} corresponds to the intercept parameter.
 #' @param idxs.c Vector of indices of the continuous covariates. Suppose the
 #' given data contains 5 covariates, of which 'X2' and 'X5' are continuous, this
 #' argument should be specified as \code{idxs.c = c(2, 5)}.
@@ -6798,13 +6882,19 @@ check.args.pisurv <- function(data, idx.param.of.interest, idxs.c, t, par.space,
 #' @param search.method The search method to be used to find the identified
 #' interval. Default is \code{search.method = "GS"}.
 #' @param add.options List of additional options to be specified to the method.
-#' These options can range from 'standard' hyperparameters such as the
+#' Notably, it can be used to select the link function \eqn{\Lambda(t))} that
+#' should be considered. Currently, the link function leading to an accelerated
+#' failure time model (\code{"AFT_ll"}, default) and the link function
+#' leading to a Cox proportional hazards model (\code{"Cox_wb"}) are implemented.
+#' Other options can range from 'standard' hyperparameters such as the
 #' confidence level of the test and number of instrumental functions to be used,
 #' to technical hyperparameters regarding the search method and test
 #' implementation. For the latter, we refer to the documentations of
 #' \code{set.hyperparameters}, \code{set.EAM.hyperparameters} and
 #' \code{set.GS.hyperparameters}. We recommend to use the default parameters,
 #' unless you really know what you are doing.
+#' @param verbose Verbosity level. The higher the value, the more verbose the
+#' method will be. Default is \code{verbose = 0}.
 #' @param picturose Picturosity flag. If \code{TRUE}, a plot illustrating the
 #' workings of the algorithm will updated during runtime. Default is
 #' \code{picturose = FALSE}.
@@ -6824,34 +6914,47 @@ check.args.pisurv <- function(data, idx.param.of.interest, idxs.c, t, par.space,
 #'
 #' @examples
 #' \donttest{
-#'   #     - Link function: AFT link function (default setting)
-#'   #     - Number of IF: 5 IF per continuous covariate (default setting)
-#'   #     - Search method: Binary search
-#'   #     - Type of IF: Cubic spline functions for continuous covariate, indicator
-#'   #       function for discrete covariate (default setting).
 #'
-#'   # Load the 'depCensoring' package
-#'   library("depCensoring")
-#'
-#'   # Load 'survival' package in R.
-#'   library("survival")
-#'
+#'   # Clear workspace
+#'   rm(list = ls())
+#'   
+#'   # Load the survival package
+#'   library(survival)
+#'   
+#'   # Set random seed
+#'   set.seed(123)
+#'   
 #'   # Load and preprocess data
 #'   data <- survival::lung
 #'   data[, "intercept"] <- rep(1, nrow(data))
 #'   data[, "status"] <- data[, "status"] - 1
 #'   data <- data[, c("time", "status", "intercept", "age", "sex")]
 #'   colnames(data) <- c("Y", "Delta", "X0", "X1", "X2")
-#'
+#'   
+#'   # Standardize age variable
+#'   data[, "X1"] <- scale(data[, "X1"])
+#'   
+#'   ## Example:
+#'   ## - Link function: AFT link function (default setting)
+#'   ## - Number of IF: 5 IF per continuous covariate (default setting)
+#'   ## - Search method: Binary search
+#'   ## - Type of IF: Cubic spline functions for continuous covariate, indicator
+#'   ##   function for discrete covariate (default setting).
+#'   
 #'   # Settings for main estimation function
-#'   idx.param.of.interest <- 1 # Interest in effect of age
+#'   idx.param.of.interest <- 2 # Interest in effect of age
 #'   idxs.c <- 1                # X1 (age) is continuous
 #'   t <- 200                   # Model imposed at t = 200
 #'   search.method <- "GS"      # Use binary search
 #'   par.space <- matrix(rep(c(-10, 10), 3), nrow = 3, byrow = TRUE)
-#'
+#'   add.options <- list()
+#'   picturose <- TRUE
+#'   parallel <- FALSE
+#'   
 #'   # Estimate the identified intervals
-#'   pi.surv(data, idx.param.of.interest, idxs.c, t, par.space, search.method)
+#'   pi.surv(data, idx.param.of.interest, idxs.c, t, par.space,
+#'           search.method = search.method, add.options = add.options,
+#'           picturose = picturose, parallel = parallel)
 #' }
 #'
 #'
@@ -6861,7 +6964,7 @@ check.args.pisurv <- function(data, idx.param.of.interest, idxs.c, t, par.space,
 #'
 pi.surv <- function(data, idx.param.of.interest, idxs.c, t, par.space,
                     search.method = "GS", add.options = list(),
-                    picturose = FALSE, parallel = FALSE) {
+                    verbose = 0, picturose = FALSE, parallel = FALSE) {
 
   #### Consistency checks ####
 
@@ -6872,8 +6975,8 @@ pi.surv <- function(data, idx.param.of.interest, idxs.c, t, par.space,
   if (parallel) {
     n.cores <- min(detectCores() - 1, 10)
     clust <- makeCluster(n.cores)
-    registerDoParallel(clust)
     add.options$clust <- clust
+    registerDoParallel(clust)
   }
 
   #### Set the hyperparameters of the algorithm ####
@@ -6922,17 +7025,36 @@ pi.surv <- function(data, idx.param.of.interest, idxs.c, t, par.space,
   for (c in c.to.check) {
 
     # Get the identified set of the covariate of interest
-    fis.out <- find.identified.set(c, t, par.space, data, search.method, options,
-                                   verbose = 3, picturose = picturose,
-                                   parallel = parallel)
-
+    fis.out <- FALSE
+    tryCatch(fis.out <- find.identified.set(c, t, par.space, data, search.method,
+                                            options, verbose = verbose,
+                                            picturose = picturose,
+                                            parallel = parallel),
+             error = function(e) {
+               message("\nIdentified interval method stopped with the following error:\n")
+               message(sprintf("%s\n", e))
+               if (e$message == "L-BFGS-B needs finite values of 'fn'") {
+                 wrap_msg("This error often occurs when covariates have not been standardized.",
+                          "Please make sure that covariates have been standardized and re-execute the method.",
+                          "If the error persists, please issue a bug report to the package administrator.")
+               } else {
+                 wrap_msg("This is an uncommen error. Please consider the following remedies:",
+                          "\n   - Standardize the covariates before executing the method.",
+                          "\n   - Disable parallel option, if applicable.",
+                          "\n   - Ensure a logical value for 't' has been selected (within the range of the data).",
+                          "\nIf the problem persists, please issue a bug report to the package administrator.")
+               }
+             }
+    )
+    if (is.logical(fis.out)) {return(invisible(FALSE))}
+    
     # Store the results
     row.name <- paste0("X", which(c == 1) - 1)
     results[row.name, c("lower", "upper")] <- fis.out$ident.set
     results[row.name, c("conv.l", "conv.u")] <- c(fis.out$converge1, fis.out$converge2)
   }
-
-  # Remove parallel back-end
+  
+  # Stop parallel back-end
   if (parallel) {
     stopCluster(clust)
   }
@@ -7150,6 +7272,10 @@ plot_base <- function(c, hp) {
        xlab = bquote("parameter"~"space"~"for"~theta[.(c.idx)]),
        ylab = "",
        yaxt = 'n')
+  legend("bottomleft", c("To check", "Being checked", "Rejected", "Not rejected"),
+         col = "black", pch = c(21, 21, 21, 21),
+         pt.bg = c("white", "orange", "red", "green"),
+         horiz = TRUE)
 }
 
 #' @title Draw points to be evaluated
@@ -7181,11 +7307,6 @@ plot_addpte.eval <- function(evaluations) {
   points(x = evaluations[, 1], y = rep(0, nrow(evaluations)), col = col, pch = 16)
   points(x = evaluations[, 1], y = rep(0, nrow(evaluations)), pch = 1, col = "black")
 }
-
-
-
-
-
 
 #### Simulation functions ####
 
@@ -7616,6 +7737,10 @@ find.identified.set <- function(c, t, par.space, data, search.method, options,
                 chronometer1 = Chronometer$new(),
                 chronometer2 = Chronometer$new()))
   }
+  
+  # Add instrumental function evaluations to hyperparameter list (only needed
+  # when parallel = TRUE)
+  hp$inst.func.evals <- inst.func.evals
 
   # Set test function
   test.fun <- function(theta) {
