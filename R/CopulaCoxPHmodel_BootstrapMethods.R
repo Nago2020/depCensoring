@@ -1,6 +1,6 @@
 
 #' @title Nonparametric bootstrap approach for the dependent censoring model
-
+#'
 #' @description This function estimates the bootstrap standard errors for the finite-dimensional model parameters and for the non-parametric cumulative
 #' hazard function. Parallel computing using foreach has been used to speed up the estimation of standard errors.
 #'
@@ -30,9 +30,7 @@
 #' @import foreach
 #' @import parallel
 #' @return Bootstrap standard errors for parameter estimates and for estimated cumulative hazard function.
-#'
-
-
+#' @noRd
 boot.fun = function(init,resData,X,W,lhat, cumL,dist,k,lb, ub, Obs.time,cop,n.boot, n.iter, ncore, eps){
   B = n.boot                                     # number of bootstrap samples
   n.cores <- ncore
@@ -139,9 +137,7 @@ boot.fun = function(init,resData,X,W,lhat, cumL,dist,k,lb, ub, Obs.time,cop,n.bo
 #' @import foreach
 #'
 #' @return Bootstrap standard errors for parameter estimates and for estimated cumulative hazard function.
-#'
-
-
+#' @noRd
 boot.funI = function(init,resData,X,W,lhat, cumL,dist,k,lb,ub, Obs.time,n.boot, n.iter, ncore, eps){
   B = n.boot                                     # number of bootstrap samples
   n.cores <- ncore
@@ -221,7 +217,6 @@ boot.funI = function(init,resData,X,W,lhat, cumL,dist,k,lb,ub, Obs.time,n.boot, 
 #' @export
 #'
 #'
-
 summary.depFit <- function(object, ...) {
 
   message(rep("-", 100))
@@ -353,8 +348,6 @@ summary.depFit <- function(object, ...) {
 #'
 #'
 #' @export
-
-
 summary.indepFit <- function(object, ...) {
 
   message(rep("-", 100))

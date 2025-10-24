@@ -1,9 +1,9 @@
 
 #' @title Standardize data format
-#' 
+#'
 #' @description Checks the required preconditions of the data and possibly
 #' restructures the data.
-#' 
+#'
 #' @param data A data frame that should contain columns named \code{Y} and
 #' \code{delta} (unless \code{comp.risks = TRUE}, see later).
 #' @param admin Boolean value indicating whether the provided data frame contains
@@ -26,39 +26,41 @@
 #' @param Wbin Boolean or integer value (0, 1) indicating whether the instrument
 #' is binary. \code{Wbin = TRUE} or \code{Wbin = 1} means that W is binary.
 #' \code{Wbin = FALSE} or \code{Wbin = 0} means that W is continuous.
-#' 
+#'
 #' @return Returns the uniformized data set.
-#' 
+#'
+#' @noRd
+#'
 
 
 uniformize.data <- function(data, admin = FALSE, conf = FALSE, comp.risks = FALSE,
                             Zbin = NULL, Wbin = NULL) {
-  
+
   # ToDo?: Option to turn off precondition checking .
-  
+
   #### Step 1: Precondition checks ####
-  
+
   # Put all column names to lower case
   colnames(data) <- tolower(colnames(data))
-  
+
   # Given data object should be a data frame
   if (!is.data.frame(data)) {
     stop("The data should be provided as a data frame")
   }
-  
+
   ## Data cannot already contain an intercept
-  
+
   if (any(apply(data == 1, MARGIN = 2, all))) {
     stop("The given data frame cannot already contain an intercept")
   }
-  
+
   ## Necessary column names
-  
+
   # The time variable
   if (!("y" %in% colnames(data))) {
     stop("The column corresponding to the time variable should be named 'Y'.")
   }
-  
+
   # Censoring indicators
   if (comp.risks) {
     if ("delta" %in% colnames(data)) {
@@ -101,13 +103,13 @@ uniformize.data <- function(data, admin = FALSE, conf = FALSE, comp.risks = FALS
                   "indicators are different."))
     }
   }
-  
+
   if (conf & !all(c("z", "w") %in% colnames(data))) {
     stop(paste0("The column corresponding to the confounded variable should be",
                 " named 'Z' and the column corresponding to the instrument",
                 " should be named 'W'."))
   }
-  
+
   # Indices of columns corresponding to covariates
   if (comp.risks) {
     nbr.comp.risks <- length(which(substr(colnames(data), 1, 5) == "delta"))
@@ -115,8 +117,8 @@ uniformize.data <- function(data, admin = FALSE, conf = FALSE, comp.risks = FALS
   } else {
     cov.col.idxs <- setdiff(1:ncol(data), which(colnames(data) %in% c("y", "delta", "xi", "z", "w")))
   }
-  
-  
+
+
   ## Consistent arguments
   if (!is.numeric(data[, "y"])) {
     stop("Column corresponding to 'Y' should be numeric")
@@ -130,7 +132,7 @@ uniformize.data <- function(data, admin = FALSE, conf = FALSE, comp.risks = FALS
   if (!all(sapply(data, class)[cov.col.idxs] %in% c("numeric", "integer"))) {
     stop("The covariates should be numeric")
   }
-  
+
   if (conf) {
     if (any(is.null(Zbin), is.null(Wbin))) {
       stop("When conf == TRUE, the arguments Zbin and Wbin should be provided.")
@@ -160,7 +162,7 @@ uniformize.data <- function(data, admin = FALSE, conf = FALSE, comp.risks = FALS
       Wbin <- NULL
     }
   }
-  
+
   if (comp.risks) {
     cens.col.idxs <- which(colnames(data) %in% paste0("delta", 1:nbr.comp.risks))
     if (admin) {
@@ -182,7 +184,7 @@ uniformize.data <- function(data, admin = FALSE, conf = FALSE, comp.risks = FALS
       }
     }
   }
-  
+
   # Warn for possible user mistakes
   if ((!conf) & any(c("z", "w") %in% colnames(data))) {
     warning(paste0("Possible column(s) corresponding to a confounded variable",
@@ -208,57 +210,57 @@ uniformize.data <- function(data, admin = FALSE, conf = FALSE, comp.risks = FALS
   }
   if (comp.risks) {
     if ((!admin) & ("da" %in% colnames(data))) {
-      warning(paste0("Possible administrative censoring column detected in data", 
+      warning(paste0("Possible administrative censoring column detected in data",
                      " but admin == FALSE so not taken into account"))
     }
   } else {
     if ((!admin) & ("xi" %in% colnames(data))) {
-      warning(paste0("Possible administrative censoring column detected in data", 
+      warning(paste0("Possible administrative censoring column detected in data",
                      " but admin == FALSE so not taken into account"))
     }
   }
-  
+
   # Missing values
   if (any(is.na(data))) {
     stop("Missing values detected")
   }
-  
+
   #### Step 2: Create uniformized data frame ####
-  
+
   # Add intercept column to the data
-  
+
   data[, "intercept"] <- rep(1, nrow(data))
-  
+
   if (comp.risks) {
-    
+
     # Column index of the observed time
     unif.col.idxs <- which(colnames(data) == "y")
-    
+
     # Column indices of the censoring indicators.
     ind.col.idx <- which(substr(colnames(data), 1, 5) == "delta")
-    
+
     # Append column indices of censoring indicators to main vector in the order
     # delta1, delta2, delta3, etc.
     unif.col.idxs <- c(unif.col.idxs, ind.col.idx[order(colnames(data)[ind.col.idx])])
-    
+
     # If administrative censoring: append the column index of indicator I(Y = A)
     # to the main vector.
     if (admin) {
       unif.col.idxs <- c(unif.col.idxs, which(colnames(data) == "da"))
     }
-    
+
     # Append intercept column to the data
     unif.col.idxs <- c(unif.col.idxs, ncol(data))
-    
+
     # Append exogenous covariate column indices to main vector.
     unif.col.idxs <- c(unif.col.idxs, cov.col.idxs)
-    
+
     # If confounding: append the endogenous covariate Z and instrument column W
     # indices to main vector.
     if (conf) {
       unif.col.idxs <- c(unif.col.idxs,  which(colnames(data) == "z"),  which(colnames(data) == "w"))
     }
-    
+
     # Reorder the data set in specified order.
     unif.data <- data[, unif.col.idxs]
     colnames(unif.data) <- c("y",
@@ -267,30 +269,30 @@ uniformize.data <- function(data, admin = FALSE, conf = FALSE, comp.risks = FALS
                              paste0("x", 0:length(cov.col.idxs)),
                              if (conf) "z" else NULL,
                              if (conf) "w" else NULL)
-    
+
   } else {
-    
+
     # Column indices of observed time Y and indicator I(Y = T)
     unif.col.idxs <- c(which(colnames(data) == "y"), which(colnames(data) == "delta"))
-    
+
     # If administrative censoring: append the column index of indicator I(Y = A)
     # to the main vector.
     if (admin) {
       unif.col.idxs <- c(unif.col.idxs, which(colnames(data) == "xi"))
     }
-    
+
     # Append intercept column to the data
     unif.col.idxs <- c(unif.col.idxs, ncol(data))
-    
+
     # Append exogenous covariate column indices to main vector.
     unif.col.idxs <- c(unif.col.idxs, cov.col.idxs)
-    
+
     # If confounding: append the endogenous covariate Z and instrument column W
     # indices to main vector.
     if (conf) {
       unif.col.idxs <- c(unif.col.idxs,  which(colnames(data) == "z"),  which(colnames(data) == "w"))
     }
-    
+
     # Reorder the data set in specified order.
     unif.data <- data[, unif.col.idxs]
     colnames(unif.data) <- c("y",
@@ -300,7 +302,7 @@ uniformize.data <- function(data, admin = FALSE, conf = FALSE, comp.risks = FALS
                              if (conf) "z" else NULL,
                              if (conf) "z" else NULL)
   }
-  
+
   return(unif.data)
-  
+
 }
