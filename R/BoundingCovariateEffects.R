@@ -23,6 +23,7 @@
 #' @importFrom R6 R6Class
 #'
 #' @export
+#'
 Chronometer <- R6Class(
   "Chronometer",
 
@@ -213,6 +214,8 @@ Chronometer <- R6Class(
 #' moment inequality models. Journal of Econometrics, 238(1),
 #' 105549-. https://doi.org/10.1016/j.jeconom.2023.10554
 #'
+#' @noRd
+#'
 test.point_Bei <- function(r, c, t, par.space, data, hp, verbose = FALSE,
                            inst.func.evals = NULL, alpha = 0.95,
                            parallel = FALSE) {
@@ -273,21 +276,21 @@ test.point_Bei <- function(r, c, t, par.space, data, hp, verbose = FALSE,
     colnames(t.stat.evals) <- c(paste0("X", 0:n.cov), "val")
 
     if (parallel) { # Using parallel computing
-      
+
       suppressWarnings(
         t.stat.evals[] <-
           foreach(col.idx = 1:ncol(initial.values),
                   .combine = 'rbind') %dopar% {
-  
+
             library("depCensoring")
-  
+
             # Select the parameter corresponding to this iteration
             beta.start <- initial.values[, col.idx]
-  
+
             # Compute the test statistic
             out <- get.test.statistic(beta.start, data, par.space, t, hp, c, r,
                                       inst.func.evals)
-  
+
             # Store the results
             c(out[[2]], out[[1]])
           }
@@ -393,6 +396,8 @@ test.point_Bei <- function(r, c, t, par.space, data, hp, verbose = FALSE,
 #' moment inequality models. Journal of Econometrics, 238(1),
 #' 105549-. https://doi.org/10.1016/j.jeconom.2023.10554
 #'
+#' @noRd
+#'
 test.point_Bei_MT <- function(r, c, t, par.space, data, hp, verbose = FALSE,
                               inst.func.evals = NULL, alpha = 0.95,
                               parallel = FALSE) {
@@ -463,21 +468,21 @@ test.point_Bei_MT <- function(r, c, t, par.space, data, hp, verbose = FALSE,
     }
 
     if (parallel) { # Using parallel computing
-      
+
       suppressWarnings(
         t.stat.evals[] <-
           foreach(col.idx = 1:ncol(initial.values),
                   .combine = 'rbind') %dopar% {
-  
+
             library("depCensoring")
-  
+
             # Select the parameter corresponding to this iteration
             beta.start <- initial.values[, col.idx]
-  
+
             # Compute the test statistic
             out <- get.test.statistic(beta.start, data, par.space, t, hp, c, r,
                                       inst.func.evals)
-  
+
             # Store the results
             c(out[[2]], out[[1]])
           }
@@ -643,24 +648,24 @@ check_create.dir <- function(dir.name, path = NULL) {
 }
 
 #' @title Wrap message in console.
-#' 
+#'
 #' @description
 #' This function extends the \code{base::message()} function to wrap text onto
 #' a new line without splitting words.
-#' 
+#'
 #' @param ... Strings to be concatenated (adding a space in between) and printed
 #' to the console.
-#' 
+#'
 #' @noRd
-#' 
+#'
 wrap_msg <- function(...) {
-  
+
   # Get message to print
   to_print <- paste(unlist(list(...)), collapse = " ")
-  
+
   # Get console width
   console.width <- getOption("width")
-  
+
   # Split the message at each newline indicator '\n', and run the method for
   # each component
   if (grepl("\n", to_print)) {
@@ -669,20 +674,20 @@ wrap_msg <- function(...) {
       wrap_msg(to_print_part)
     }
   } else {
-    
+
     # Split message into words
     words <- strsplit(to_print, split = " ")
-    
+
     # Get word lengths
     word.lengths <- unlist(lapply(words, nchar))
-    
+
     # Add spaces to word lengths
     word.lengths[1:(length(word.lengths) - 1)] <- word.lengths[1:(length(word.lengths) - 1)] + 1
-    
+
     # Get line for each word
     word.lengths.cum <- cumsum(word.lengths)
     word.line.nbr <- word.lengths.cum %/% console.width + 1
-    
+
     # Print each line
     for (line.nbr in unique(word.line.nbr)) {
       message(paste(words[[1]][word.line.nbr == line.nbr], collapse = " "))
@@ -2893,6 +2898,8 @@ generateData_simManyCov <- function(beta.true, n, n.cov, options, H0.inv,
 #'
 #' @param t time parameter.
 #'
+#' @noRd
+#'
 Lambda_Cox_wb <- function(t) {
   1 - exp(-exp(t))
 }
@@ -2903,6 +2910,8 @@ Lambda_Cox_wb <- function(t) {
 #' This function defines the derivative of the Cox PH link function.
 #'
 #' @param t time parameter.
+#'
+#' @noRd
 #'
 dLambda_Cox_wb <- function(t) {
   exp(t - exp(t))
@@ -2915,6 +2924,8 @@ dLambda_Cox_wb <- function(t) {
 #'
 #' @param p probability.
 #'
+#' @noRd
+#'
 Lambda_inverse_Cox_wb <- function(p) {
   log(-log(1-p))
 }
@@ -2925,6 +2936,8 @@ Lambda_inverse_Cox_wb <- function(p) {
 #' This function defines the AFT link function.
 #'
 #' @param t time parameter.
+#'
+#' @noRd
 #'
 Lambda_AFT_ll <- function(t) {
   1 - 1/(1 + exp(t))
@@ -2937,6 +2950,8 @@ Lambda_AFT_ll <- function(t) {
 #'
 #' @param t time parameter.
 #'
+#' @noRd
+#'
 dLambda_AFT_ll <- function(t) {
   exp(t)/(1 + exp(t))^2
 }
@@ -2947,6 +2962,8 @@ dLambda_AFT_ll <- function(t) {
 #' This function defines the inverse of the AFT link function.
 #'
 #' @param p probability.
+#'
+#' @noRd
 #'
 Lambda_inverse_AFT_ll <- function(p) {
   log(p / (1 - p))
@@ -2988,6 +3005,8 @@ Lambda_inverse_AFT_ll <- function(p) {
 #'
 #' @references Andrews, D.W.K. and Shi, X. (2013). Inference based on
 #' confitional moment inequalities. Econometrica. 81(2):609-666.
+#'
+#' @noRd
 #'
 normalize.covariates <- function(data = NULL, x = NULL, cov.ranges = NULL,
                                  idxs.c = "all", norm.cov.out = NULL, ...) {
@@ -3149,6 +3168,8 @@ normalize.covariates <- function(data = NULL, x = NULL, cov.ranges = NULL,
 #'
 #' @import stats
 #'
+#' @noRd
+#'
 normalize.covariates2 <- function(data = NULL, x = NULL, idxs.c = "all",
                                   norm.cov.out = NULL, ...) {
 
@@ -3285,6 +3306,8 @@ normalize.covariates2 <- function(data = NULL, x = NULL, idxs.c = "all",
 #' @param normalized Boolean value indicating whether the covariates in the
 #' given data frame have been normalized. Default is \code{normalized = FALSE}.
 #'
+#' @noRd
+#'
 get.anchor.points <- function(data, n.if.per.cov, normalized = FALSE) {
 
   # Get column indices of covariates in the data (excluding the intercept)
@@ -3332,7 +3355,7 @@ get.anchor.points <- function(data, n.if.per.cov, normalized = FALSE) {
 #' @title Family of box functions
 #'
 #' @description This function defined the class of box functions as defined in
-#' Willems et al. (2024+).
+#' Willems et al. (2025).
 #'
 #' @param x Vector of covariates to be normalized alongside the data. Default is
 #' \code{x = NULL}.
@@ -3352,6 +3375,8 @@ get.anchor.points <- function(data, n.if.per.cov, normalized = FALSE) {
 #' 'G.spline.R' and 'G.cd.R'.
 #'
 #' @importFrom EnvStats base
+#'
+#' @noRd
 #'
 G.box <- function(x, g.idx, data, n.box.per.cov, norm.func, cov.ranges = NULL,
                   norm.cov.out = NULL, ...) {
@@ -3406,6 +3431,8 @@ G.box <- function(x, g.idx, data, n.box.per.cov, norm.func, cov.ranges = NULL,
 #' @references Andrews, D.W.K. and Shi, X. (2013). Inference based on
 #' confitional moment inequalities. Econometrica. 81(2):609-666.
 #'
+#' @noRd
+#'
 Bspline.unit.interval <- function(x, spline.index, n.if.per.cov, degree = 3) {
 
   # Precondition checks
@@ -3459,6 +3486,8 @@ Bspline.unit.interval <- function(x, spline.index, n.if.per.cov, degree = 3) {
 #' @param degree Degree of B-splines to use. Default value is \code{degree = 3}.
 #'
 #' @importFrom EnvStats base
+#'
+#' @noRd
 #'
 G.spline <- function(x, g.idx, data, n.if.per.cov, norm.func, cov.ranges = NULL,
                      norm.cov.out = NULL, degree = 3) {
@@ -3517,6 +3546,8 @@ G.spline <- function(x, g.idx, data, n.if.per.cov, norm.func, cov.ranges = NULL,
 #' @param degree Degree of the spline functions to be used as instrumental
 #' functions for the continuous covariates (if applicable). Default is
 #' \code{degree = 3}.
+#'
+#' @noRd
 #'
 G.cd <- function(x, g.idx, data, n.if.per.cov, idxs.c, G.c, norm.func,
                  discrete.covariate.levels = NULL, cov.ranges = NULL,
@@ -3598,6 +3629,8 @@ G.cd <- function(x, g.idx, data, n.if.per.cov, idxs.c, G.c, norm.func,
 #' \code{degree = 3}.
 #' @param ... Arguments specified here will be ignored. Used for compatibility
 #' with other instrumental function classes.
+#'
+#' @noRd
 #'
 G.cd.mc <- function(x, g.idx, data, n.if.per.cov, idxs.c, G.c, norm.func,
                     info.manycov = NULL, cov.ranges = NULL,
@@ -3711,6 +3744,8 @@ G.cd.mc <- function(x, g.idx, data, n.if.per.cov, idxs.c, G.c, norm.func,
 #' @param hp List of hyperparameters. Notably, it contains the instrumental
 #' function to be used in an element named \code{G}.
 #'
+#' @noRd
+#'
 get.instrumental.function.evals <- function(data, hp) {
 
   # Unpack hyperparameters
@@ -3822,6 +3857,8 @@ m <- function(i, data, beta, t, hp) {
 #' evaluations of 1(Y <= t) - Lambda(X^T beta(t)) and in the last n positions
 #' the evaluations of Lambda(X^T beta(t)) - 1(Y <= t, Delta = 1).
 #'
+#' @noRd
+#'
 get.cond.moment.evals <- function(data, beta, t, hp) {
 
   # Unpack hyperparameters
@@ -3862,6 +3899,8 @@ get.cond.moment.evals <- function(data, beta, t, hp) {
 #' @param inst.func.evals Matrix of instrumental function evaluations. If
 #' \code{NULL}, it will be computed during execution of this function. Default
 #' value is \code{inst.func.evals = NULL}.
+#'
+#' @noRd
 #'
 get.mi.mat <- function(data, beta, t, hp, inst.func.evals = NULL) {
 
@@ -3917,6 +3956,8 @@ get.mi.mat <- function(data, beta, t, hp, inst.func.evals = NULL) {
 #' @param hp List of hyperparameters.
 #' @param mi.mat Matrix of moment function evaluations. Can be used to avoid
 #' some computation. Default is \code{mi.mat = NULL}.
+#'
+#' @noRd
 #'
 m.bar <- function(data, beta, t, hp, mi.mat = NULL) {
 
@@ -4031,6 +4072,8 @@ dm <- function(i, data, beta, t, hp) {
 #' @param t Time point of interest.
 #' @param hp List of hyperparameters.
 #'
+#' @noRd
+#'
 get.deriv.mom.func <- function(data, beta, t, hp) {
 
   # Extract hyperparameters
@@ -4081,6 +4124,8 @@ get.deriv.mom.func <- function(data, beta, t, hp) {
 #' @param inst.func.evals Precomputed matrix of instrumental function
 #' evaluations. Defaults is \code{inst.func.evals = NULL}, in which case the
 #' evaluations will be done inside this function.
+#'
+#' @noRd
 #'
 get.dmi.tens <- function(data, beta, t, hp, inst.func.evals = NULL) {
 
@@ -4164,6 +4209,9 @@ get.dmi.tens <- function(data, beta, t, hp, inst.func.evals = NULL) {
 #' @returns A matrix containing the sample average of the partial derivatives of
 #' the moment functions. Each row corresponds to a moment function, each column
 #' corresponds to a coefficient.
+#'
+#' @noRd
+#'
 dm.bar <- function(data, beta, t, hp, dmi.tens = NULL) {
 
   # Number of instrumental functions
@@ -4207,6 +4255,8 @@ dm.bar <- function(data, beta, t, hp, dmi.tens = NULL) {
 #' @param mi.mat A precomputed matrix of moment function evaluations at each
 #' observation. If supplied, some computations can be skipped. Default is
 #' \code{mi.mat = NULL}.
+#'
+#' @noRd
 #'
 Sigma.hat <- function(data, beta, t, hp, m.avg = NULL, mi.mat = NULL) {
 
@@ -4253,6 +4303,8 @@ Sigma.hat <- function(data, beta, t, hp, m.avg = NULL, mi.mat = NULL) {
 #' when the argument for \code{input} is the data frama.
 #' @param mi.mat See documentation of \code{Sigma.hat}. Only needs to be supplied
 #' when the argument for \code{input} is the data frama.
+#'
+#' @noRd
 #'
 D.hat <- function(input, beta = NULL, t = NULL, hp = NULL, m.avg = NULL,
                   mi.mat = NULL) {
@@ -4305,6 +4357,8 @@ D.hat <- function(input, beta = NULL, t = NULL, hp = NULL, m.avg = NULL,
 #'
 #' @param Sigma The output of the function Sigma.hat
 #'
+#' @noRd
+#'
 Omega.hat <- function(Sigma) {
   sqrt.D.hat.inv <- solve(sqrt(D.hat(Sigma)))
   sqrt.D.hat.inv %*% Sigma %*% sqrt.D.hat.inv
@@ -4336,6 +4390,9 @@ Omega.hat <- function(Sigma) {
 #' @returns A matrix containing the partial derivatives of the variances of the
 #' moment functions. Each row corresponds to a moment function, each column
 #' corresponds to a covariate.
+#'
+#' @noRd
+#'
 dD.hat <- function(data, beta, t, hp, mi.mat = NULL, m.avg = NULL,
                    dm.avg = NULL, dmi.tens = NULL) {
 
@@ -4407,6 +4464,8 @@ dD.hat <- function(data, beta, t, hp, mi.mat = NULL, m.avg = NULL,
 #' @references Bei, X. (2024). Local linearieation based subvector inference in
 #' moment inequality models. Journal of Econometrics. 238:105549-
 #'
+#' @noRd
+#'
 G.hat <- function(data, beta, t, hp, mi.mat = NULL, m.avg = NULL,
                   dm.avg = NULL, dmi.tens = NULL, D = NULL) {
 
@@ -4464,6 +4523,8 @@ G.hat <- function(data, beta, t, hp, mi.mat = NULL, m.avg = NULL,
 #'
 #' @returns S(m, Sigma).
 #'
+#' @noRd
+#'
 S.func <- function(m, Sigma) {
 
   # Number of moment functions
@@ -4500,6 +4561,8 @@ S.func <- function(m, Sigma) {
 #' function.
 #'
 #' @returns S-functions evaluation for the specified parameter vector.
+#'
+#' @noRd
 #'
 lf.ts <- function(beta.sub, data, t, hp, c, r, inst.func.evals = NULL) {
 
@@ -4565,6 +4628,8 @@ lf.ts <- function(beta.sub, data, t, hp, c, r, inst.func.evals = NULL) {
 #' @import stats
 #' @importFrom nloptr nloptr
 #'
+#' @noRd
+#'
 get.test.statistic <- function(beta.init, data, par.space, t, hp, c, r,
                                inst.func.evals = NULL) {
 
@@ -4589,7 +4654,7 @@ get.test.statistic <- function(beta.init, data, par.space, t, hp, c, r,
   use.optim <- FALSE # Use stats::optim for optimization. Testing shows that
   # this may miss the global optimum, leading to over-
   # rejection.
-  if (use.optim) {
+  if (use.optim | length(beta.init) == 1) {
     out <- optim(beta.init, lf.ts, data = data, t = t, hp = hp, c = c, r = r,
                  inst.func.evals = inst.func.evals,
                  method = "L-BFGS-B", lower = par.space[which(c == 0), 1],
@@ -4644,6 +4709,8 @@ get.test.statistic <- function(beta.init, data, par.space, t, hp, c, r,
 #' @references Bei, X. (2024). Local linearieation based subvector inference in
 #' moment inequality models. Journal of Econometrics. 238:105549-
 #'
+#' @noRd
+#'
 lf.delta.beta1 <- function(Delta.sub, vnb, phi, Gn, Omegan, beta, c, r, data,
                            par.space, epsilon.n, lambda.n) {
 
@@ -4687,6 +4754,8 @@ lf.delta.beta1 <- function(Delta.sub, vnb, phi, Gn, Omegan, beta, c, r, data,
 #'
 #' @references Bei, X. (2024). Local linearieation based subvector inference in
 #' moment inequality models. Journal of Econometrics. 238:105549-
+#'
+#' @noRd
 #'
 get.cvLLn <- function(BetaI.r, data, t, hp, c, r, par.space,
                       inst.func.evals = NULL, alpha = 0.95) {
@@ -4824,7 +4893,7 @@ get.cvLLn <- function(BetaI.r, data, t, hp, c, r, par.space,
         epsilon.nj <- (par.space[which(c == 0), 2] - par.space[which(c == 0), 1])/2 * epsilon.n
         optim.lb <- sqrt(n) * pmin(par.space[which(c == 0), 1] + epsilon.nj - beta[which(c == 0)], 0)
         optim.ub <- sqrt(n) * pmax(par.space[which(c == 0), 2] - epsilon.nj - beta[which(c == 0)], 0)
-        
+
         # Get the corner point corresponding to this iteration
         comb <- base(comb.nbr - 1, 2, num.digits = n.param - 1)
         corner.point <- (1 - comb) * optim.lb + comb * optim.ub
@@ -4886,8 +4955,6 @@ get.identified.set <- function(test.results) {
   c(lb, ub)
 }
 
-
-
 #### Search strategies: helper functions ####
 
 #' @title Obtain next point for feasible point search.
@@ -4903,6 +4970,8 @@ get.identified.set <- function(test.results) {
 #' @param ub.theta Upper bound on the parameter of interest.
 #'
 #' @returns Next point in the feasible point search.
+#'
+#' @noRd
 #'
 get.next.point <- function(evaluations, lb.theta, ub.theta) {
 
@@ -4962,6 +5031,8 @@ get.next.point <- function(evaluations, lb.theta, ub.theta) {
 #'
 #' @returns Evaluation matrix.
 #'
+#' @noRd
+#'
 insert.row <- function(evaluations, row, idx.after) {
 
   if (idx.after == 0) {
@@ -4993,6 +5064,8 @@ insert.row <- function(evaluations, row, idx.after) {
 #' @returns The expected improvement.
 #'
 #' @importFrom stats pnorm
+#'
+#' @noRd
 #'
 EI <- function(theta, test.fun, fit.krige, theta.hash, dir) {
 
@@ -5033,6 +5106,8 @@ EI <- function(theta, test.fun, fit.krige, theta.hash, dir) {
 #'
 #' @references Bei, X. (2024). Local linearieation based subvector inference in
 #' moment inequality models. Journal of Econometrics. 238:105549-
+#'
+#' @noRd
 #'
 draw.sv.init <- function(theta.hash, dir, hyperparams, EI.fun) {
 
@@ -5129,6 +5204,8 @@ draw.sv.init <- function(theta.hash, dir, hyperparams, EI.fun) {
 #' @references Bei, X. (2024). Local linearieation based subvector inference in
 #' moment inequality models. Journal of Econometrics. 238:105549-
 #'
+#' @noRd
+#'
 MSpoint <- function(draws.init) {
   X <- draws.init[, 1]
   n.eval <- length(X)
@@ -5168,6 +5245,9 @@ MSpoint <- function(draws.init) {
 #' @param hyperparams List of hyperparameters.
 #'
 #' @returns Vector of starting values
+#'
+#' @noRd
+#'
 get.starting.values <- function(theta.hash, dir, EI.Mstep, hyperparams) {
 
   # Extract necessary hyperparameters for readibility
@@ -5214,6 +5294,8 @@ get.starting.values <- function(theta.hash, dir, EI.Mstep, hyperparams) {
 #'
 #' @import stats
 #' @importFrom utils tail
+#'
+#' @noRd
 #'
 do.optimization.Mstep <- function(start.vals, EI.Mstep, hyperparams) {
 
@@ -5272,6 +5354,8 @@ do.optimization.Mstep <- function(start.vals, EI.Mstep, hyperparams) {
 #' @returns Points to evaluate in E-step.
 #'
 #' @import stats
+#'
+#' @noRd
 #'
 get.extra.Estep.points <- function(dir, theta.hash, maxviol.hash,
                                    hyperparams) {
@@ -5333,6 +5417,8 @@ get.extra.Estep.points <- function(dir, theta.hash, maxviol.hash,
 #' @references Kaido et al. (2019). Confidence intervals for projections of
 #' partially identified parameters. Econometrica. 87(4):1397-1432.
 #'
+#' @noRd
+#'
 feasible_point_search <- function(test.fun, hyperparams, verbose,
                                   picturose = FALSE, parallel = FALSE) {
 
@@ -5392,8 +5478,8 @@ feasible_point_search <- function(test.fun, hyperparams, verbose,
     if (verbose >= 3) {
       message("Evaluating initial points in parallel")
     }
-    
-    # Resolve possible issues in 'foreach' method due to some variables not 
+
+    # Resolve possible issues in 'foreach' method due to some variables not
     # beign found.
     hp <- hyperparams
     inst.func.evals <- hp$inst.func.evals
@@ -5422,7 +5508,7 @@ feasible_point_search <- function(test.fun, hyperparams, verbose,
                   .packages = c("R6", "nloptr", "EnvStats", "splines2",
                                 "rkriging", "lubridate")
         ) %dopar% {
-          
+
           # Load all functions
           library("depCensoring")
 
@@ -5501,7 +5587,7 @@ feasible_point_search <- function(test.fun, hyperparams, verbose,
         pte <- c(pte, theta.next)
         pte.idxafter <- c(pte.idxafter, idx.after)
       }
-      
+
       # Plot points to evaluate
       if (picturose) {
         plot_addpte(pte)
@@ -5517,16 +5603,16 @@ feasible_point_search <- function(test.fun, hyperparams, verbose,
                   .packages = c("R6", "nloptr", "EnvStats", "splines2",
                                 "rkriging", "lubridate")
           ) %dopar% {
-  
+
             # Load all necessary packages
             library("depCensoring")
-  
+
             # Select theta of this iteration
             theta <- pte[i]
-  
+
             # Run the test
             test.out <- test.fun(theta)
-  
+
             # Return the results
             c(theta, test.out[["t.stat"]], test.out[["crit.val"]])
           }
@@ -5536,7 +5622,7 @@ feasible_point_search <- function(test.fun, hyperparams, verbose,
       for (i in 1:batch.size) {
         evaluations <- insert.row(evaluations, evaluations.add[i, ], pte.idxafter[i])
       }
-      
+
       # Update plot
       if (picturose) {
         plot_addpte.eval(evaluations.add)
@@ -5594,7 +5680,7 @@ feasible_point_search <- function(test.fun, hyperparams, verbose,
   }
 
   #### Return the results ####
-  
+
   list(evaluations = evaluations)
 }
 
@@ -5613,6 +5699,8 @@ feasible_point_search <- function(test.fun, hyperparams, verbose,
 #' @param verbose Verbosity parameter.
 #'
 #' @returns Results of the E-step.
+#'
+#' @noRd
 #'
 E_step <- function(thetas, test.fun, dir, evaluations, verbose) {
 
@@ -5677,6 +5765,8 @@ E_step <- function(thetas, test.fun, dir, evaluations, verbose) {
 #' @importFrom utils install.packages
 #' @seealso Package \pkg{rkriging}.
 #'
+#' @noRd
+#'
 A_step <- function(evaluations, verbose = 0) {
 
   # Make sure package rkriging is installed and loaded
@@ -5701,7 +5791,7 @@ A_step <- function(evaluations, verbose = 0) {
 
   # Vector of violations (test statistic - critical value)
   violations.vct <- evaluations[idxs.unique, "t.stat"] - evaluations[idxs.unique, "crit.val"]
-  
+
   # Fit the Kriging model
   fit.krige <- rkriging::Fit.Kriging(theta.mat, violations.vct,
                                      kernel.parameters = list(type = "Gaussian"))
@@ -5749,6 +5839,8 @@ A_step <- function(evaluations, verbose = 0) {
 #' @param verbose Verbosity parameter.
 #'
 #' @importFrom graphics abline legend
+#'
+#' @noRd
 #'
 M_step <- function(dir, evaluations, theta.hash, fit.krige, test.fun, c,
                    par.space, hyperparams, verbose) {
@@ -5800,7 +5892,7 @@ M_step <- function(dir, evaluations, theta.hash, fit.krige, test.fun, c,
          main = "Expected improvement function M-step")
     abline(v = theta.hash, col = "red")
     abline(v = opt.res[1], col = "green")
-    
+
     legend.txt <- sprintf(c("Current best %s", "Candidate %s based on kriging model"),
                           ifelse(dir == 1, "upper bound", "lower bound"))
     legend("bottomleft", legend = legend.txt, col = c("red", "green"),
@@ -5832,6 +5924,8 @@ M_step <- function(dir, evaluations, theta.hash, fit.krige, test.fun, c,
 #' @param verbose Verbosity parameter.
 #'
 #' @returns Boolean value whether or not algorithm has converged.
+#'
+#' @noRd
 #'
 EAM.converged <- function(opt.val.prev, evaluations, mp.theta.next, iter.nbr,
                           dir, hyperparams, verbose) {
@@ -5943,6 +6037,8 @@ EAM.converged <- function(opt.val.prev, evaluations, mp.theta.next, iter.nbr,
 #'
 #' @returns The next point to evaluate in the grid search.
 #'
+#' @noRd
+#'
 gs.algo.bidir <- function(test.results, max.iter, step.size) {
 
   # Define some useful variables
@@ -6051,6 +6147,9 @@ gs.algo.bidir <- function(test.results, max.iter, step.size) {
 #' @param hp List of hyperparameters.
 #'
 #' @returns Next point to evaluate in the search algorithm.
+#'
+#' @noRd
+#'
 gs.regular <- function(evaluations, dir, iter.nbr, hp) {
 
   # Extract the necessary hyperparameters
@@ -6099,6 +6198,8 @@ gs.regular <- function(evaluations, dir, iter.nbr, hp) {
 #' @param hp List of hyperparameters.
 #'
 #' @returns The next point to evaluate.
+#'
+#' @noRd
 #'
 gs.binary <- function(evaluations, dir, iter.nbr, hp) {
 
@@ -6187,6 +6288,8 @@ gs.binary <- function(evaluations, dir, iter.nbr, hp) {
 #' @param hp List of hyperparameters.
 #'
 #' @returns The next point to evaluate.
+#'
+#' @noRd
 #'
 gs.interpolation <- function(evaluations, dir, iter.nbr, hp) {
 
@@ -6302,6 +6405,9 @@ gs.interpolation <- function(evaluations, dir, iter.nbr, hp) {
 #' }
 #'
 #' @returns List of hyperparameters for the EAM algotithm.
+#'
+#' @noRd
+#'
 
 set.EAM.hyperparameters <- function(options) {
 
@@ -6400,6 +6506,8 @@ set.EAM.hyperparameters <- function(options) {
 #'
 #' @references Kaido et al. (2019). Confidence intervals for projections of
 #' partially identified parameters. Econometrica. 87(4):1397-1432.
+#'
+#' @noRd
 #'
 EAM <- function(dir, test.fun, hyperparams, evaluations = NULL,
                 time.run.duration = FALSE, verbose = 0, picturose = FALSE) {
@@ -6554,6 +6662,8 @@ EAM <- function(dir, test.fun, hyperparams, evaluations = NULL,
 #' @returns List of hyperparameters for the gridsearch and binary search
 #' algorithms.
 #'
+#' @noRd
+#'
 set.GS.hyperparameters <- function(options) {
 
   # Define the list of hyperparameters
@@ -6618,6 +6728,8 @@ set.GS.hyperparameters <- function(options) {
 #'
 #' @returns List containing the evaluations of the test statistic and critical
 #' values, convergence information, and run times.
+#'
+#' @noRd
 #'
 gridSearch <- function(dir, test.fun, hyperparams, evaluations = NULL,
                        time.run.duration = FALSE, verbose = 0,
@@ -6719,10 +6831,6 @@ gridSearch <- function(dir, test.fun, hyperparams, evaluations = NULL,
        converge = converge)
 }
 
-
-
-
-
 #### User interface: main estimation functions ####
 
 #' @title Check argument consistency.
@@ -6732,6 +6840,8 @@ gridSearch <- function(dir, test.fun, hyperparams, evaluations = NULL,
 #' invalid, the an exception is thrown.
 #'
 #' @inheritParams pi.surv
+#'
+#' @noRd
 #'
 check.args.pisurv <- function(data, idx.param.of.interest, idxs.c, t, par.space,
                               search.method, add.options) {
@@ -6857,11 +6967,11 @@ check.args.pisurv <- function(data, idx.param.of.interest, idxs.c, t, par.space,
   }
 }
 
-#' @title Estimate the model of Willems et al. (2024+).
+#' @title Estimate the model of Willems et al. (2025).
 #'
 #' @description This function estimates bounds on the coefficients the single-
 #' index model \eqn{\Lambda(x^\top \beta(t))} for the conditional cumulative
-#' distribution function of the event time. 
+#' distribution function of the event time.
 #'
 #' @param data Data frame containing the data on which to fit the model. The
 #' columns should be named as follows: 'Y' = observed timed, 'Delta' = censoring
@@ -6889,10 +6999,81 @@ check.args.pisurv <- function(data, idx.param.of.interest, idxs.c, t, par.space,
 #' Other options can range from 'standard' hyperparameters such as the
 #' confidence level of the test and number of instrumental functions to be used,
 #' to technical hyperparameters regarding the search method and test
-#' implementation. For the latter, we refer to the documentations of
-#' \code{set.hyperparameters}, \code{set.EAM.hyperparameters} and
-#' \code{set.GS.hyperparameters}. We recommend to use the default parameters,
-#' unless you really know what you are doing.
+#' implementation.
+#'
+#' General hyperparameters:
+#' \describe{
+#'  \item{cov.ranges:}{known bounds on each of the covariates in the data set.}
+#'  \item{norm.func.name:}{Name of the normalization function to be used. Can
+#'  be either "normalize.covariates1" or "normalize.covariates2" (default).
+#'  The former is a simple elementwise rescaling. The latter uses the PCA
+#'  approach.}
+#'  \item{inst.func.family:}{Family of instrumental functions to be used for
+#'  all covariates. Options are "box", "spline" and "cd". The former two are
+#'  only applicable for continuous covariates. The latter can also handle
+#'  discrete covariates. Default is "cd".}
+#'  \item{G.c:}{The class of instrumental functions used for the continuous
+#'  covariates in the model, in case "cd" is selected as
+#'  \code{inst.func.family:}. Options are "box" and "spline". Default is
+#'  "spline".}
+#'  \item{degree:}{The degree of the B-spline functions, should they be used as
+#'  instrumental functions for the continuous covariates. Default is 3.}
+#'  \item{link.function:}{Name of the link function to be used. Options are
+#'  "AFT_ll" for the AFT model with log-logistic baseline, or "Cox_wb" for the
+#'  Cox PH model (originally with Weibull baseline, but now for a general)
+#'  baseline hazard).}
+#'  \item{K.bar:}{Number of refinement steps when obtaining the critical value.
+#'  See Bei (2024).}
+#'  \item{B:}{Number of bootstrap samples to be used when obtaining the
+#'  bootstrap distribution of the test statistic.}
+#'  \item{ignore.empty.IF:}{Boolean value indicating whether instrumental
+#'  functions with empty support should be ignored.
+#'  Default is FALSE. The feature \code{ignore.empty.IF = TRUE} is experimental,
+#'  so there might exist edge cases for which the implementation will fail to
+#'  run.}
+#' }
+#'
+#' Hyperparameters specific to the EAM implementation:
+#' \describe{
+#'  \item{min.dist/max.dist:}{The minimum/maximum distance of sampled points
+#'  from the current best value for the coefficient of interest.}
+#'  \item{min.eval/max.eval:}{The minimum/maximum number of points evaluated
+#'  in the initial feasible point search.}
+#'  \item{nbr.init.sample.points:}{The total number of drawn points required in
+#'  the initial drawing process.}
+#'  \item{nbr.init.unif:}{The total number of uniformly drawn points in the
+#'  initial set of starting values.}
+#'  \item{nbr.points.per.iter.init:}{Number of points sampled per iteration in
+#'  the initial drawing process.}
+#'  \item{nbr.start.vals:}{Number of starting values for which to run the
+#'  optimization algorithm for the expected improvement.}
+#'  \item{nbr.opt.EI:}{Number of optimal theta values found by the optimization
+#'  algorithm to return.}
+#'  \item{nbr.extra:}{Number of extra randomly drawn points to add to the set
+#'  of optimal theta values (to be supplied to the next E-step).}
+#'  \item{min.improvement:}{Minimum amount that the current best root of the
+#'  violation curve should improve by wrt. the its previous value.}
+#'  \item{min.possible.improvement:}{Minimum amount that the next iteration
+#'  should be able to improve upon the current best value of the root.}
+#'  \item{EAM.min.iter:}{Minimum amount of EAM iterations to run.}
+#'  \item{max.iter:}{Maximum amount of EAM iterations to run.}
+#' }
+#'
+#' Hyperparameters specific to the gridsearch implementation:
+#' \describe{
+#'  \item{min.eval/max.eval:}{Minimum and maximum number of evaluations.}
+#'  \item{next.gs.point:}{Function that determines the next point in the grid
+#'  search sequence.}
+#'  \item{step.size:}{Step size of the grid.}
+#'  \item{bin.search.tol:}{Binary search tolerance.}
+#'  \item{max.iter:}{Maximum number of iterations that the algorithm can run.}
+#' }
+#'
+#' Other (hidden) options can also be overwritten, though we highly discourage
+#' this. If necessary, you can consult the source code of this functions to
+#' find the names of the desired parameters and add their name alongside their
+#' desired value as an entry in \code{options} (e.g.
+#' \code{options$min.var <- 1e-4}. Again, not recommended!).
 #' @param verbose Verbosity level. The higher the value, the more verbose the
 #' method will be. Default is \code{verbose = 0}.
 #' @param picturose Picturosity flag. If \code{TRUE}, a plot illustrating the
@@ -6917,30 +7098,30 @@ check.args.pisurv <- function(data, idx.param.of.interest, idxs.c, t, par.space,
 #'
 #'   # Clear workspace
 #'   rm(list = ls())
-#'   
+#'
 #'   # Load the survival package
 #'   library(survival)
-#'   
+#'
 #'   # Set random seed
 #'   set.seed(123)
-#'   
+#'
 #'   # Load and preprocess data
 #'   data <- survival::lung
 #'   data[, "intercept"] <- rep(1, nrow(data))
 #'   data[, "status"] <- data[, "status"] - 1
 #'   data <- data[, c("time", "status", "intercept", "age", "sex")]
 #'   colnames(data) <- c("Y", "Delta", "X0", "X1", "X2")
-#'   
+#'
 #'   # Standardize age variable
 #'   data[, "X1"] <- scale(data[, "X1"])
-#'   
+#'
 #'   ## Example:
 #'   ## - Link function: AFT link function (default setting)
 #'   ## - Number of IF: 5 IF per continuous covariate (default setting)
 #'   ## - Search method: Binary search
 #'   ## - Type of IF: Cubic spline functions for continuous covariate, indicator
 #'   ##   function for discrete covariate (default setting).
-#'   
+#'
 #'   # Settings for main estimation function
 #'   idx.param.of.interest <- 2 # Interest in effect of age
 #'   idxs.c <- 1                # X1 (age) is continuous
@@ -6950,7 +7131,7 @@ check.args.pisurv <- function(data, idx.param.of.interest, idxs.c, t, par.space,
 #'   add.options <- list()
 #'   picturose <- TRUE
 #'   parallel <- FALSE
-#'   
+#'
 #'   # Estimate the identified intervals
 #'   pi.surv(data, idx.param.of.interest, idxs.c, t, par.space,
 #'           search.method = search.method, add.options = add.options,
@@ -6958,9 +7139,9 @@ check.args.pisurv <- function(data, idx.param.of.interest, idxs.c, t, par.space,
 #' }
 #'
 #'
-#' @references Willems, I., Beyhum, J. and Van Keilegom, I. (2024+). Partial
+#' @references Willems, I., Beyhum, J. and Van Keilegom, I. (2025). Partial
 #' identification for a class of survival models under dependent censoring.
-#' (In preparation).
+#' (Submitted).
 #'
 pi.surv <- function(data, idx.param.of.interest, idxs.c, t, par.space,
                     search.method = "GS", add.options = list(),
@@ -6968,6 +7149,16 @@ pi.surv <- function(data, idx.param.of.interest, idxs.c, t, par.space,
 
   #### Consistency checks ####
 
+  # Dependencies
+  deps <- c("survival", "EnvStats", "splines2", "copula", "nloptr", "rkriging",
+            "doParallel", "lubridate", "R6")
+  loads <- unlist(lapply(deps, requireNamespace, quietly = TRUE))
+  if (!all(loads)) {
+    pkgs <- paste(sprintf("'%s'", deps[!loads]), collapse = ", ")
+    message(sprintf("Required package(s) %s could not be loaded.", pkgs))
+  }
+
+  # Arguments supplied to function
   check.args.pisurv(data, idx.param.of.interest, idxs.c, t, par.space,
                     search.method, add.options)
 
@@ -7047,13 +7238,13 @@ pi.surv <- function(data, idx.param.of.interest, idxs.c, t, par.space,
              }
     )
     if (is.logical(fis.out)) {return(invisible(FALSE))}
-    
+
     # Store the results
     row.name <- paste0("X", which(c == 1) - 1)
     results[row.name, c("lower", "upper")] <- fis.out$ident.set
     results[row.name, c("conv.l", "conv.u")] <- c(fis.out$converge1, fis.out$converge2)
   }
-  
+
   # Stop parallel back-end
   if (parallel) {
     stopCluster(clust)
@@ -7123,6 +7314,8 @@ subset.data <- function(data, criteria, keep.covs = NULL, max.row = NULL) {
 #' identified interval. For intersection bounds, set this value to \code{1}.
 #'
 #' @returns The combined identified interval.
+#'
+#' @noRd
 #'
 cbMV <- function(results.list, threshold) {
 
@@ -7219,6 +7412,8 @@ cbMV <- function(results.list, threshold) {
 #'
 #' @noRd
 #'
+#' @noRd
+#'
 get.file.name.pancreas <- function(args, idx.param.of.interest, master.dir) {
 
   # Create directory if necessary
@@ -7249,6 +7444,8 @@ get.file.name.pancreas <- function(args, idx.param.of.interest, master.dir) {
 #'
 #' @importFrom grDevices dev.off
 #'
+#' @noRd
+#'
 clear.plt.wdw <- function() {
   tryCatch(invisible(dev.off()), error = function(e) {invisible(e)})
 }
@@ -7260,6 +7457,8 @@ clear.plt.wdw <- function() {
 #'
 #' @param c Projection vector
 #' @param hp List of hyperparameters
+#'
+#' @noRd
 #'
 plot_base <- function(c, hp) {
 
@@ -7287,6 +7486,8 @@ plot_base <- function(c, hp) {
 #'
 #' @importFrom graphics points
 #'
+#' @noRd
+#'
 plot_addpte <- function(pte, col = "orange") {
   points(x = pte, y = rep(0, length(pte)), pch = 16, col = col)
   points(x = pte, y = rep(0, length(pte)), pch = 1, col = "black")
@@ -7300,6 +7501,8 @@ plot_addpte <- function(pte, col = "orange") {
 #' @param evaluations Matrix of evaluations to be drawn.
 #'
 #' @importFrom graphics points
+#'
+#' @noRd
 #'
 plot_addpte.eval <- function(evaluations) {
   feas <- evaluations[, 2] <= evaluations[, 3]
@@ -7326,7 +7529,7 @@ plot_addpte.eval <- function(evaluations) {
 #'  \item{norm.func.name:}{Name of the normalization function to be used. Can
 #'  be either "normalize.covariates1" or "normalize.covariates2" (default).
 #'  The former is a simple elementwise rescaling. The latter uses the PCA
-#'  approach as discussed in Willems et al. (2024+).}
+#'  approach.}
 #'  \item{inst.func.family:}{Family of instrumental functions to be used for
 #'  all covariates. Options are "box", "spline" and "cd". The former two are
 #'  only applicable for continuous covariates. The latter can also handle
@@ -7346,7 +7549,7 @@ plot_addpte.eval <- function(evaluations) {
 #'  \item{B:}{Number of bootstrap samples to be used when obtaining the
 #'  bootstrap distribution of the test statistic.}
 #'  \item{ignore.empty.IF:}{Boolean value indicating whether instrumental
-#'  functions with empty support should be ignored (cf. Willems et al., 2024).
+#'  functions with empty support should be ignored.
 #'  Default is FALSE. The feature \code{ignore.empty.IF = TRUE} is experimental,
 #'  so there might exist edge cases for which the implementation will fail to
 #'  run.}
@@ -7358,6 +7561,8 @@ plot_addpte.eval <- function(evaluations) {
 #' \code{options$min.var <- 1e-4}. Again, not recommended!).
 #'
 #' @returns The list of hyperparameters.
+#'
+#' @noRd
 #'
 set.hyperparameters <- function(data, par.space, c, search.method, options) {
 
@@ -7737,7 +7942,7 @@ find.identified.set <- function(c, t, par.space, data, search.method, options,
                 chronometer1 = Chronometer$new(),
                 chronometer2 = Chronometer$new()))
   }
-  
+
   # Add instrumental function evaluations to hyperparameter list (only needed
   # when parallel = TRUE)
   hp$inst.func.evals <- inst.func.evals
@@ -7826,6 +8031,8 @@ find.identified.set <- function(c, t, par.space, data, search.method, options,
 get.file.name <- function(comb, sim.iter.nbr, seed, master.dir,
                           shortened = FALSE, defaults = NULL) {
 
+  requireNamespace("stringr")
+
   if (is(comb, "matrix")) {
 
     # Shorten inst.func.family name, if applicable.
@@ -7845,10 +8052,10 @@ get.file.name <- function(comb, sim.iter.nbr, seed, master.dir,
 
     # If necessary, remove defaults
     if (shortened) {
-      components <- str_split(sub.dir, "__")[[1]]
+      components <- stringr::str_split(sub.dir, "__")[[1]]
       components.shortened <- NULL
       for (component in components) {
-        if (!(str_split(component, "-")[[1]][1] %in% names(defaults))) {
+        if (!(stringr::str_split(component, "-")[[1]][1] %in% names(defaults))) {
           components.shortened <- c(components.shortened, component)
         }
       }
@@ -7880,10 +8087,10 @@ get.file.name <- function(comb, sim.iter.nbr, seed, master.dir,
 
     # If necessary, remove defaults
     if (shortened) {
-      components <- str_split(file.name, "__")[[1]]
+      components <- stringr::str_split(file.name, "__")[[1]]
       components.shortened <- NULL
       for (component in components) {
-        if (!(str_split(component, "-")[[1]][1] %in% names(defaults))) {
+        if (!(stringr::str_split(component, "-")[[1]][1] %in% names(defaults))) {
           components.shortened <- c(components.shortened, component)
         }
       }
@@ -7910,10 +8117,10 @@ get.file.name <- function(comb, sim.iter.nbr, seed, master.dir,
 
     # If necessary, remove defaults
     if (shortened) {
-      components <- str_split(sub.dir, "__")[[1]]
+      components <- stringr::str_split(sub.dir, "__")[[1]]
       components.shortened <- NULL
       for (component in components) {
-        if (!(str_split(component, "-")[[1]][1] %in% names(defaults))) {
+        if (!(stringr::str_split(component, "-")[[1]][1] %in% names(defaults))) {
           components.shortened <- c(components.shortened, component)
         }
       }
@@ -7945,10 +8152,10 @@ get.file.name <- function(comb, sim.iter.nbr, seed, master.dir,
 
     # If necessary, remove defaults
     if (shortened) {
-      components <- str_split(file.name, "__")[[1]]
+      components <- stringr::str_split(file.name, "__")[[1]]
       components.shortened <- NULL
       for (component in components) {
-        if (!(str_split(component, "-")[[1]][1] %in% names(defaults))) {
+        if (!(stringr::str_split(component, "-")[[1]][1] %in% names(defaults))) {
           components.shortened <- c(components.shortened, component)
         }
       }

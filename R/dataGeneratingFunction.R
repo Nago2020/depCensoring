@@ -29,6 +29,8 @@
 #'
 #' @return A generated data set
 #'
+#' @noRd
+#'
 
 dat.sim.reg.comp.risks = function(n, par, iseed, s, conf, Zbin, Wbin, type.cov,
                                   A.upper = 15) {

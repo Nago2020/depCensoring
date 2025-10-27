@@ -6,6 +6,10 @@
 #'   censoring times can be considered as fully parametric. The existence of a cured fraction concerning survival time
 #'   can also be taken into consideration.
 #'
+#'  @references Czado and Van Keilegom (2023). Dependent censoring based on parametric copulas. Biometrika, 110(3), 721-738.
+#'  @references Delhelle and Van Keilegom (2024). Copula based dependent censoring in cure models. TEST (to appear).
+#'  @references Ding and Van Keilegom (2024). Semiparametric estimation of the survival function under dependent censoring (in preparation).
+#'
 #' @param yobs a numeric vector that indicated the observed survival times.
 #' @param delta a numeric vector that stores the right-censoring indicators.
 #' @param tm a numeric vector that contains interested non-negative time points at which the survival probabilities will be evluated.
@@ -76,10 +80,6 @@
 #'   their joint survival function in line with the semiparametric case (instead of modeling joint distribution function
 #'   directly as in  Czado and Van Keilegom (2023) <doi:10.1093/biomet/asac067>), but the idea of estimation methodology
 #'   are exactly the same.
-#'
-#'  @references Czado and Van Keilegom (2023). Dependent censoring based on parametric copulas. Biometrika, 110(3), 721-738.
-#'  @references Delhelle and Van Keilegom (2024). Copula based dependent censoring in cure models. TEST (to appear).
-#'  @references Ding and Van Keilegom (2024). Semiparametric estimation of the survival function under dependent censoring (in preparation).
 #'
 #' @return
 #'   A list of fitted results is returned.

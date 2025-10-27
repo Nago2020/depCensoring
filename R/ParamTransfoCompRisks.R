@@ -26,14 +26,17 @@
 #' formations.
 #'
 #' @import mvtnorm pbivnorm
-#' @importFrom OpenMx omxMnor
 #' @importFrom stats dnorm
 #'
 #' @return Evaluation of the log-likelihood function
 #'
-
+#' @noRd
+#'
 cr.lik <- function(n, s, Y, admin, cens.inds, M, Sigma, beta.mat, sigma.vct,
                    rho.mat, theta.vct) {
+
+  # Load dependency
+  requireNamespace("OpenMx")
 
   # In the current implementation, Sigma should always be a positive definite
   # matrix. The if-clause is therefore superfluous.
@@ -114,11 +117,11 @@ cr.lik <- function(n, s, Y, admin, cens.inds, M, Sigma, beta.mat, sigma.vct,
       }
     } else {
       mypmvnorm.cr <- function(arg.vct, cov.mat) {
-        omxMnor(cov.mat, rep(0, length(arg.vct)), rep(-Inf, length(arg.vct)), arg.vct)
+        OpenMx::omxMnor(cov.mat, rep(0, length(arg.vct)), rep(-Inf, length(arg.vct)), arg.vct)
       }
     }
     mypmvnorm.ad <- function(arg.vct, cov.mat) {
-      omxMnor(cov.mat, rep(0, length(arg.vct)), rep(-Inf, length(arg.vct)), arg.vct)
+      OpenMx::omxMnor(cov.mat, rep(0, length(arg.vct)), rep(-Inf, length(arg.vct)), arg.vct)
     }
 
     # Multivariate normal evaluations
@@ -176,7 +179,8 @@ cr.lik <- function(n, s, Y, admin, cens.inds, M, Sigma, beta.mat, sigma.vct,
 #' @return Returns the log-likelihood function corresponding to the data,
 #' evaluated at the point \code{gamma}.
 #'
-
+#' @noRd
+#'
 LikGamma1 <- function(gamma, Z, M) {
 
   # Correctly format the variables
@@ -214,7 +218,8 @@ LikGamma1 <- function(gamma, Z, M) {
 #' @return Returns the log-likelihood function corresponding to the data,
 #' evaluated at the point \code{gamma}.
 #'
-
+#' @noRd
+#'
 LikGamma2 <- function(gamma, Z, M) {
 
   # Correcly format the variables
@@ -261,11 +266,11 @@ LikGamma2 <- function(gamma, Z, M) {
 #' used to compare the two-step estimator with the naive estimator.
 #'
 #' @import mvtnorm pbivnorm
-#' @importFrom OpenMx omxMnor
 #'
 #' @return Log-likelihood evaluation of the second step.
 #'
-
+#' @noRd
+#'
 LikF.cmprsk <- function(par, data, admin, conf, cf) {
 
   #### Unpack data ####
@@ -274,7 +279,7 @@ LikF.cmprsk <- function(par, data, admin, conf, cf) {
   Y <- data[, "y"]
 
   # Censoring indicators
-  cens.inds <- data[, grepl("delta[[:digit:]]+", colnames(data))]
+  cens.inds <- data[, grepl("delta[[:digit:]]+", colnames(data)), drop = FALSE]
   if (admin) {
     cens.inds <- cbind(cens.inds, data[, which(colnames(data) == "da")])
   }
@@ -359,17 +364,17 @@ LikF.cmprsk <- function(par, data, admin, conf, cf) {
 #' Default is \code{eps = 0.001}.
 #'
 #' @import mvtnorm pbivnorm
-#' @importFrom OpenMx omxMnor
 #'
 #' @return Log-likelihood evaluation of the second step.
 #'
-
+#' @noRd
+#'
 likF.cmprsk.Cholesky <- function(par.chol, data, admin, conf, cf, eps = 0.001) {
 
   #### Unpack data ####
 
   # Censoring indicators
-  cens.inds <- data[, grepl("delta[[:digit:]]+", colnames(data))]
+  cens.inds <- data[, grepl("delta[[:digit:]]+", colnames(data)), drop = FALSE]
   if (admin) {
     cens.inds <- cbind(cens.inds, data[, which(colnames(data) == "da")])
   }
@@ -459,7 +464,8 @@ likF.cmprsk.Cholesky <- function(par.chol, data, admin, conf, cf, eps = 0.001) {
 #' @return Starting values for subsequent optimization function used in the
 #' second step of the estimation procedure.
 #'
-
+#' @noRd
+#'
 LikI.bis <- function(par, data, admin, conf, cf) {
 
   #### Unpack data ####
@@ -468,7 +474,7 @@ LikI.bis <- function(par, data, admin, conf, cf) {
   Y <- data[, "y"]
 
   # Censoring indicators
-  cens.inds <- data[, grepl("delta[[:digit:]]+", colnames(data))]
+  cens.inds <- data[, grepl("delta[[:digit:]]+", colnames(data)), drop = FALSE]
   cens.inds <- cbind(cens.inds, data[, which(colnames(data) == "da")])
 
   # Intercept
@@ -592,12 +598,12 @@ LikI.bis <- function(par, data, admin, conf, cf) {
 #' used to compare the two-step estimator with the naive estimator.
 #'
 #' @import mvtnorm pbivnorm
-#' @importFrom OpenMx omxMnor
 #'
 #' @return Log-likelihood evaluation for the second step in the esimation
 #' procedure.
 #'
-
+#' @noRd
+#'
 LikI.cmprsk <- function(par, data, eoi.indicator.names, admin, conf, cf) {
 
   #### Unpack data ####
@@ -606,7 +612,7 @@ LikI.cmprsk <- function(par, data, eoi.indicator.names, admin, conf, cf) {
   Y <- data[, "y"]
 
   # Censoring indicators
-  cens.inds <- data[, grepl("delta[[:digit:]]+", colnames(data))]
+  cens.inds <- data[, grepl("delta[[:digit:]]+", colnames(data)), drop = FALSE]
   if (admin) {
     cens.inds <- cbind(cens.inds, data[, which(colnames(data) == "da")])
   }
@@ -715,19 +721,19 @@ LikI.cmprsk <- function(par, data, eoi.indicator.names, admin, conf, cf) {
 #' Default is \code{eps = 0.001}.
 #'
 #' @import mvtnorm pbivnorm
-#' @importFrom OpenMx omxMnor
 #'
 #' @return Log-likelihood evaluation for the second step in the estimation
 #' procedure.
-
-
+#'
+#' @noRd
+#'
 LikI.cmprsk.Cholesky <- function(par.chol, data, eoi.indicator.names, admin,
                                  conf, cf, eps = 0.001) {
 
   ## Unpack data ##
 
   # Censoring indicators
-  cens.inds <- data[, grepl("delta[[:digit:]]+", colnames(data))]
+  cens.inds <- data[, grepl("delta[[:digit:]]+", colnames(data)), drop = FALSE]
   if (admin) {
     cens.inds <- cbind(cens.inds, data[, which(colnames(data) == "da")])
   }
@@ -838,11 +844,11 @@ LikI.cmprsk.Cholesky <- function(par.chol, data, eoi.indicator.names, admin,
 #' @param inst Type of instrumental function to be used.
 #'
 #' @import mvtnorm pbivnorm
-#' @importFrom OpenMx omxMnor
 #'
 #' @return Full model log-likelihood evaluation.
 #'
-
+#' @noRd
+#'
 likIFG.cmprsk.Cholesky <- function(parhatG, data, eoi.indicator.names, admin,
                                    conf, Zbin, inst) {
 
@@ -858,7 +864,7 @@ likIFG.cmprsk.Cholesky <- function(parhatG, data, eoi.indicator.names, admin,
   #### Extract parameters ####
 
   # Censoring indicators
-  cens.inds <- data[, grepl("delta[[:digit:]]+", colnames(data))]
+  cens.inds <- data[, grepl("delta[[:digit:]]+", colnames(data)), drop = FALSE]
   if (admin) {
     cens.inds <- cbind(cens.inds, data[, which(colnames(data) == "da")])
   }
@@ -912,7 +918,8 @@ likIFG.cmprsk.Cholesky <- function(parhatG, data, eoi.indicator.names, admin,
 #' @return List containing the vector of values for the control function and
 #' the regression parameters of the first step.
 #'
-
+#' @noRd
+#'
 estimate.cf <- function(XandW, Z, Zbin, gammaest = NULL) {
 
   # Define useful parameter
@@ -948,14 +955,14 @@ estimate.cf <- function(XandW, Z, Zbin, gammaest = NULL) {
 
 
 
-#' @title Estimate the competing risks model of Rutten, Willems et al. (20XX).
+#' @title Estimate the competing risks model of Willems et al. (2025).
 #'
 #' @description This function estimates the parameters in the competing risks
-#' model described in Willems et al. (2024+). Note that this model
+#' model described in Willems et al. (2025). Note that this model
 #' extends the model of Crommen, Beyhum and Van Keilegom (2024) and as such, this
 #' function also implements their methodology.
 #'
-#' @references Willems et al. (2024+). Flexible control function approach under competing risks (in preparation).
+#' @references Willems et al. (2025). Flexible control function approach under competing risks (submitted).
 #' @references Crommen, G., Beyhum, J., and Van Keilegom, I. (2024). An instrumental variable approach under dependent censoring. Test, 33(2), 473-495.
 #'
 #' @param data A data frame, adhering to the following formatting rules:
@@ -1005,8 +1012,7 @@ estimate.cf <- function(XandW, Z, Zbin, gammaest = NULL) {
 #' @param eps Value that will be added to the diagonal of the covariance matrix
 #' during estimation in order to ensure strictly positive variances.
 #'
-#' @import matrixcalc nloptr stringr numDeriv pbivnorm mvtnorm stats
-#' @importFrom OpenMx omxMnor
+#' @import matrixcalc nloptr numDeriv pbivnorm mvtnorm stats
 #' @importFrom MASS mvrnorm
 #'
 #' @return A list of parameter estimates in the second stage of the estimation
@@ -1075,7 +1081,6 @@ estimate.cf <- function(XandW, Z, Zbin, gammaest = NULL) {
 #'
 #' @export
 #'
-
 estimate.cmprsk <- function(data, admin, conf,
                             eoi.indicator.names = NULL, Zbin = NULL,
                             inst = "cf", realV = NULL, compute.var = TRUE,
@@ -1112,7 +1117,7 @@ estimate.cmprsk <- function(data, admin, conf,
   Y <- data[, "y"]
 
   # Censoring indicators
-  cens.inds <- data[, grepl("delta[[:digit:]]+", colnames(data))]
+  cens.inds <- data[, grepl("delta[[:digit:]]+", colnames(data)), drop = FALSE]
   cens.inds <- cbind(cens.inds, data[, which(colnames(data) == "da")])
 
   # Intercept
@@ -1346,6 +1351,8 @@ estimate.cmprsk <- function(data, admin, conf,
 #' @return Specified element of the covariance matrix resulting from the
 #' provided Cholesky decomposition.
 #'
+#' @noRd
+#'
 chol2par.elem <- function(a, b, par.chol1) {
 
   # Create matrix with Cholesky parameters
@@ -1373,6 +1380,9 @@ chol2par.elem <- function(a, b, par.chol1) {
 #' @param par.chol1 The vector of Cholesky parameters.
 #'
 #' @return Covariance matrix corresponding to the provided Cholesky decomposition.
+#'
+#' @noRd
+#'
 chol2par <- function(par.chol1) {
 
   # Create matrix with Cholesky parameters
@@ -1433,7 +1443,9 @@ chol2par <- function(par.chol1) {
 #' @return Derivative of the function that transforms the cholesky parameters
 #' to the specified element of the covariance matrix, evaluated at the specified
 #' arguments.
-
+#'
+#' @noRd
+#'
 dchol2par.elem <- function(k, q, a, b, par.chol1) {
 
   # Create matrix with Cholesky parameters
@@ -1482,7 +1494,9 @@ dchol2par.elem <- function(k, q, a, b, par.chol1) {
 #'
 #' @return Derivative of the function that transforms the cholesky parameters
 #' to the full covariance matrix.
-
+#'
+#' @noRd
+#'
 dchol2par <- function(par.chol1) {
 
   # Create matrix with Cholesky parameters
@@ -1569,17 +1583,19 @@ dchol2par <- function(par.chol1) {
 #' @param totparl Total number of covariate effects (including intercepts) in
 #' all of the transformation models combined.
 #'
-#' @import numDeriv stringr
+#' @import numDeriv
 #' @importFrom stats dlogis plogis var
 #'
 #' @return Variance estimates of the provided vector of estimated parameters.
 #'
-
+#' @noRd
+#'
 variance.cmprsk <- function(parhatc, gammaest, data, admin, conf, inst, cf,
                             eoi.indicator.names, Zbin, use.chol, n.trans, totparl) {
 
   ## Precondition checks
 
+  requireNamespace("stringr")
   if (!use.chol) {
     stop("Only implemented for use.chol == TRUE.")
   }
@@ -1807,7 +1823,7 @@ variance.cmprsk <- function(parhatc, gammaest, data, admin, conf, inst, cf,
   # Get all column (row) indices corresponding to variance elements
   var.idxs <- unlist(lapply(names(cov1.elems),
                             function(elem) {
-                              var(as.numeric(str_split(gsub("\\(|\\)", "", elem), ", ")[[1]])) == 0
+                              var(as.numeric(stringr::str_split(gsub("\\(|\\)", "", elem), ", ")[[1]])) == 0
                             }))
 
   # Extract (the variances of) the variance elements. Give appropriate names.
@@ -1916,9 +1932,10 @@ variance.cmprsk <- function(parhatc, gammaest, data, admin, conf, inst, cf,
 #'
 #' @noRd
 #'
-#' @import stringr
-
 mysummary.ptcr <- function(output.estimate.cmprsk) {
+
+  # Load dependency
+  requireNamespace("stringr")
 
   # For now, work with dummy values for the variables
   var.names <- c("(intercept)", "var1", "var2", "var3")
@@ -1942,18 +1959,18 @@ mysummary.ptcr <- function(output.estimate.cmprsk) {
   col.sign.width <- nchar(header.names[3])
 
   # Construct header for parameters pertaining to covariates
-  header <- paste0(str_pad("", col.var.names.width), "  ",
-                   str_pad(header.names[1], col.estimates.width, "right"), "  ",
-                   str_pad(header.names[2], col.std.error.width, "right"), "  ",
-                   str_pad(header.names[3], col.sign.width, "right"))
+  header <- paste0(stringr::str_pad("", col.var.names.width), "  ",
+                   stringr::str_pad(header.names[1], col.estimates.width, "right"), "  ",
+                   stringr::str_pad(header.names[2], col.std.error.width, "right"), "  ",
+                   stringr::str_pad(header.names[3], col.sign.width, "right"))
 
   # Construct body for parameters pertaining to covariates
   body <- ""
   for (i in 1:length(estimates)) {
-    line <- paste0(str_pad(var.names[i], col.var.names.width, "right"), "  ",
-                   str_pad(estimates[i], col.estimates.width, "right"), "  ",
-                   str_pad(std.error[i], col.std.error.width, "right"), "  ",
-                   str_pad(sign[i], col.sign.width, "right"))
+    line <- paste0(stringr::str_pad(var.names[i], col.var.names.width, "right"), "  ",
+                   stringr::str_pad(estimates[i], col.estimates.width, "right"), "  ",
+                   stringr::str_pad(std.error[i], col.std.error.width, "right"), "  ",
+                   stringr::str_pad(sign[i], col.sign.width, "right"))
 
     body <- paste0(body, line)
     if (i < length(estimates)) {
