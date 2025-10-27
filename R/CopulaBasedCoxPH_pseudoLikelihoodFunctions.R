@@ -42,8 +42,7 @@ PseudoL = function(theta,resData,X,W,lhat,cumL,cop,dist){
   if (dist == "Weibull"){
     g2 = 1/nu*exp((y-W%*%eta)/nu)*exp(-exp((y-W%*%eta)/nu))           # log-time scale
     G2 = 1-exp(-exp((y-W%*%eta)/nu))
-  }
-  else if (dist == "lognormal"){   # Lognormal
+  }else if (dist == "lognormal"){   # Lognormal
     m = (y-W%*%eta)/nu
     g2 = 1/(sqrt(2*pi)*nu*Z)*exp(-(m^2/2))
     G2 = pnorm(m)
@@ -133,8 +132,7 @@ LikCopInd <- function(theta,resData,X,W,lhat,cumL,dist){ # gamma = 0
     k = 1
     beta = theta[k]
     mu1 = X*beta
-  }
-  else if(!is.vector(X)){
+  }else if(!is.vector(X)){
     k = dim(X)[2]
     beta = theta[1:k]
     mu1 = X%*%beta
