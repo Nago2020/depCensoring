@@ -78,6 +78,10 @@ Provide semiparametric approaches that can be used to model right-censored survi
   One of the margins can be modeled nonparametrically. As a byproduct, both marginal distributions of survival and
   censoring times can be considered as fully parametric. The existence of a cured fraction concerning survival time
   can also be taken into consideration.
+
+ @references Czado and Van Keilegom (2023). Dependent censoring based on parametric copulas. Biometrika, 110(3), 721-738.
+ @references Delhelle and Van Keilegom (2024). Copula based dependent censoring in cure models. TEST (to appear).
+ @references Ding and Van Keilegom (2024). Semiparametric estimation of the survival function under dependent censoring (in preparation).
 }
 \details{
 This unified function provide approaches that can be used to model right-censored survival data under dependent censoring (without covariates).
@@ -110,10 +114,6 @@ This unified function provide approaches that can be used to model right-censore
   their joint survival function in line with the semiparametric case (instead of modeling joint distribution function
   directly as in  Czado and Van Keilegom (2023) <doi:10.1093/biomet/asac067>), but the idea of estimation methodology
   are exactly the same.
-
- @references Czado and Van Keilegom (2023). Dependent censoring based on parametric copulas. Biometrika, 110(3), 721-738.
- @references Delhelle and Van Keilegom (2024). Copula based dependent censoring in cure models. TEST (to appear).
- @references Ding and Van Keilegom (2024). Semiparametric estimation of the survival function under dependent censoring (in preparation).
 }
 \examples{
 

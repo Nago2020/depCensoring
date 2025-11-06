@@ -2,7 +2,7 @@
 % Please edit documentation in R/ParamTransfoCompRisks.R
 \name{estimate.cmprsk}
 \alias{estimate.cmprsk}
-\title{Estimate the competing risks model of Rutten, Willems et al. (20XX).}
+\title{Estimate the competing risks model of Willems et al. (2025).}
 \usage{
 estimate.cmprsk(
   data,
@@ -79,7 +79,7 @@ as an estimate of their variance and confidence intervals.
 }
 \description{
 This function estimates the parameters in the competing risks
-model described in Willems et al. (2024+). Note that this model
+model described in Willems et al. (2025). Note that this model
 extends the model of Crommen, Beyhum and Van Keilegom (2024) and as such, this
 function also implements their methodology.
 }
@@ -145,7 +145,7 @@ estimate.cmprsk(data, admin, conf, eoi.indicator.names, Zbin, inst, realV,
 
 }
 \references{
-Willems et al. (2024+). Flexible control function approach under competing risks (in preparation).
+Willems et al. (2025). Flexible control function approach under competing risks (submitted).
 
 Crommen, G., Beyhum, J., and Van Keilegom, I. (2024). An instrumental variable approach under dependent censoring. Test, 33(2), 473-495.
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/BoundingCovariateEffects.R
 \name{pi.surv}
 \alias{pi.surv}
-\title{Estimate the model of Willems et al. (2024+).}
+\title{Estimate the model of Willems et al. (2025).}
 \usage{
 pi.surv(
   data,
@@ -58,7 +58,7 @@ General hyperparameters:
  \item{norm.func.name:}{Name of the normalization function to be used. Can
  be either "normalize.covariates1" or "normalize.covariates2" (default).
  The former is a simple elementwise rescaling. The latter uses the PCA
- approach as discussed in Willems et al. (2024+).}
+ approach.}
  \item{inst.func.family:}{Family of instrumental functions to be used for
  all covariates. Options are "box", "spline" and "cd". The former two are
  only applicable for continuous covariates. The latter can also handle
@@ -78,7 +78,7 @@ General hyperparameters:
  \item{B:}{Number of bootstrap samples to be used when obtaining the
  bootstrap distribution of the test statistic.}
  \item{ignore.empty.IF:}{Boolean value indicating whether instrumental
- functions with empty support should be ignored (cf. Willems et al., 2024).
+ functions with empty support should be ignored.
  Default is FALSE. The feature \code{ignore.empty.IF = TRUE} is experimental,
  so there might exist edge cases for which the implementation will fail to
  run.}
@@ -196,7 +196,7 @@ distribution function of the event time.
 
 }
 \references{
-Willems, I., Beyhum, J. and Van Keilegom, I. (2024+). Partial
+Willems, I., Beyhum, J. and Van Keilegom, I. (2025). Partial
 identification for a class of survival models under dependent censoring.
-(In preparation).
+(Submitted).
 }

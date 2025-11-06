@@ -1,11 +1,4 @@
 
-#### Dependencies ####
-
-# require(orthopolynom)
-# require(rvinecopulib)
-# require(nloptr)
-# require(MASS)
-# require(numDeriv)
 
 #' @title Obtain vector of dependencies of the QRdepCens code base.
 #'
@@ -19,7 +12,6 @@ QRdepCens.getDependencies <- function() {
   dep.vec <- c("orthopolynom", "rvinecopulib", "nloptr", "MASS", "numDeriv")
 }
 
-#### 1)  Auxiliary values and functions ####
 
 #' @title Variance function.
 #'
@@ -333,7 +325,6 @@ make_ci <- function(est, sd, as.string = TRUE) {
   }
 }
 
-#### 2)  Data-driven initial value determination ####
 
 #' @title Compute initial values for mll optimization for the heteroscedastic
 #' model.
@@ -553,7 +544,6 @@ determine_init_final <- function(current_paras, hp, indep_assumption = FALSE) {
   return(new_init_values)
 }
 
-#### 3)  Censoring functions: density, distribution and quantile ####
 
 #' @title Density function of error term for C (homoscedastic + Gaussian case).
 #'
@@ -872,7 +862,6 @@ para_inv_transform <- function(transf_para_vec, cop_name, hp) {
   return(para_vec)
 }
 
-#### 5)  EAL functions: density, distribution and (numerical) quantile ####
 
 #' @title Density function of EAL distribution.
 #'
@@ -1180,7 +1169,6 @@ qEAL <- function(w, x, beta, gam_par, lambda, phi_til, phi) {
 }
 
 
-#### 6)  Likelihood optimization over all parameters ####
 
 #' @title Log-likelihood function of D'Haen et al. (2025).
 #'
@@ -1502,7 +1490,6 @@ perform_mll_optimisation <- function(lag_degs, cop_name, Y, X, Delta,
   return(list(current_mllh, current_paras))
 }
 
-#### 7)  Likelihood optimization while fixing some of the parameters ####
 
 #' @title Log-likelihood function with subvector of fixed parameters.
 #'
@@ -1763,7 +1750,6 @@ perform_mll_partial_optimisation <- function(lag_degs, cop_name, Y, X, Delta,
 }
 
 
-#### 8)  Likelihood optimization under independence assumption ####
 
 #' @title Log-likelihood under independence and with a fixed subvector.
 #'
@@ -1953,7 +1939,6 @@ ctuity_constr_fun_indep <- function(all_paras_indep, lag_degs, cop_name, Y, X,
   return(c(jump, - jump))
 }
 
-#### 9)  Degree selection (AIC-based) ####
 
 #' @title Degree selection based on AIC.
 #'
@@ -2098,9 +2083,6 @@ deg_sel_AIC_grid_only_T <- function(cop_name, Y, X, Delta,
 }
 
 
-
-#### Input validation functions ####
-
 #' @title Validate input to the function \code{QRdepCens}.
 #'
 #' @description
@@ -2228,7 +2210,6 @@ QRdepCens_validateInput <- function(data, hp) {
 
 }
 
-#### Main functions ####
 
 #' @title Obtain default settings for hyperparameters.
 #'

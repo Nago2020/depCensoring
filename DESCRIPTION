@@ -7,7 +7,7 @@ Authors@R: c(person("Ilias", "Willems", email = "ilias.willems@kuleuven.be", rol
     person("Negera Wakgari", "Deresa", email = "negera.deresa@gmail.com", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-1302-3725")),
     person("Jie", "Ding", email = "biostat_jieding@outlook.com", role = c("aut"), comment = c(ORCID = "0000-0002-6083-7529")),
     person("Claudia","Czado", email = "cczado@cit.tum.de", role = "aut", comment = c(ORCID = "0000-0002-6329-5438")),
-    person("Myrthe", "D'Haen", email = "myrthe.dhaen@kuleuven.be", role = "aut", comment = c(ORCID = "0000-0003-0223-0267"))
+    person("Myrthe", "D'Haen", email = "myrthe.dhaen@kuleuven.be", role = "aut", comment = c(ORCID = "0000-0003-0223-0267")),
     person("Ingrid", "Van Keilegom", email = "ingrid.vankeilegom@kuleuven.be", role = "aut", comment = c(ORCID = "0000-0001-8827-7642")))
 Maintainer: Negera Wakgari Deresa <negera.deresa@gmail.com>
 Description: Several statistical methods for analyzing survival data under various forms of dependent
