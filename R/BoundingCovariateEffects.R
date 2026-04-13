@@ -410,6 +410,12 @@ test.point_Bei_MT <- function(r, c, t, par.space, data, hp, verbose = FALSE,
   n.param <- n.cov + length(t)
   delta.n <- hp[["delta.n"]]
 
+  # If the projection vector is a cardinal vector, we can use the faster (old)
+  # version of the code. The new version allows for more general projection
+  # vectors but is slower.
+  new.version <- FALSE
+  if (!all(c %in% c(0, 1)) | sum(c) != 1) {new.version <- TRUE}
+
   #### 1. Estimate the test statistic ####
 
   if (verbose) {
@@ -417,14 +423,27 @@ test.point_Bei_MT <- function(r, c, t, par.space, data, hp, verbose = FALSE,
   }
 
   # Define initial value
-  beta.init <- rowMeans(matrix(par.space[which(c == 0),], nrow = sum(c == 0)))
-  if (length(t) > 1) {
-    beta.init[2:length(t)] <- par.space[2:length(t), 1] + 1
-  }
+  if (new.version) {
 
-  # Get the test statistic
-  out <- get.test.statistic(beta.init, data, par.space, t, hp, c, r,
-                            inst.func.evals)
+    # Set starting value for optimization
+    beta.init <- get.starting.value_ts(c, r, par.space)
+
+    # Get the test statistic
+    out <- get.test.statistic2(beta.init, data, par.space, t, hp, c, r,
+                               inst.func.evals)
+
+  } else {
+
+    # Set starting value for optimization
+    beta.init <- rowMeans(matrix(par.space[which(c == 0),], nrow = sum(c == 0)))
+    if (length(t) > 1) {
+      beta.init[2:length(t)] <- par.space[2:length(t), 1] + 1
+    }
+
+    # Get the test statistic
+    out <- get.test.statistic(beta.init, data, par.space, t, hp, c, r,
+                              inst.func.evals)
+  }
   Jnrh <- out[[1]]
   beta.hat <- out[[2]]
 
@@ -437,8 +456,13 @@ test.point_Bei_MT <- function(r, c, t, par.space, data, hp, verbose = FALSE,
     message("\t Computing the initial critical value...")
   }
 
-  cvLLn <- get.cvLLn(BetaI.r, data, t, hp, c, r, par.space, inst.func.evals,
-                     alpha)
+  if (new.version) {
+    cvLLn <- get.cvLLn2(BetaI.r, data, t, hp, c, r, par.space, inst.func.evals,
+                        alpha)
+  } else {
+    cvLLn <- get.cvLLn(BetaI.r, data, t, hp, c, r, par.space, inst.func.evals,
+                       alpha)
+  }
 
   #### 3. Obtain K.bar test statistics, starting from different values ####
 
@@ -452,9 +476,18 @@ test.point_Bei_MT <- function(r, c, t, par.space, data, hp, verbose = FALSE,
     }
 
     # Determine a set of K.bar initial values
-    initial.values <- matrix(r, nrow = n.param, ncol = K.bar)
-    for (idx in which(c == 0)) {
-      initial.values[idx,] <- runif(K.bar, min = par.space[idx, 1], max = par.space[idx, 2])
+    if (new.version) {
+      initial.values <- NULL
+      for (idx in 1:K.bar) {
+        initial.values <- cbind(initial.values,
+                                get.starting.value_ts(c, r, par.space))
+      }
+    } else {
+      initial.values <- matrix(r, nrow = n.param, ncol = K.bar)
+      for (idx in which(c == 0)) {
+        initial.values[idx,] <- runif(K.bar, min = par.space[idx, 1],
+                                      max = par.space[idx, 2])
+      }
     }
 
     # Initialize an object that will store all test statistic evaluations
@@ -471,8 +504,7 @@ test.point_Bei_MT <- function(r, c, t, par.space, data, hp, verbose = FALSE,
 
       suppressWarnings(
         t.stat.evals[] <-
-          foreach(col.idx = 1:ncol(initial.values),
-                  .combine = 'rbind') %dopar% {
+          foreach(col.idx = 1:ncol(initial.values), .combine = 'rbind') %dopar% {
 
             library("depCensoring")
 
@@ -480,8 +512,13 @@ test.point_Bei_MT <- function(r, c, t, par.space, data, hp, verbose = FALSE,
             beta.start <- initial.values[, col.idx]
 
             # Compute the test statistic
-            out <- get.test.statistic(beta.start, data, par.space, t, hp, c, r,
-                                      inst.func.evals)
+            if (new.version) {
+              out <- get.test.statistic2(beta.start, data, par.space, t, hp, c,
+                                         r, inst.func.evals)
+            } else {
+              out <- get.test.statistic(beta.start, data, par.space, t, hp, c,
+                                        r, inst.func.evals)
+            }
 
             # Store the results
             c(out[[2]], out[[1]])
@@ -497,8 +534,13 @@ test.point_Bei_MT <- function(r, c, t, par.space, data, hp, verbose = FALSE,
         beta.start <- initial.values[, col.idx]
 
         # Compute the test statistic
-        out <- get.test.statistic(beta.start, data, par.space, t, hp, c, r,
-                                  inst.func.evals)
+        if (new.version) {
+          out <- get.test.statistic2(beta.start, data, par.space, t, hp, c, r,
+                                     inst.func.evals)
+        } else {
+          out <- get.test.statistic(beta.start, data, par.space, t, hp, c, r,
+                                    inst.func.evals)
+        }
 
         # Store the results
         t.stat.evals[col.idx, ] <- c(out[[2]], out[[1]])
@@ -534,8 +576,13 @@ test.point_Bei_MT <- function(r, c, t, par.space, data, hp, verbose = FALSE,
       BetaI.r <- t(matrix(t.stat.evals[, 1:n.param], ncol = n.param))
 
       # Compute the critical value
-      cvLLn <- get.cvLLn(BetaI.r, data, t, hp, c, r, par.space, inst.func.evals,
-                         alpha)
+      if (new.version) {
+        cvLLn <- get.cvLLn2(BetaI.r, data, t, hp, c, r, par.space,
+                            inst.func.evals, alpha)
+      } else {
+        cvLLn <- get.cvLLn(BetaI.r, data, t, hp, c, r, par.space,
+                           inst.func.evals, alpha)
+      }
     }
   }
 
@@ -3867,19 +3914,14 @@ get.cond.moment.evals <- function(data, beta, t, hp) {
   # Initialize matrix that will store the results
   evals <- matrix(nrow = nrow(data), ncol = 2)
 
-  # For each observation, compute the evaluation of the two conditional moment
-  # functions
-  for (i in 1:nrow(data)) {
+  # Extract variables
+  Y <- data[, "Y"]
+  Delta <- data[, "Delta"]
+  X <- as.matrix(data[, grepl("X[[:digit:]]+", colnames(data))])
 
-    # Get the values pertaining to the i-th observation
-    Y <- data[i, "Y"]
-    Delta <- data[i, "Delta"]
-    X <- as.matrix(data[i, grepl("X[[:digit:]]+", colnames(data))])
-
-    # Compute moment functions
-    evals[i, 1] <- Lambda(X %*% beta) - as.numeric(Y <= t & Delta == 1)
-    evals[i, 2] <- as.numeric(Y <= t) - Lambda(X %*% beta)
-  }
+  # Compute moment functions
+  evals[, 1] <- Lambda(X %*% beta) - as.numeric(Y <= t & Delta == 1)
+  evals[, 2] <- as.numeric(Y <= t) - Lambda(X %*% beta)
 
   # Return the results
   evals
@@ -3968,21 +4010,22 @@ m.bar <- function(data, beta, t, hp, mi.mat = NULL) {
   # evaluations.
   m.evals.sum <- rep(0, 2*length(t)*n.inst.func)
 
-  # Obtain the sum
-  for (i in 1:nrow(data)) {
-    if (is.null(mi.mat)) {
+  # Obtain the average
+  if (is.null(mi.mat)) {
+    for (i in 1:nrow(data)) {
       mi <- NULL
       for (time.point in t) {
         mi <- c(mi, m(i, data, beta, time.point, hp))
       }
-    } else {
-      mi <- mi.mat[,i]
+      m.evals.sum <- m.evals.sum + mi
     }
-    m.evals.sum <- m.evals.sum + mi
+    avg <- m.evals.sum/nrow(data)
+  } else {
+    avg <- c(apply(mi.mat, 1, mean))
   }
 
-  # Return the average
-  m.evals.sum/nrow(data)
+  # Return the results
+  return(avg)
 }
 
 #' @title [DEPRECATED] Component function of the vector of derivatives of moment
@@ -4086,18 +4129,14 @@ get.deriv.mom.func <- function(data, beta, t, hp) {
   evals.m1 <- matrix(nrow = n, ncol = n.param)
   evals.m2 <- matrix(nrow = n, ncol = n.param)
 
-  # For each observation, compute the evaluation of the two conditional moment
-  # functions
-  for (i in 1:nrow(data)) {
+  # Extract variables
+  Y <- data[, "Y"]
+  Delta <- data[, "Delta"]
+  X <- as.matrix(data[, grepl("X[[:digit:]]+", colnames(data))])
 
-    # Get the values pertaining to the i-th observation
-    Y <- data[i, "Y"]
-    Delta <- data[i, "Delta"]
-    X <- as.matrix(data[i, grepl("X[[:digit:]]+", colnames(data))])
-
-    # Compute derivatives of moment functions
-    evals.m1[i,] <- dLambda(as.numeric(X %*% beta)) * X
-  }
+  # Compute evaluations
+  dLambda.evals <- dLambda(as.numeric(X %*% beta))
+  evals.m1 <- matrix(rep(dLambda.evals, n.param), ncol = n.param) * X
   evals.m2 <- -evals.m1
 
   # Return the results
@@ -4220,22 +4259,27 @@ dm.bar <- function(data, beta, t, hp, dmi.tens = NULL) {
   # Number of covariates
   n.param <- length(beta)
 
-  # Initialize vector that will contain the sum of all moment function
-  # evaluations.
-  dm.evals.sum <- matrix(0, nrow = 2*length(t)*n.inst.func, ncol = n.param)
+  if (is.null(dmi.tens)) {
 
-  # Obtain the sum
-  for (i in 1:nrow(data)) {
-    if (is.null(dmi.tens)) {
+    # Initialize vector that will contain the sum of all moment function
+    # evaluations.
+    dm.evals.sum <- matrix(0, nrow = 2*length(t)*n.inst.func, ncol = n.param)
+
+    # Obtain the sum
+    for (i in 1:nrow(data)) {
       dmi <- dm(i, data, beta, t, hp)
-    } else {
-      dmi <- dmi.tens[,,i]
+      dm.evals.sum <- dm.evals.sum + dmi
     }
-    dm.evals.sum <- dm.evals.sum + dmi
+
+    # Compute the average
+    avg <- dm.evals.sum/nrow(data)
+
+  } else {
+    avg <- apply(dmi.tens, c(1, 2), mean)
   }
 
-  # Return the average
-  dm.evals.sum/nrow(data)
+  # Return the result
+  return(avg)
 }
 
 #### Low level functions: variances/correlation of moment functions ####
@@ -4268,22 +4312,23 @@ Sigma.hat <- function(data, beta, t, hp, m.avg = NULL, mi.mat = NULL) {
     m.avg <- m.bar(data, beta, t, hp)
   }
 
-  # Initialize matrix that will contain the sum of all outer products used in
-  # obtaining the sample variance-covariance matrix
-  sig.evals.sum <- matrix(0, nrow = 2*length(t)*n.inst.func, ncol = 2*length(t)*n.inst.func)
-
-  # Obtain the sum
-  for (i in 1:nrow(data)) {
-    if (is.null(mi.mat)) {
+  # If the matrix of moment function evaluations was not supplied, we fall back
+  # on a previous implementation to compute the covariance matrix.
+  if (is.null(mi.mat)) {
+    sig.evals.sum <- matrix(0, nrow = 2*length(t)*n.inst.func, ncol = 2*length(t)*n.inst.func)
+    for (i in 1:nrow(data)) {
       mi <- m(i, data, beta, t, hp)
-    } else {
-      mi <- mi.mat[,i]
+      sig.evals.sum <- sig.evals.sum + outer(mi - m.avg, mi - m.avg)
     }
-    sig.evals.sum <- sig.evals.sum + outer(mi - m.avg, mi - m.avg)
+    return(sig.evals.sum/nrow(data))
   }
 
-  # Return the average
-  sig.evals.sum/nrow(data)
+  # for compatibility with the previous implementation (used for most of the
+  # simulations in the paper), we use a different implementation, which resulted
+  # in a variance estimator with division by n instead of (n-1). We keep this in
+  # the new implementation as well.
+  n <- nrow(data)
+  cov(t(mi.mat)) * (n - 1) / n
 }
 
 #' @title Obtain the diagonal matrix of sample variances of moment functions
@@ -4426,16 +4471,19 @@ dD.hat <- function(data, beta, t, hp, mi.mat = NULL, m.avg = NULL,
     dm.avg <- dm.bar(data, beta, t, hp, dmi.tens = dmi.tens)
   }
 
-  # Compute dD.hat
-  sum <- 0
-  for (i in 1:n) {
-    mi <- mi.mat[,i]
-    dmi <- dmi.tens[,,i]
-    sum <- sum + 2 * matrix(rep(mi - m.avg, n.param), ncol = n.param) * (dmi - dm.avg)
+  # Broadcast mi.mat - m.avg across slices
+  A <- array(dim = c(dim(mi.mat)[1], n.param, dim(mi.mat)[2]))
+  A[, 1, ] <- sweep(mi.mat, 1, m.avg, "-")
+  for (i in 2:n.param) {
+    A[, i, ] <- A[, 1, ]
   }
 
-  # Return the result
-  sum/n
+  # Broadcast dm.avg across slices
+  B <- sweep(dmi.tens, c(1,2), dm.avg, "-")
+
+  # Elementwise multiply and sum over slices
+  dD.hat <- 2 * apply(A * B, c(1, 2), mean)
+  dD.hat
 }
 
 #' @title Compute the Gn matrix in step 3b of Bei (2024).
@@ -4456,6 +4504,7 @@ dD.hat <- function(data, beta, t, hp, mi.mat = NULL, m.avg = NULL,
 #' @param dmi.tens 3D tensor of precomputed evaluations of the derivatives of
 #' the moment functions. Default is \code{dmi.tens = NULL}.
 #' @param D Diagonal of D-matrix.
+#' @param inst.func.evals Precomputed instrumental function evaluations.
 #'
 #' @returns A matrix containing the partial derivatives of the variances of the
 #' moment functions. Each row corresponds to a moment function, each column
@@ -4467,7 +4516,8 @@ dD.hat <- function(data, beta, t, hp, mi.mat = NULL, m.avg = NULL,
 #' @noRd
 #'
 G.hat <- function(data, beta, t, hp, mi.mat = NULL, m.avg = NULL,
-                  dm.avg = NULL, dmi.tens = NULL, D = NULL) {
+                  dm.avg = NULL, dmi.tens = NULL, D = NULL,
+                  inst.func.evals = NULL) {
 
   # Define some useful variables
   n <- nrow(data)
@@ -4486,7 +4536,7 @@ G.hat <- function(data, beta, t, hp, mi.mat = NULL, m.avg = NULL,
 
   # Evaluations of the derivatives of moment functions at each observation
   if (is.null(dmi.tens)) {
-    dmi.tens <- get.dmi.tens(data, beta, t, hp)
+    dmi.tens <- get.dmi.tens(data, beta, t, hp, inst.func.evals = inst.func.evals)
   }
 
   # Sample average of the derivatives of moment functions
@@ -4540,6 +4590,28 @@ S.func <- function(m, Sigma) {
   S
 }
 
+#' @title S-function (faster implementation)
+#'
+#' @description Faster implementation of the S-function (\code{S.func}).
+#' Importantly, it assumes that the provided matrix Sigma/Omega is a correlation
+#' matrix, whereas the more general implementation \code{S.func} allows for
+#' diagonals which are not identically one. As such, \code{S.func.fast} and
+#' \code{S.func} are not equivalent.
+#'
+#' @param m Vector of averages of moment functions.
+#' @param Omega Sample correlation matrix of moment functions. Since our spec-
+#' ification for the S-function only uses the diagonal of the provided matrix,
+#' this argument is superfluous and therefore not actually used in the
+#' implementation; it is written here for compatibility.
+#'
+#' @returns S(m, Omega).
+#'
+#' @noRd
+#'
+S.func.fast <- function(m, Omega) {
+  sum(m[m < 0]^2)
+}
+
 #### Low level functions: estimating the test statistic ####
 
 #' @title 'Loss function' of the test statistic.
@@ -4573,16 +4645,29 @@ lf.ts <- function(beta.sub, data, t, hp, c, r, inst.func.evals = NULL) {
   min.var <- hp[["min.var"]]
 
   # Make the completed parameter vector
-  if (length(t) == 1) {
-    beta <- rep(r, length(beta.sub) + 1)
-    beta[which(c == 0)] <- beta.sub
-  } else {
-    beta <- function(time.point) {
+  if (length(beta.sub) < length(c)) {
+    if (length(t) == 1) {
       beta <- rep(r, length(beta.sub) + 1)
       beta[which(c == 0)] <- beta.sub
-      beta[1:length(t)] <- cumsum(beta[1:length(t)])
-      beta <- beta[-which(t != time.point)]
-      beta
+    } else {
+      beta <- function(time.point) {
+        beta <- rep(r, length(beta.sub) + 1)
+        beta[which(c == 0)] <- beta.sub
+        beta[1:length(t)] <- cumsum(beta[1:length(t)])
+        beta <- beta[-which(t != time.point)]
+        beta
+      }
+    }
+  } else {
+    if (length(t) == 1) {
+      beta <- beta.sub
+    } else {
+      beta <- function(time.point) {
+        beta <- beta.sub
+        beta[1:length(t)] <- cumsum(beta[1:length(t)])
+        beta <- beta[-which(t != time.point)]
+        beta
+      }
     }
   }
 
@@ -4605,8 +4690,118 @@ lf.ts <- function(beta.sub, data, t, hp, c, r, inst.func.evals = NULL) {
   S.func(sqrt(n) * diag(D)^(-1/2) * m.avg, Omega.hat(svc))
 }
 
+#' @title Get starting value for test statistic computation.
+#'
+#' @description
+#' This function obtains a suitable starting value for the optimization problem
+#' in the test statistic computation. Suitable here means that the starting
+#' value satisfies both the parameter space bounds, and the restriction that
+#' \code{c %*% beta = r}.
+#'
+#' @param c Projection vector.
+#' @param r Projection value.
+#' @param par.space Paramater space.
+#'
+#' @returns A starting value.
+#'
+#' @importFrom nloptr nloptr
+#'
+#' @details
+#' The starting value \code{beta.init} must be such that (1) it lies within the
+#' parameter space (as given by the argument \code{par.space}), and (2) such
+#' that \code{beta.init %*% c = r}. In other words, it must lie on the
+#' intersection of the parameter space \eqn{B} with the hyperplane defined by
+#' \eqn{H = \{x^\top \beta = r\}]. Note that \eqn{B \cap H} is a polygon. To
+#' sample a point on \eqn{B \cap H}, we first compute the corner points of this
+#' polygon, and then obtain a random point inside the polygon by computing a
+#' convex combination of the corner points. That is, we sample weights
+#' \code{w} from a Dirichlet distribution, and then compute
+#' \code{beta.init = w %*% polygon.corners}.
+#'
+#' This function requires the suggested package LaplacesDemon.
+#'
+#' @noRd
+#'
+get.starting.value_ts <- function(c, r, par.space) {
+
+  # Check whether dependency LaplacesDemon is installed. If so, load it.
+  if (!requireNamespace("LaplacesDemon", quietly = TRUE)) {
+    stop(
+      "Package 'LaplacesDemon' is required for when using general projection",
+      "vectors c. Please install it with install.packages('LaplacesDemon'),",
+      " or only use cardinal projection vectors c.",
+      call. = FALSE
+    )
+  }
+
+  # Obtain dimension of parameter space
+  d <- nrow(par.space)
+
+  # Obtain all corner points of the scaled and shifted parameter space.
+  corners <- as.matrix(expand.grid(lapply(1:d, function(i) {par.space[i, ]})))
+
+  # For each corner point, determine whether it is above or below the hyperplane,
+  # determined by the sign of the inner product with the surface normal.
+  corners <- cbind(corners, (corners %*% c - r))
+
+  # Determine the side with the least amount of points.
+  n.above <- sum(corners[, d+1] >= 0)
+  n.below <- sum(corners[, d+1] < 0)
+  side <- ifelse(n.above < n.below, 1, -1)
+  n.side <- ifelse(n.above < n.below, n.above, n.below)
+  n.otherside <- ifelse(n.above < n.below, n.below, n.above)
+
+  # If the number of corner points on one side is empty, check whether there
+  # are corner points on the hyperplane. If so, we can sample a random convex
+  # combination of those. Otherwise, throw an error.
+  if (n.side == 0) {
+    corners.on.hyperplane <- corners[corners[, d+1] == 0, ]
+    if (nrow(corners.on.hyperplane) > 0) {
+      w <- LaplacesDemon::rdirichlet(1, rep(1, nrow(corners.on.hyperplane)))
+      beta.init <- as.numeric(w %*% corners.on.hyperplane[, -(d+1)])
+      return(beta.init)
+    }
+    stop("There are no points \beta in the parameter space such that c^\top \beta = r.")
+  }
+
+  # For each point on the selected side, determine all edges to points on the
+  # other side. For each such edge, determine its intersection point with the
+  # hyperplane c\top \beta = r.
+  corners.side <- corners[sign(corners[, d+1] + .Machine$double.eps) == side, , drop = FALSE]
+  corners.otherside <- corners[sign(corners[, d+1] + .Machine$double.eps) != side, , drop = FALSE]
+  points.intersection <- NULL
+  for (point.idx in seq_len(nrow(corners.side))) {
+    corner <- corners.side[point.idx, -(d+1)]
+    adjacent <- corners.otherside[apply(
+      corners.otherside[, -(d+1)] - matrix(rep(corner, n.otherside), ncol = d, byrow = T),
+      1, function(row) {sum(row != 0) == 1}), , drop = FALSE]
+    for (adj.idx in seq_len(nrow(adjacent))) {
+      corner.adj <- adjacent[adj.idx, -(d+1)]
+      lambda <-  as.numeric((r - c %*% corner.adj) / c %*% (corner.adj - corner))
+      p.intersect <- corner.adj + lambda * (corner.adj - corner)
+      points.intersection <- rbind(points.intersection, p.intersect)
+    }
+  }
+
+  # Randomly generate a point on the interior region of this polygon
+  w <- LaplacesDemon::rdirichlet(1, rep(1, nrow(points.intersection)))
+  beta.init <- as.numeric(w %*% points.intersection)
+
+  # Return the result
+  return(beta.init)
+}
+
 #' @title Obtain the test statistic by minimizing the S-function over the
-#' feasible region \eqn{\beta(r)}.
+#' feasible region.
+#'
+#' @description
+#' These functions solve the optimization problem attached to the test statistic
+#' by minimizing the S-function over the feasible region.
+#' \code{get.test.statistic} assumes this feasible region to be of the form
+#' \eqn{\beta(r)}, which corresponds to the projection vector \code{c} being
+#' a cardinal direction.
+#' \code{get.test.statistic2} allows general projection vectors \code{c}, but is
+#' likely slower due to its more complex implementation.
 #'
 #' @param beta.init Starting value of minimization algorithm.
 #' @param data Data frame.
@@ -4681,6 +4876,91 @@ get.test.statistic <- function(beta.init, data, par.space, t, hp, c, r,
   # Return the results
   return(list(Jnrh, beta.hat))
 }
+get.test.statistic2 <- function(beta.init, data, par.space, t, hp, c, r,
+                                inst.func.evals = NULL) {
+
+  # Define some useful parameters
+  n.param <- length(c)
+
+  # If data.init represents the full vector, check whether it satisfies the
+  # constraint and transform it into the unconstrained subvector
+  if (length(beta.init) == n.param) {
+    if (abs(c %*% beta.init - r) > 1e-10) {
+      stop("Given beta vector does not satisfy the constraint")
+    }
+  } else {
+    stop("Full initial parameter vector should be supplied.")
+  }
+
+  # Precompute the instrumental function evaluations
+  if (is.null(inst.func.evals)) {
+    inst.func.evals <- t(get.instrumental.function.evals(data, hp))
+  }
+
+  # Estimate the test statistic and the minimizer
+
+  # Define the inequality constraints. In a preliminary optimization, we
+  # include these constraints as a penalty.
+  eval_g_ineq <- function(beta.t, data, t, hp, c, r, inst.func.evals) {
+    rbind(as.numeric(c %*% beta.t - r), as.numeric(r - c %*% beta.t))
+  }
+  eval_g_ineq_pen <- function(beta.t, data, t, hp, c, r, inst.func.evals) {
+    sum((as.numeric(c %*% beta.t) - r)^2)
+  }
+
+  # First, use NEWUOA to find a good target value (not necessarily satisfying
+  # the constraints)
+  lf.ts1 <- function(beta.t, data, t, hp, c, r, inst.func.evals) {
+    lf.ts(beta.t, data, t, hp, c, r, inst.func.evals) +
+      eval_g_ineq_pen(beta.t, data, hp, c, r, inst.func.evals)
+  }
+  out1 <- nloptr(beta.init,
+                 eval_f = lf.ts1,
+                 lb = par.space[, 1],
+                 ub = par.space[, 2],
+                 opts = list("algorithm" = "NLOPT_LN_NEWUOA_BOUND",
+                             "xtol_rel" = 1e-4,
+                             "maxeval" = 1000),
+                 data = data, t = t, hp = hp, c = c, r = r,
+                 inst.func.evals = inst.func.evals)
+  target.solution <- out1$solution
+
+  # Run a constraint optimization (COBYLA) with a penalty determined by the
+  # distance to the target solution.
+  lf.ts2 <- function(beta.t, data, t, hp, c, r, inst.func.evals) {
+    lf.ts(beta.t, data, t, hp, c, r, inst.func.evals) +
+      5*sum((beta.t - target.solution)^2)
+  }
+  out2 <- nloptr(beta.init,
+                 eval_f = lf.ts2,
+                 lb = par.space[, 1],
+                 ub = par.space[, 2],
+                 eval_g_ineq = eval_g_ineq,
+                 opts = list("algorithm" = "NLOPT_LN_COBYLA",
+                             "xtol_rel" = 1e-4,
+                             "maxeval" = 10000),
+                 data = data, t = t, hp = hp, c = c, r = r,
+                 inst.func.evals = inst.func.evals)
+  target.solution2 <- out2$solution
+
+  # Finally, use the solution of the previous optimization as starting value to
+  # the actual optimization.
+  out <- nloptr(target.solution2,
+                eval_f = lf.ts,
+                lb = par.space[, 1],
+                ub = par.space[, 2],
+                eval_g_ineq = eval_g_ineq,
+                opts = list("algorithm" = "NLOPT_LN_COBYLA",
+                            "xtol_rel" = 1e-4,
+                            "maxeval" = 10000),
+                data = data, t = t, hp = hp, c = c, r = r,
+                inst.func.evals = inst.func.evals)
+  Jnrh <- out$objective
+  beta.hat <- out$solution
+
+  # Return the results
+  return(list(Jnrh, beta.hat))
+}
 
 #### Low level functions: calculating the critical value of the test statistic ####
 
@@ -4703,6 +4983,7 @@ get.test.statistic <- function(beta.init, data, par.space, t, hp, c, r,
 #' @param epsilon.n Parameter used in constructing the feasible region as in
 #' Example 4.1 in Bei (2024). Not used in this function.
 #' @param lambda.n Weight of penalty term.
+#' @param n Sample size.
 #'
 #' @returns Loss function evaluation evaluated at the given Delta.
 #'
@@ -4712,24 +4993,144 @@ get.test.statistic <- function(beta.init, data, par.space, t, hp, c, r,
 #' @noRd
 #'
 lf.delta.beta1 <- function(Delta.sub, vnb, phi, Gn, Omegan, beta, c, r, data,
-                           par.space, epsilon.n, lambda.n) {
-
-  # Extract some useful parameters
-  n <- nrow(data)
+                           par.space, epsilon.n, lambda.n, n) {
 
   # Make the completed parameter vector
-  Delta <- rep(0, length(Delta.sub) + 1)
-  Delta[which(c == 0)] <- Delta.sub
+  if (length(Delta.sub) < length(c)) {
+    Delta <- rep(0, length(Delta.sub) + 1)
+    Delta[c == 0] <- Delta.sub
+  } else {
+    Delta <- Delta.sub
+  }
 
   # Value of the loss function
-  S.func(vnb + phi + Gn %*% Delta, Omegan) + lambda.n/n * sum(Delta^2)
+  S.func.fast(vnb + phi + Gn %*% Delta, Omegan) + lambda.n/n * sum(Delta^2)
+}
 
+#' @title Obtain starting values for the optimization problem related to Delta.
+#'
+#' @description
+#' This function computes some starting values for an optimization problem. Upon
+#' execution, it will load the dependency \code{LaplacesDemon}, as it requires
+#' the function \code{LaplacesDemon::rdirichlet}.
+#'
+#' @param optim.par.space Parameter space to be optimized over.
+#' @param c Projecton vector.
+#' @param r Projection value.
+#' @param points.intersection Optional argument that contains precomputes of
+#' relevant values used in the implementation. If this argument is specified as
+#' \code{"compute"}, these values will be computed during execution of this
+#' function.
+#'
+#' @details
+#' This function requires the suggested package \code{LaplacesDemon}.
+#'
+#'
+#' @noRd
+#'
+get.starting.point_lf.delta <- function(optim.par.space, c, r,
+                                        points.intersection = "compute") {
+
+  # Check whether dependency LaplacesDemon is installed. If so, load it.
+  if (!requireNamespace("LaplacesDemon", quietly = TRUE)) {
+    stop(
+      "Package 'LaplacesDemon' is required for when using general projection",
+      "vectors c. Please install it with install.packages('LaplacesDemon'),",
+      " or only use cardinal projection vectors c.",
+      call. = FALSE
+    )
+  }
+
+  # If the intersection points of the parameter space and hyperplane are not
+  # supplied, compute them.
+  if (is.character(points.intersection)) {
+
+    # If this method was already run and we are supposed to work with precomputed
+    # values from this previous run, but the previous run failed, we simply return
+    # a NULL-like value.
+    if (points.intersection == "skip") {
+      return(list("delta.init" = NULL,
+                  "points.intersection" = "skip"))
+    }
+
+    # Obtain dimension of parameter space
+    d <- nrow(optim.par.space)
+
+    # Obtain all corner points of the scaled and shifted parameter space.
+    corners <- as.matrix(expand.grid(lapply(1:d, function(i) {optim.par.space[i, ]})))
+
+    # For each corner point, determine whether it is above or below the hyperplane,
+    # determined by the sign of the inner product with the surface normal.
+    corners <- cbind(corners, corners %*% c)
+
+    # Determine the side with the least amount of points.
+    n.above <- sum(corners[, d+1] >= 0)
+    n.below <- sum(corners[, d+1] < 0)
+    side <- ifelse(n.above < n.below, 1, -1)
+    n.side <- ifelse(n.above < n.below, n.above, n.below)
+    n.otherside <- ifelse(n.above < n.below, n.below, n.above)
+
+    # If the number of corner points on one side is empty, check whether there
+    # are corner points on the hyperplane. If so, we can sample a random convex
+    # combination of those. Otherwise, throw an error.
+    if (n.side == 0) {
+      corners.on.hyperplane <- corners[corners[, d+1] == 0, ]
+      if (nrow(corners.on.hyperplane) > 0) {
+        w <- LaplacesDemon::rdirichlet(1, rep(1, nrow(corners.on.hyperplane)))
+        beta.init <- as.numeric(w %*% corners.on.hyperplane[, -(d+1)])
+        return(list("delta.init" = delta.init,
+                    "points.intersection" = "compute"))
+      } else {
+        return(list("delta.init" = NULL,
+                    "points.intersection" = "skip"))
+      }
+    }
+
+    # For each point on the selected side, determine all edges to points on the
+    # other side. For each such edge, determine its intersection point with the
+    # hyperplane.
+    corners.side <- corners[sign(corners[, d+1]  + .Machine$double.eps) == side, , drop = FALSE]
+    corners.otherside <- corners[sign(corners[, d+1]  + .Machine$double.eps) != side, , drop = FALSE]
+    points.intersection <- NULL
+    for (point.idx in seq_len(nrow(corners.side))) {
+      corner <- corners.side[point.idx, -(d+1)]
+      adjacent <- corners.otherside[apply(
+        corners.otherside[, -(d+1)] - matrix(rep(corner, n.otherside), ncol = d, byrow = T),
+        1, function(row) {sum(row != 0) == 1}), , drop = FALSE]
+      for (adj.idx in seq_len(nrow(adjacent))) {
+        corner.adj <- adjacent[adj.idx, -(d+1)]
+        lambda <- as.numeric((c %*% corner.adj) / c %*% (corner.adj - corner))
+        p.intersect <- lambda * corner + (1 - lambda) * corner.adj
+        points.intersection <- rbind(points.intersection, p.intersect)
+      }
+    }
+  }
+
+  # If it was attempted to compute them but none where found, return NULL
+  if (is.null(points.intersection)) {
+    return(NULL)
+  }
+
+  # Else, we can generate a random convex combination of the intersection
+  # polygons corner points in order to sample a random point from its interior.
+
+  # Randomly generate a point on the interior region of this polygon
+  w <- LaplacesDemon::rdirichlet(1, rep(1, nrow(points.intersection)))
+  delta.init <- as.numeric(w %*% points.intersection)
+
+  # Return the result
+  return(list("delta.init" = delta.init,
+              "points.intersection" = points.intersection))
 }
 
 #' @title Compute the critical value of the test statistic.
 #'
-#' @description This function computes the critical value following the
+#' @description These functions computes the critical value following the
 #' algorithm of Section 4.3 in Bei (2024).
+#' \code{get.cvLLn} does this in the case that \code{c} is a cardinal projection
+#' vector.
+#' \code{get.cvLLn2} allows for more general projection vectors \code{c}, but
+#' is slower.
 #'
 #' @param BetaI.r Matrix containing in its columns the minimizers of the
 #' S-function leading to the test statistic.
@@ -4831,7 +5232,8 @@ get.cvLLn <- function(BetaI.r, data, t, hp, c, r, par.space,
     Gn.tens[, , beta.idx] <- G.hat(data, beta, t, hp,
                                    mi.mat = mi.tens[ , , beta.idx],
                                    m.avg = m.avg.mat[ , beta.idx],
-                                   D = diag(D.diag.mat[, beta.idx], nrow  = J*length(t)))
+                                   D = diag(D.diag.mat[, beta.idx], nrow  = J*length(t)),
+                                   inst.func.evals = inst.func.evals)
   }
 
   # Initialize object that will store all bootstrapped test statistics
@@ -4890,25 +5292,227 @@ get.cvLLn <- function(BetaI.r, data, t, hp, c, r, par.space,
       for (comb.nbr in 1:2^(n.param - 1)) {
 
         # Define the parameter bounds for the optimization
-        epsilon.nj <- (par.space[which(c == 0), 2] - par.space[which(c == 0), 1])/2 * epsilon.n
-        optim.lb <- sqrt(n) * pmin(par.space[which(c == 0), 1] + epsilon.nj - beta[which(c == 0)], 0)
-        optim.ub <- sqrt(n) * pmax(par.space[which(c == 0), 2] - epsilon.nj - beta[which(c == 0)], 0)
+        optim.lb <- sqrt(n) * (par.space[which(c == 0), 1] + epsilon.n - beta[which(c == 0)])
+        optim.ub <- sqrt(n) * (par.space[which(c == 0), 2] - epsilon.n - beta[which(c == 0)])
 
         # Get the corner point corresponding to this iteration
         comb <- base(comb.nbr - 1, 2, num.digits = n.param - 1)
         corner.point <- (1 - comb) * optim.lb + comb * optim.ub
 
         # Perform the optimization
-        out <- optim(corner.point, lf.delta.beta1, vnb = vnb, phi = phi, Gn = Gn,
-                     Omegan = Omegan, beta = beta, c = c, r = r, data = data,
-                     par.space = par.space, epsilon.n = epsilon.n,
-                     lambda.n = lambda.n, method = "L-BFGS-B",
-                     lower = optim.lb, upper = optim.ub)
+        # out <- optim(corner.point, lf.delta.beta1, vnb = vnb, phi = phi, Gn = Gn,
+        #              Omegan = Omegan, beta = beta, c = c, r = r, data = data,
+        #              par.space = par.space, epsilon.n = epsilon.n,
+        #              lambda.n = lambda.n, n = n, method = "L-BFGS-B",
+        #              lower = optim.lb, upper = optim.ub)
 
         # Extract the results
-        val <- out$value
+        # val <- out$value
+        # solution <- rep(0, length(c))
+        # solution[which(c == 0)] <- out$par
+        # delta.search <- rbind(delta.search, c(solution, val))
+
+        # Perform the optimization
+        suppressWarnings(
+          out <- nlminb(corner.point, lf.delta.beta1, vnb = vnb, phi = phi, Gn = Gn,
+                        Omegan = Omegan, beta = beta, c = c, r = r, data = data,
+                        par.space = par.space, epsilon.n = epsilon.n,
+                        lambda.n = lambda.n, n = n, lower = optim.lb,
+                        upper = optim.ub)
+        )
+
+        # Extract the results
+        val <- out$objective
         solution <- rep(0, length(c))
         solution[which(c == 0)] <- out$par
+        delta.search <- rbind(delta.search, c(solution, val))
+      }
+
+      # Obtain the 'global' minimum
+      Delta.beta <- delta.search[which.min(delta.search[, "val"]), 1:n.param]
+
+      # S function evaluation
+      S.evals <- c(S.evals, S.func(vnb + phi + Gn %*% Delta.beta, Omegan))
+    }
+
+    # Compute the bootstrapped LL test statistic
+    JnLLb.r_vct <- c(JnLLb.r_vct, min(S.evals))
+  }
+
+  # Obtain the (1 - \alpha)-quantile of the bootstrap distribution
+  cvLLn <- quantile(JnLLb.r_vct, probs = alpha)
+  cvLLn
+}
+get.cvLLn2 <- function(BetaI.r, data, t, hp, c, r, par.space,
+                       inst.func.evals = NULL, alpha = 0.95) {
+
+  # Define variables that will be useful throughout
+  n <- nrow(data)
+  J <- hp[["n.inst.func"]]*2
+  n.beta <- ncol(BetaI.r)
+  n.param <- nrow(BetaI.r)
+  B <- hp[["B"]]
+  kappa.n <- hp[["kappa.n"]]
+  epsilon.n <- hp[["epsilon.n"]]
+  lambda.n <- hp[["lambda.n"]]
+  min.var <- hp[["min.var"]]
+
+  # Precompute instrumental function evaluations
+  if (is.null(inst.func.evals)) {
+    inst.func.evals <- t(get.instrumental.function.evals(data, hp))
+  }
+
+  # Precompute moment function evaluations for all parameters in BetaI.r
+  mi.tens <- array(dim = c(J*length(t), n, n.beta))
+  for (beta.idx in 1:n.beta) {
+    beta <- BetaI.r[, beta.idx]
+    mi.tens[, , beta.idx] <- get.mi.mat(data, beta, t, hp, inst.func.evals)
+  }
+
+  # Precompute sample averages of moment functions for all beta in BetaI.r
+  m.avg.mat <- matrix(nrow = J*length(t), ncol = n.beta)
+  for (beta.idx in 1:n.beta) {
+    beta <- BetaI.r[, beta.idx]
+    m.avg.mat[, beta.idx] <- m.bar(data, beta, t, hp,
+                                   mi.mat = mi.tens[, , beta.idx])
+  }
+
+  # Precompute variance-covariance matrix of moment functions for all beta.
+  # Ensure the invertibility of each.
+  Sigma.tens <- array(dim = c(J*length(t), J*length(t), n.beta))
+  for (beta.idx in 1:n.beta) {
+    beta <- BetaI.r[, beta.idx]
+    Sigma.tens[, , beta.idx] <- Sigma.hat(data, beta, t, hp,
+                                          m.avg = m.avg.mat[, beta.idx],
+                                          mi.mat = mi.tens[ , , beta.idx])
+
+    Sigma.tens[, , beta.idx] <- Sigma.tens[, , beta.idx] + min.var * diag(ncol(Sigma.tens[, , beta.idx]))
+  }
+
+  # Precompute the variance diagonal matrices for all beta in BetaI.r (stored
+  # as vectors)
+  D.diag.mat <- matrix(nrow = J*length(t), ncol = n.beta)
+  for (beta.idx in 1:n.beta) {
+    D.diag.mat[, beta.idx] <- diag(Sigma.tens[, , beta.idx])
+  }
+
+  # Precompute the square root of the inverse of the diagonal variance matrices
+  D.inv.sqrt.diag.mat <- D.diag.mat^(-1/2)
+
+  # Precompute phi(xi(beta)) of each beta in BetaI.r
+  phi.mat <- matrix(nrow = J*length(t), ncol = n.beta)
+  for (beta.idx in 1:n.beta) {
+    beta <- BetaI.r[, beta.idx]
+    phi <- rep(0, J)
+    for (j in 1:J) {
+      phi[j] <- max(sqrt(n) * m.avg.mat[j, beta.idx] * D.inv.sqrt.diag.mat[j, beta.idx] / kappa.n, 0)
+    }
+    phi.mat[, beta.idx] <- phi
+  }
+
+  # Precompute Gn(theta)
+  Gn.tens <- array(dim = c(J*length(t), n.param, n.beta))
+  for (beta.idx in 1:n.beta) {
+    beta <- BetaI.r[, beta.idx]
+    Gn.tens[, , beta.idx] <- G.hat(data, beta, t, hp,
+                                   mi.mat = mi.tens[ , , beta.idx],
+                                   m.avg = m.avg.mat[ , beta.idx],
+                                   D = diag(D.diag.mat[, beta.idx], nrow  = J*length(t)),
+                                   inst.func.evals = inst.func.evals)
+  }
+
+  # Initialize object that will store all bootstrapped test statistics
+  JnLLb.r_vct <- NULL
+
+  # For each bootstrap iteration, compute the bootstrapped test statistic
+  for (b in 1:B) {
+
+    # Simulate i.i.d standard normal random variables.
+    zeta <- rnorm(n)
+
+    # Initialize matrix to store all S-function evaluations needed to determine
+    # the bootstrapped test statistic.
+    S.evals <- NULL
+
+    # Loop over all beta vectors inside BetaI.r and compute the corresponding
+    # S-function evaluation.
+    for (col.idx in 1:n.beta) {
+
+      # Select the beta corresponding to this iteration
+      beta <- BetaI.r[, col.idx]
+
+      # Matrix of moment function evaluations
+      mi.mat <- mi.tens[, , col.idx]
+
+      # Sample average of the moment functions
+      m.avg <- m.avg.mat[, col.idx]
+
+      # Sample variance-covariance matrix
+      Sigman <- Sigma.tens[, , col.idx]
+
+      # Sample correlation matrix
+      Omegan <- Omega.hat(Sigman)
+
+      # (Inverse square root) sample variance matrix
+      D.inv.sqrt <- diag(D.inv.sqrt.diag.mat[, col.idx], J*length(t))
+
+      # Compute vnb
+      vnb <- rep(0, J*length(t))
+      for (i in 1:n) {
+        vnb <- vnb + sqrt(1/n) * D.inv.sqrt %*% (mi.mat[,i] - m.avg) * zeta[i]
+      }
+
+      # phi(xi(theta))
+      phi <- phi.mat[, col.idx]
+
+      # Compute \hat{G}_n
+      Gn <- Gn.tens[, , col.idx]
+
+      # Evaluate the loss function at the origin. Store the result in a matrix
+      delta.search <- matrix(c(rep(0, n.param), S.func(vnb + phi, Omegan)), ncol = n.param + 1)
+      colnames(delta.search) <- c(paste0("X", 0:(n.param - 1)), "val")
+
+      # Precompute some values used in the starting point generation
+
+      # Define the parameter bounds for the optimization
+      optim.lb <- sqrt(n) * (par.space[, 1] + epsilon.n - beta)
+      optim.ub <- sqrt(n) * (par.space[, 2] - epsilon.n - beta)
+      optim.par.space <- cbind(optim.lb, optim.ub)
+
+      # Compute the corner points of the intersection polygon of the
+      # optimization parameter space and the hyperplace c %*% beta = 0.
+      gst_lfd.out <- get.starting.point_lf.delta(optim.par.space, c, r)
+      points.intersection <- gst_lfd.out[["points.intersection"]]
+
+      # Find the minimum of the loss function
+      for (start.idx in 1:(2^n.param)) {
+
+        # Get starting point for the optimization by rejection sampling
+        delta.init <- get.starting.point_lf.delta(optim.par.space, c, r,
+                                                  points.intersection)[["delta.init"]]
+        if (is.null(delta.init)) {next}
+
+        # Perform the optimization
+        eval_g_ineq <- function(Delta.sub, vnb, phi, Gn, Omegan, beta, c, r,
+                                data, par.space, epsilon.n, lambda.n, n) {
+          rbind(as.numeric(c %*% Delta.sub), as.numeric(- c %*% Delta.sub))
+        }
+        out <- nloptr(x0 = delta.init,
+                      eval_f = lf.delta.beta1,
+                      lb = optim.lb,
+                      ub = optim.ub,
+                      eval_g_ineq = eval_g_ineq,
+                      vnb = vnb, phi = phi, Gn = Gn,
+                      Omegan = Omegan, beta = beta, c = c, r = r, data = data,
+                      par.space = par.space, epsilon.n = epsilon.n,
+                      lambda.n = lambda.n, n = n,
+                      opts = list("algorithm" = "NLOPT_LN_COBYLA",
+                                  "xtol_rel" = 1e-4,
+                                  "maxeval" = 1000))
+
+        # Extract the results
+        val <- out$objective
+        solution <- out$solution
         delta.search <- rbind(delta.search, c(solution, val))
       }
 
@@ -7031,6 +7635,10 @@ check.args.pisurv <- function(data, idx.param.of.interest, idxs.c, t, par.space,
 #'  Default is FALSE. The feature \code{ignore.empty.IF = TRUE} is experimental,
 #'  so there might exist edge cases for which the implementation will fail to
 #'  run.}
+#'  \item{c:}{User-specified projection vector. If supplied, the method will
+#'  estimate the identified interval of \eqn{c^\top \beta} as opposed to the
+#'  identified interval of \eqn{\beta_k}, where \eqn{k} is specified as the
+#'  argument \code{idx.param.of.interest}.}
 #' }
 #'
 #' Hyperparameters specific to the EAM implementation:
@@ -7190,6 +7798,22 @@ pi.surv <- function(data, idx.param.of.interest, idxs.c, t, par.space,
     c.to.check <- list(c.vec)
   }
 
+  # If the argument "c" is specified in 'add.options', the user specified their
+  # own projection vector. In that case, we overwrite 'c.to.check' with this
+  # specification
+  user.spec.c <- FALSE
+  if (!is.null(add.options[["c"]])) {
+
+    # Inform the user
+    message("Using user-specified projection vector (and hence ignoring 'idx.param.of.interest')...")
+
+    # Set c.to.check to user-specification
+    c.to.check <- list(add.options[["c"]])
+
+    # Flag this event
+    user.spec.c <- TRUE
+  }
+
   # Pre-set algorithm hyperparameters
   options <- list(n.if.per.cov = 5,
                   K.bar = 3,
@@ -7211,6 +7835,10 @@ pi.surv <- function(data, idx.param.of.interest, idxs.c, t, par.space,
   results <- matrix(nrow = length(c.to.check), ncol = 4)
   rownames(results) <- paste0("X", matrix(unlist(c.to.check), nrow = length(c.to.check)) %*% 0:n.cov)
   colnames(results) <- c("lower", "upper", "conv.l", "conv.u")
+  if (user.spec.c) {
+    res.row.name <- sprintf("c = (%s)", paste(c.to.check[[1]], collapse = ", "))
+    rownames(results) <- res.row.name
+  }
 
   # Run the algorithm for the selected elements of the parameter vector
   for (c in c.to.check) {
@@ -7240,7 +7868,7 @@ pi.surv <- function(data, idx.param.of.interest, idxs.c, t, par.space,
     if (is.logical(fis.out)) {return(invisible(FALSE))}
 
     # Store the results
-    row.name <- paste0("X", which(c == 1) - 1)
+    row.name <- if (!user.spec.c) {paste0("X", which(c == 1) - 1)} else {res.row.name}
     results[row.name, c("lower", "upper")] <- fis.out$ident.set
     results[row.name, c("conv.l", "conv.u")] <- c(fis.out$converge1, fis.out$converge2)
   }
@@ -7784,6 +8412,10 @@ set.hyperparameters <- function(data, par.space, c, search.method, options) {
     stop("Number of bootstrap samples should be specified")
   }
 
+  # Bounds of the parameter space for theta
+  theta.lb = as.numeric(c %*% par.space[, 1])
+  theta.ub = as.numeric(c %*% par.space[, 2])
+
   hp <- list(
 
     # Link function
@@ -7806,8 +8438,8 @@ set.hyperparameters <- function(data, par.space, c, search.method, options) {
     "min.var" = min.var,
 
     # Bounds of the parameter space for theta
-    "theta.lb" = par.space[which(c == 1), 1],
-    "theta.ub" = par.space[which(c == 1), 2],
+    "theta.lb" = theta.lb,
+    "theta.ub" = theta.ub,
 
     # Full parameter space
     "par.space" = par.space,
@@ -7873,11 +8505,6 @@ find.identified.set <- function(c, t, par.space, data, search.method, options,
 
   if (verbose >= 2) {
     message("  Performing precondition checks...")
-  }
-
-  # Check if the projection vector is valid
-  if (!all(c %in% c(0, 1)) | sum(c^2) != 1) {
-    stop("Invalid argument for c")
   }
 
   # Check if the bounds of the parameter space are valid
@@ -7949,8 +8576,8 @@ find.identified.set <- function(c, t, par.space, data, search.method, options,
 
   # Set test function
   test.fun <- function(theta) {
-    test.point_Bei(theta, c, t, par.space, data, hp, verbose = FALSE,
-                   inst.func.evals = inst.func.evals, alpha = options$alpha)
+    test.point_Bei_MT(theta, c, t, par.space, data, hp, verbose = FALSE,
+                      inst.func.evals = inst.func.evals, alpha = options$alpha)
   }
 
   #### Find identified set ####
@@ -7970,9 +8597,9 @@ find.identified.set <- function(c, t, par.space, data, search.method, options,
 
   # Re-set test function, this time using parallel computing, if necessary.
   test.fun <- function(theta) {
-    test.point_Bei(theta, c, t, par.space, data, hp, verbose = FALSE,
-                   inst.func.evals = inst.func.evals, alpha = options$alpha,
-                   parallel = parallel)
+    test.point_Bei_MT(theta, c, t, par.space, data, hp, verbose = FALSE,
+                      inst.func.evals = inst.func.evals, alpha = options$alpha,
+                      parallel = parallel)
   }
 
   # Run search algorithm in dir = 1

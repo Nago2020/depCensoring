@@ -216,7 +216,6 @@ boot.funI = function(init,resData,X,W,lhat, cumL,dist,k,lb,ub, Obs.time,n.boot, 
 #'
 #' @export
 #'
-#'
 summary.depFit <- function(object, ...) {
 
   message(rep("-", 100))

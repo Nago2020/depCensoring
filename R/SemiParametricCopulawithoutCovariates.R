@@ -595,7 +595,7 @@ SurvDC <- function(
 #' @param maxit a positive integer that denotes the maximum iteration number in optimization.
 #' @param eps a positive small numeric value that denotes the tolerance for convergence.
 #'
-#' @export Likelihood.Profile.Solve
+#' @noRd
 #'
 Likelihood.Profile.Solve <- function(
     yobs,delta,copfam,margins,ktau.init,parapar.init,cure,curerate.init,constraints,maxit,eps
@@ -752,7 +752,7 @@ Likelihood.Profile.Solve <- function(
 #' @param cure a logical value that indicates whether the existence of a cured fraction should be considered.
 #' @param curerate value of cure rate.
 #'
-#' @export SurvDC.GoF
+#' @noRd
 #'
 SurvDC.GoF <- function(yobs,delta,copfam,margins,ktau,parapar,cure=FALSE,curerate=NULL){
 
@@ -829,7 +829,7 @@ SurvDC.GoF <- function(yobs,delta,copfam,margins,ktau,parapar,cure=FALSE,curerat
 #' @param truncation a positive numeric value thats denotes the value of truncation for the assumed distribution.
 #' @param cure a logical value that indicates whether the existence of a cured fraction should be considered.
 #'
-
+#' @noRd
 SurvMLE.Likelihood <- function(param,yobs,delta,distribution,truncation=NULL,cure=FALSE){
 
   # extract parameters
@@ -868,8 +868,8 @@ SurvMLE.Likelihood <- function(param,yobs,delta,distribution,truncation=NULL,cur
 #' @param truncation a positive numeric value thats denotes the value of truncation for the assumed distribution.
 #' @param cure a logical value that indicates whether the existence of a cured fraction should be considered.
 #' @param maxit a positive integer that denotes the maximum iteration number in optimization.
-
-
+#'
+#' @noRd
 SurvMLE <- function(yobs,delta,distribution,truncation=NULL,cure=FALSE,maxit=300){
 
   # setup initial values and constraints
@@ -926,7 +926,7 @@ SurvMLE <- function(yobs,delta,distribution,truncation=NULL,cure=FALSE,maxit=300
 #' @param parameter the parameter of the specified distribution
 #' @param distribution the specified distribution function.
 #'
-#'
+#' @noRd
 parafam.trunc <- function(truncation,parameter,distribution){
 
   if(distribution=="lnorm"){
@@ -942,7 +942,8 @@ parafam.trunc <- function(truncation,parameter,distribution){
 #'
 #' @param x the value in which the distribution function will be calculated at.
 #' @inheritParams parafam.trunc
-
+#'
+#' @noRd
 parafam.p <- function(x,parameter,distribution,truncation=NULL){
 
   # values with no truncation
@@ -968,7 +969,7 @@ parafam.p <- function(x,parameter,distribution,truncation=NULL){
 #' @param x the value in which the density function will be calculated at.
 #' @inheritParams parafam.trunc
 #'
-
+#' @noRd
 parafam.d <- function(x,parameter,distribution,truncation=NULL){
 
   # values with no truncation
@@ -1000,7 +1001,7 @@ parafam.d <- function(x,parameter,distribution,truncation=NULL){
 #' @param margins a list used to define the distribution structures of both the survival and censoring margins.
 #' @param cure a logical value that indicates whether the existence of a cured fraction should be considered.
 #'
-#'
+#' @noRd
 Likelihood.Semiparametric <- function(param,Syobs,yobs,delta,copfam,margins,cure=FALSE){
 
   # extract current values
@@ -1064,7 +1065,7 @@ Likelihood.Semiparametric <- function(param,Syobs,yobs,delta,copfam,margins,cure
 #'
 #' @inheritParams Likelihood.Semiparametric
 #'
-#'
+#' @noRd
 Likelihood.Parametric <- function(param,yobs,delta,copfam,margins,cure=FALSE){
 
   # extract current values
@@ -1118,6 +1119,7 @@ Likelihood.Parametric <- function(param,yobs,delta,copfam,margins,cure=FALSE){
 #'
 #' @inheritParams Likelihood.Semiparametric
 #'
+#' @noRd
 Parameters.Constraints <- function(copfam,margins,cure){
 
   eps.fluate <- 1e-3
@@ -1177,7 +1179,7 @@ Parameters.Constraints <- function(copfam,margins,cure){
 #'
 #' @param ktau a numeric value that denotes the Kendall's tau.
 #' @param copfam a character string that denotes the copula family.
-#' @export
+#' @noRd
 
 ktau.to.coppar <- function(ktau,copfam){
 
@@ -1228,8 +1230,7 @@ ktau.to.coppar <- function(ktau,copfam){
 #' @param coppar a numeric value that denotes the copula parameter.
 #' @param copfam a character string that denotes the copula family.
 #'
-
-
+#' @noRd
 coppar.to.ktau <- function(coppar,copfam){
 
   # coppar's allowed range:
@@ -1276,6 +1277,7 @@ coppar.to.ktau <- function(coppar,copfam){
 #' @inheritParams coppar.to.ktau
 #' @param inverse a logical value that specifies whether the inverse function will be used.
 #'
+#' @noRd
 generator.Archimedean <- function(x,coppar,copfam,inverse=FALSE){
 
   if(copfam=="frank"){
@@ -1321,8 +1323,7 @@ generator.Archimedean <- function(x,coppar,copfam,inverse=FALSE){
 #' @inheritParams coppar.to.ktau
 #' @param condvar a numeric value that specifies the type of the h-function.
 #'
-#' @export cophfunc
-#'
+#' @noRd
 cophfunc <- function(x,coppar,copfam,condvar=1){
 
   # preparations
@@ -1359,7 +1360,7 @@ cophfunc <- function(x,coppar,copfam,condvar=1){
 #' @param ktau a numeric value that denotes the Kendall's tau.
 #' @inheritParams coppar.to.ktau
 #'
-
+#' @noRd
 copdist.Archimedean <- function(x,copfam,ktau,coppar = NULL){
 
   # preparations
@@ -1382,8 +1383,8 @@ copdist.Archimedean <- function(x,copfam,ktau,coppar = NULL){
 #' @param tm a vector contains all time points that the survival function will be calculated at.
 #' @inheritParams copdist.Archimedean
 #' @inheritParams Likelihood.Semiparametric
-
-
+#'
+#' @noRd
 SurvFunc.CG <- function(tm=NULL,yobs,delta,copfam,ktau,coppar=NULL){
 
   # preparation
@@ -1415,6 +1416,7 @@ SurvFunc.CG <- function(tm=NULL,yobs,delta,copfam,ktau,coppar=NULL){
 #' @inheritParams SurvFunc.CG
 #' @param type a character string that specifies the type of the step function. If \code{type="right"}, it will be a right-continuous function.
 #'
+#' @noRd
 SurvFunc.KM <- function(tm=NULL,yobs,delta,type="right"){
 
   # preparation
@@ -1442,7 +1444,7 @@ SurvFunc.KM <- function(tm=NULL,yobs,delta,type="right"){
 #'
 #' @inheritParams Likelihood.Semiparametric
 #'
-
+#' @noRd
 Likelihood.Profile.Kernel <- function(param,yobs,delta,copfam,margins,cure=FALSE){
 
   # extract current values
@@ -1515,7 +1517,7 @@ Likelihood.Profile.Kernel <- function(param,yobs,delta,copfam,margins,cure=FALSE
 #' @param u the value in which the kernel function will be calculated at.
 #' @param name a character used to specify the type of kernel function.
 #'
-
+#' @noRd
 Kernel <- function(u, name="Gaussian"){
   # the kernel function (not re-scaled) with only one continuous variable
 
@@ -1538,7 +1540,7 @@ Kernel <- function(u, name="Gaussian"){
 #' @param trace a logical value that judges whereh the tracing information on the progress of the model fitting should be produced. The default value if \code{TRUE}.
 #' @param ktau.inits a numeric vector that contains initial values of the Kendall's tau.
 #'
-#'
+#' @noRd
 control.arguments <- function(
     maxit      = 300,
     eps        = 1e-6,

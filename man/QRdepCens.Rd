@@ -14,8 +14,8 @@ a column named \code{"Y"}, the censoring indicators in a column named
 ... (in increasing order). The given data set cannot contain any other
 columns.}
 
-\item{hp}{List of hyperparameters to be used, which will overwrite the
-default settings. In particular, consider changing:
+\item{hp}{List of hyperparameters to be used, the elements of which will
+overwrite the default settings. In particular, consider changing:
 \describe{
  \item{test_cop_name:}{Copula to be used. Should be one of
  \code{"frank"}, \code{"gumbel"}, \code{"clayton"} or \code{"indep"}.}

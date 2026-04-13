@@ -7,7 +7,7 @@
 #' @param Dist.C The distribution to  be used for the censoring time C. This argument can take one of the values from \code{c("lnorm", "weibull", "llogis")}.
 #' @import rvinecopulib rafalib stats
 #' @return Maximized log-likelihood value.
-
+#' @noRd
 loglike.indep.unconstrained<-function(para,Y,Delta,Dist.T,Dist.C){
   par.T=para[1:2]
   par.C=para[3:4]
@@ -49,7 +49,7 @@ loglike.indep.unconstrained<-function(para,Y,Delta,Dist.T,Dist.C){
 #' @param Dist.C The distribution to  be used for the censoring time C. This argument can take one of the values from \code{c("lnorm", "weibull", "llogis")}.
 #' @import rvinecopulib rafalib stats
 #' @return Maximized log-likelihood value.
-
+#' @noRd
 loglike.frank.unconstrained<-function(para,Y,Delta,Dist.T,Dist.C){
   par.T=para[1:2]
   par.C=para[3:4]
@@ -97,7 +97,7 @@ loglike.frank.unconstrained<-function(para,Y,Delta,Dist.T,Dist.C){
 #' @param Dist.C The distribution to  be used for the censoring time C. This argument can take one of the values from \code{c("lnorm", "weibull")} and has to be the same as Dist.T.
 #' @import rvinecopulib rafalib stats
 #' @return Maximized log-likelihood value.
-
+#' @noRd
 loglike.gumbel.unconstrained<-function(para,Y,Delta,Dist.T,Dist.C){
   par.T=para[1:2]
   par.C=para[3:4]
@@ -141,7 +141,7 @@ loglike.gumbel.unconstrained<-function(para,Y,Delta,Dist.T,Dist.C){
 #' @param Dist.C The distribution to  be used for the censoring time C. This argument can take one of the values from \code{c("lnorm", "weibull")} and has to be the same as Dist.T.
 #' @import rvinecopulib rafalib stats
 #' @return Maximized log-likelihood value.
-
+#' @noRd
 loglike.clayton.unconstrained<-function(para,Y,Delta,Dist.T,Dist.C){
   par.T=para[1:2]
   par.C=para[3:4]
@@ -185,7 +185,7 @@ loglike.clayton.unconstrained<-function(para,Y,Delta,Dist.T,Dist.C){
 #' @param Dist.C The distribution to  be used for the censoring time C. This argument can only the value \code{"lnorm"}.
 #' @import rvinecopulib rafalib stats
 #' @return Maximized log-likelihood value.
-
+#' @noRd
 loglike.gaussian.unconstrained<-function(para,Y,Delta,Dist.T,Dist.C){
   par.T=para[1:2]
   par.C=para[3:4]
@@ -228,7 +228,7 @@ loglike.gaussian.unconstrained<-function(para,Y,Delta,Dist.T,Dist.C){
 #' @param start Starting values
 #' @import rvinecopulib rafalib stats
 #' @return A list containing the minimized negative log-likelihood using the independence copula model, the estimated parameter values for the model with the independence copula, the minimized negative log-likelihood using the specified copula model and the estimated parameter values for the model with the specified copula.
-
+#' @noRd
 optimlikelihood<-function(Y,Delta,Copula,Dist.T,Dist.C,start){
 
   para.start=optim(start,loglike.indep.unconstrained,Y=Y,Delta=Delta,Dist.T=Dist.T,Dist.C=Dist.C,control=list(fnscale=-1),method="BFGS")
@@ -254,7 +254,12 @@ optimlikelihood<-function(Y,Delta,Copula,Dist.T,Dist.C,start){
 #' @description  Note that it is not assumed that the association parameter of the copula function is known,
 #' unlike most other papers in the literature. The details for implementing the methodology can be found in Czado and Van Keilegom (2023).
 #' @references Czado and Van Keilegom (2023). Dependent censoring based on parametric copulas. Biometrika, 110(3), 721-738.
-#' @inheritParams optimlikelihood
+#' @param Y Follow-up time.
+#' @param Delta Censoring indicator.
+#' @param Copula The copula family. This argument can take values from \code{c("frank","gumbel","clayton","gaussian","indep")}.
+#' @param Dist.T The distribution to  be used for the survival time T. This argument can take one of the values from \code{c("lnorm", "weibull", "llogis")}.
+#' @param Dist.C The distribution to  be used for the censoring time C. This argument can take one of the values from \code{c("lnorm", "weibull", "llogis")}.
+#' @param start Starting values.
 #' @import rvinecopulib rafalib stats
 #' @return A table containing the minimized negative log-likelihood using the independence copula model, the estimated parameter values for the model with the independence copula, the minimized negative log-likelihood using the specified copula model and the estimated parameter values for the model with the specified copula.
 #'
@@ -275,7 +280,6 @@ optimlikelihood<-function(Y,Delta,Copula,Dist.T,Dist.C,start){
 #'ParamCop(Y,Delta,Copula,Dist.T,Dist.C)
 #'
 #' @export
-
 ParamCop <- function(Y,Delta,Copula,Dist.T,Dist.C,start=c(1,1,1,1)){
 
   if(!(Copula %in% c("frank","gumbel","clayton","gaussian","indep"))){

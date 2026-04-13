@@ -208,7 +208,6 @@ fitDepCens = function(resData,X,W,
 #' then at the second stage it estimates other model parameters assuming that the cumulative hazard is known.
 #'
 #'
-
 #' @param start Initial values for the finite dimensional parameters. If \code{start} is NULL, the initial values will be obtained
 #' by fitting a Cox model for survival time T and a Weibull model for censoring time C.
 #'
@@ -275,8 +274,6 @@ fitDepCens = function(resData,X,W,
 #'}
 #'
 #' @export
-
-
 fitIndepCens = function(resData,X,W,
                         dist = c("Weibull", "lognormal"), start = NULL,
                         n.iter = 50, bootstrap = TRUE, n.boot = 150, ncore = 7, eps = 1e-4){

@@ -895,6 +895,9 @@ para_inv_transform <- function(transf_para_vec, cop_name, hp) {
 #'
 dEAL <- function(y, x, beta, gam_par, lambda, phi_til, phi, hp) {
 
+  # Load dependency if necessary
+  requireNamespace("orthopolynom", quitely = TRUE)
+
   # Standard deviation in quantile regression model for T.
   x.simga_fun <- if (hp$homoscedastic) {1} else {x}
   s <- sigma_fun(x.simga_fun, gam_par)
@@ -910,7 +913,6 @@ dEAL <- function(y, x, beta, gam_par, lambda, phi_til, phi, hp) {
   # Lag of degree 0 is constant 1, so first term in sum is always fixed constant
   left_sum <- 1
   right_sum <- 1
-
   poly_list <- orthopolynom::laguerre.polynomials(max(length(phi),length(phi_til)),
                                                   normalized = TRUE)
 
