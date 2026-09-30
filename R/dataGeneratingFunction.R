@@ -25,13 +25,13 @@
 #' censoring in the data. Default is \code{A.upper = 15}. \code{A.upper = NULL}
 #' will return a data set without administrative censoring.
 #'
-#' @import mvtnorm MASS stats
+#' @import stats
+#' @importFrom MASS mvrnorm
 #'
 #' @return A generated data set
 #'
 #' @noRd
 #'
-
 dat.sim.reg.comp.risks = function(n, par, iseed, s, conf, Zbin, Wbin, type.cov,
                                   A.upper = 15) {
 

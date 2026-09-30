@@ -70,6 +70,8 @@ Lag_coeff <- function(n, j){
 #'
 #' @param x Vector of covariates.
 #'
+#' @importFrom stats runif
+#'
 #' @noRd
 #'
 perturb <- function(x) {
@@ -84,6 +86,8 @@ perturb <- function(x) {
 #' for optimization routine.
 #'
 #' @param x Vector of numerics.
+#'
+#' @importFrom stats runif
 #'
 #' @seealso perturb
 #'
@@ -221,6 +225,9 @@ h_CT_clayton <- function(u,v,theta){
 #' @param X_params List of parameters pertaining to the covariate distribution.
 #' @param seed Initial seed. Default is \code{seed = NULL}.
 #'
+#' @importFrom MASS mvrnorm
+#' @importFrom stats runif
+#'
 #' @noRd
 #'
 covariate_sampling <- function(size, params_X, seed = NULL) {
@@ -307,6 +314,8 @@ is_integer <- function(nbr) {
 #' @param as.string Boolean flag indicating whether the result should be
 #' returned as a sting. Default is \code{as.string = TRUE}.
 #'
+#' @importFrom stats qnorm
+#'
 #' @noRd
 #'
 make_ci <- function(est, sd, as.string = TRUE) {
@@ -342,6 +351,8 @@ make_ci <- function(est, sd, as.string = TRUE) {
 #' @param Delta Vector of censoring indicators.
 #' @param cop_name Name of the copula to be used.
 #' @param hp List of hyperparameters.
+#'
+#' @importFrom stats sd runif
 #'
 #' @seealso perform_mll_optimisation, determine_init_basis
 #'
@@ -425,6 +436,8 @@ determine_init_basis_het <- function(T1, X1, C0, X0, Delta, cop_name, hp) {
 #' @param Delta Vector of censoring indicators.
 #' @param cop_name Name of the copula to be used.
 #' @param hp List of hyperparameters.
+#'
+#' @import stats
 #'
 #' @seealso perform_mll_optimisation, determine_init_basis
 #'
@@ -590,6 +603,8 @@ pCens_norm <- function(y, x, alpha_C, sigma_C){
 #'
 #' @inheritParams dCens_norm
 #'
+#' @importFrom stats qnorm
+#'
 #' @noRd
 #'
 qCens_norm <- function(w, x, alpha_C, sigma_C) {
@@ -705,8 +720,6 @@ qCens <- function(y, x, distr_C, params_C = NULL) {
   # If non of the above distribution applied, throw an error.
   stop("Distribution for C not implemented yet.")
 }
-
-#### 4)  Transformation functions ####
 
 #' @title Compute Kendall's tau based on \eqn{eta}.
 #'
@@ -885,7 +898,7 @@ para_inv_transform <- function(transf_para_vec, cop_name, hp) {
 dEAL <- function(y, x, beta, gam_par, lambda, phi_til, phi, hp) {
 
   # Load dependency if necessary
-  requireNamespace("orthopolynom", quitely = TRUE)
+  requireNamespace("orthopolynom", quietly = TRUE)
 
   # Standard deviation in quantile regression model for T.
   x.simga_fun <- if (hp$homoscedastic) {1} else {x}
@@ -1358,6 +1371,9 @@ ctuity_constr_fun <- function(all_paras, lag_degs,
 #' @param indep_assumption Boolean indicator whether independence can be
 #' assumed. Default is \code{indep_assumption = FALSE}.
 #'
+#' @importFrom stats optim
+#' @importFrom nloptr nloptr
+#'
 #' @returns List of program value and argument minimizers (i.e. ML estimates).
 #'
 #' @noRd
@@ -1629,6 +1645,9 @@ ctuity_constr_partial <- function(para_variable, para_fixed, fixed_indices,
 #' @param hp List of hyperparameters.
 #' @param indep_assumption Boolean indicator whether independence can be
 #' assumed. Default is \code{indep_assumption = FALSE}.
+#'
+#' @importFrom stats optim
+#' @importFrom nloptr nloptr
 #'
 #' @returns List of program value and argument minimizers (i.e. ML estimates).
 #'
@@ -1959,6 +1978,8 @@ ctuity_constr_fun_indep <- function(all_paras_indep, lag_degs, cop_name, Y, X,
 #' @param Delta Vector of censoring indicators.
 #' @param cop_name Name of the copula to use.
 #' @param hp List of hyperparameters.
+#'
+#' @importFrom stats runif
 #'
 #' @noRd
 #'

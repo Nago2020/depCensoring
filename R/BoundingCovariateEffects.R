@@ -3402,7 +3402,7 @@ get.anchor.points <- function(data, n.if.per.cov, normalized = FALSE) {
 #' @title Family of box functions
 #'
 #' @description This function defined the class of box functions as defined in
-#' Willems et al. (2025).
+#' Willems et al. (2026).
 #'
 #' @param x Vector of covariates to be normalized alongside the data. Default is
 #' \code{x = NULL}.
@@ -4692,11 +4692,10 @@ lf.ts <- function(beta.sub, data, t, hp, c, r, inst.func.evals = NULL) {
 
 #' @title Get starting value for test statistic computation.
 #'
-#' @description
-#' This function obtains a suitable starting value for the optimization problem
-#' in the test statistic computation. Suitable here means that the starting
-#' value satisfies both the parameter space bounds, and the restriction that
-#' \code{c %*% beta = r}.
+#' @description This function obtains a suitable starting value for the
+#' optimization problem in the test statistic computation. Suitable here means
+#' that the starting value satisfies both the parameter space bounds, and the
+#' restriction that \code{c %*% beta = r}.
 #'
 #' @param c Projection vector.
 #' @param r Projection value.
@@ -4704,12 +4703,9 @@ lf.ts <- function(beta.sub, data, t, hp, c, r, inst.func.evals = NULL) {
 #'
 #' @returns A starting value.
 #'
-#' @importFrom nloptr nloptr
-#'
-#' @details
-#' The starting value \code{beta.init} must be such that (1) it lies within the
-#' parameter space (as given by the argument \code{par.space}), and (2) such
-#' that \code{beta.init %*% c = r}. In other words, it must lie on the
+#' @details The starting value \code{beta.init} must be such that (1) it lies
+#' within the parameter space (as given by the argument \code{par.space}), and
+#' (2) such that \code{beta.init %*% c = r}. In other words, it must lie on the
 #' intersection of the parameter space \eqn{B} with the hyperplane defined by
 #' \eqn{H = \{x^\top \beta = r\}]. Note that \eqn{B \cap H} is a polygon. To
 #' sample a point on \eqn{B \cap H}, we first compute the corner points of this
@@ -7571,7 +7567,7 @@ check.args.pisurv <- function(data, idx.param.of.interest, idxs.c, t, par.space,
   }
 }
 
-#' @title Estimate the model of Willems et al. (2025).
+#' @title Estimate the model of Willems et al. (2026).
 #'
 #' @description This function estimates bounds on the coefficients the single-
 #' index model \eqn{\Lambda(x^\top \beta(t))} for the conditional cumulative
@@ -7747,9 +7743,10 @@ check.args.pisurv <- function(data, idx.param.of.interest, idxs.c, t, par.space,
 #' }
 #'
 #'
-#' @references Willems, I., Beyhum, J. and Van Keilegom, I. (2025). Partial
-#' identification for a class of survival models under dependent censoring.
-#' (Submitted).
+#' @references Ilias Willems, Jad Beyhum, Ingrid Van Keilegom, Bounds for the
+#' regression parameters in dependently censored survival models, Journal of the
+#' Royal Statistical Society Series B: Statistical Methodology, 2026;, qkag119,
+#' https://doi.org/10.1093/jrsssb/qkag119
 #'
 pi.surv <- function(data, idx.param.of.interest, idxs.c, t, par.space,
                     search.method = "GS", add.options = list(),

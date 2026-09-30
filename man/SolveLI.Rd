@@ -54,5 +54,4 @@ ylab = "Estimated cumulative hazard function")
 
 }
 
-
 }

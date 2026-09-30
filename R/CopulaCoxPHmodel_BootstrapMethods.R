@@ -4,7 +4,6 @@
 #' @description This function estimates the bootstrap standard errors for the finite-dimensional model parameters and for the non-parametric cumulative
 #' hazard function. Parallel computing using foreach has been used to speed up the estimation of standard errors.
 #'
-#'
 #' @param init Initial values for the finite dimensional parameters obtained from the fit of \code{\link{fitDepCens}}
 #' @param lhat Initial values for the hazard function obtained from the fit of \code{\link{fitDepCens}} based on the original data.
 #' @param cumL Initial values for the cumulative hazard function obtained from the fit of \code{\link{fitDepCens}} based on the original data.
@@ -25,13 +24,18 @@
 #' @param n.iter Number of iterations; the default is \code{n.iter = 20}. The larger the number of iterations, the longer the computational time.
 #' @param n.boot Number of bootstraps to use in the estimation of bootstrap standard errors.
 #' @param ncore The number of cores to use for parallel computation is configurable, with the default \code{ncore = 7}.
-#' @importFrom stats nlminb pnorm  qnorm sd
-#' @importFrom copula pCopula frankCopula gumbelCopula tau
+#'
+#' @importFrom stats nlminb sd
+#' @importFrom copula frankCopula gumbelCopula tau
 #' @import foreach
 #' @import parallel
+#' @import doParallel
+#'
 #' @return Bootstrap standard errors for parameter estimates and for estimated cumulative hazard function.
+#'
 #' @noRd
-boot.fun = function(init,resData,X,W,lhat, cumL,dist,k,lb, ub, Obs.time,cop,n.boot, n.iter, ncore, eps){
+boot.fun = function(init, resData, X, W, lhat, cumL, dist, k, lb, ub, Obs.time,
+                    cop, n.boot, n.iter, ncore, eps) {
   B = n.boot                                     # number of bootstrap samples
   n.cores <- ncore
 
@@ -106,13 +110,10 @@ boot.fun = function(init,resData,X,W,lhat, cumL,dist,k,lb, ub, Obs.time,cop,n.bo
   return(bootR)
 }
 
-
-
 #' @title  Nonparametric bootstrap approach for the independent censoring model
-
+#'
 #' @description This function estimates the bootstrap standard errors for the finite-dimensional model parameters and for the non-parametric cumulative
 #' hazard function under the assumption of independent censoring. Parallel computing using foreach has been used to speed up the computation.
-#'
 #'
 #' @param init Initial values for the finite dimensional parameters obtained from the fit of \code{\link{fitIndepCens}}
 #' @param lhat Initial values for the hazard function obtained from the fit of \code{\link{fitIndepCens}} based on the original data
@@ -132,13 +133,17 @@ boot.fun = function(init,resData,X,W,lhat, cumL,dist,k,lb, ub, Obs.time,cop,n.bo
 #' @param n.iter Number of iterations; the default is \code{n.iter = 20}. The larger the number of iterations, the longer the computational time
 #' @param n.boot Number of bootstraps to use in the estimation of bootstrap standard errors.
 #' @param ncore The number of cores to use for parallel computation is configurable, with the default \code{ncore = 7}.
-#' @importFrom stats nlminb pnorm  qnorm sd
-#' @importFrom survival coxph survreg
+#'
+#' @importFrom stats nlminb sd
 #' @import foreach
+#' @import parallel
+#' @import doParallel
 #'
 #' @return Bootstrap standard errors for parameter estimates and for estimated cumulative hazard function.
+#'
 #' @noRd
-boot.funI = function(init,resData,X,W,lhat, cumL,dist,k,lb,ub, Obs.time,n.boot, n.iter, ncore, eps){
+boot.funI = function(init, resData, X, W, lhat, cumL, dist, k, lb, ub, Obs.time,
+                     n.boot, n.iter, ncore, eps) {
   B = n.boot                                     # number of bootstrap samples
   n.cores <- ncore
 
@@ -204,15 +209,12 @@ boot.funI = function(init,resData,X,W,lhat, cumL,dist,k,lb,ub, Obs.time,n.boot, 
   return(bootR)
 }
 
-
-
-
-
 #' Summary of \code{depCensoringFit} object
 #'
-#' @param object Output of \code{\link{fitDepCens}} function
-#' @param ... Further arguments
-#' @return Summary of dependent censoring model fit in the form of table
+#' @param object Output of \code{\link{fitDepCens}} function.
+#' @param ... Further arguments.
+#'
+#' @return Summary of dependent censoring model fit in the form of table.
 #'
 #' @export
 #'
@@ -337,14 +339,12 @@ summary.depFit <- function(object, ...) {
   }
 }
 
-
 #' Summary of \code{indepCensoringFit} object
 #'
-#' @param object Output of \code{\link{fitIndepCens}} function
-#' @param ... Further arguments
+#' @param object Output of \code{\link{fitIndepCens}} function.
+#' @param ... Further arguments.
 #'
-#' @return Summary of independent censoring model fit in the form of table
-#'
+#' @return Summary of independent censoring model fit in the form of table.
 #'
 #' @export
 summary.indepFit <- function(object, ...) {

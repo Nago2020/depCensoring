@@ -2,9 +2,13 @@
 #' @title Competing risk likelihood function.
 #'
 #' @description This function implements the second step likelihood function of
-#' the competing risk model defined in Willems et al. (2024+).
+#' the competing risk model defined in Willems et al. (2026).
 #'
-#' @references Willems et al. (2024+). Flexible control function approach under competing risks (in preparation).
+#' @references Willems, I., Rutten, S., Crommen, G., Van Keilegom, I. (2026). A
+#' Flexible Control Function Approach for Survival Data Subject to Different
+#' Types of Censoring. In: Nagler, T., Kurowicka, D., Cooke, R., Joe, H. (eds)
+#' Statistical Dependence Modeling. Springer, Cham.
+#' https://doi.org/10.1007/978-3-032-14252-8_11#'
 #'
 #' @param n The sample size.
 #' @param s The number of competing risks.
@@ -25,7 +29,7 @@
 #' @param theta.vct Vector containing the parameters of the Yeo-Johnsontrans-
 #' formations.
 #'
-#' @import mvtnorm pbivnorm
+#' @importFrom pbivnorm pbivnorm
 #' @importFrom stats dnorm
 #'
 #' @return Evaluation of the log-likelihood function
@@ -37,10 +41,11 @@ cr.lik <- function(n, s, Y, admin, cens.inds, M, Sigma, beta.mat, sigma.vct,
 
   # Load dependency
   requireNamespace("OpenMx")
+  requireNamespace("matrixcalc")
 
   # In the current implementation, Sigma should always be a positive definite
   # matrix. The if-clause is therefore superfluous.
-  if (is.positive.definite(Sigma, tol = 1e-30)) {
+  if (matrixcalc::is.positive.definite(Sigma, tol = 1e-30)) {
 
     # Compute the (derivate of the) Yeo-Johnson transformations of Y
     transY.T <- matrix(nrow = n, ncol = s)
@@ -247,9 +252,13 @@ LikGamma2 <- function(gamma, Z, M) {
 #'
 #' @description This function defines the log-likelihood used to estimate
 #' the second step in the competing risks extension of the model described in
-#' Willems et al. (2024+).
+#' Willems et al. (2026).
 #'
-#'@references Willems et al. (2024+). Flexible control function approach under competing risks (in preparation).
+#' @references Willems, I., Rutten, S., Crommen, G., Van Keilegom, I. (2026). A
+#' Flexible Control Function Approach for Survival Data Subject to Different
+#' Types of Censoring. In: Nagler, T., Kurowicka, D., Cooke, R., Joe, H. (eds)
+#' Statistical Dependence Modeling. Springer, Cham.
+#' https://doi.org/10.1007/978-3-032-14252-8_11
 #'
 #' @param par Vector of all second step model parameters, consisting of the
 #' regression parameters, variance-covariance matrix elements and transformation
@@ -264,8 +273,6 @@ LikGamma2 <- function(gamma, Z, M) {
 #' variable, or (iv) nothing (\code{cf = NULL}). Option (ii) is used when
 #' comparing the two-step estimator to the oracle estimator, and option (iii) is
 #' used to compare the two-step estimator with the naive estimator.
-#'
-#' @import mvtnorm pbivnorm
 #'
 #' @return Log-likelihood evaluation of the second step.
 #'
@@ -363,8 +370,6 @@ LikF.cmprsk <- function(par, data, admin, conf, cf) {
 #' @param eps Minimum value for the diagonal elements in the covariance matrix.
 #' Default is \code{eps = 0.001}.
 #'
-#' @import mvtnorm pbivnorm
-#'
 #' @return Log-likelihood evaluation of the second step.
 #'
 #' @noRd
@@ -439,11 +444,15 @@ likF.cmprsk.Cholesky <- function(par.chol, data, admin, conf, cf, eps = 0.001) {
 #'
 #' @description This function defines the log-likelihood used in estimating
 #' the second step in the competing risks extension of the model described in
-#' Willems et al. (2024+). The results of this function will serve as
+#' Willems et al. (2026). The results of this function will serve as
 #' starting values for subsequent optimizations (LikI.comprsk.R and
 #' LikF.cmprsk.R)
 #'
-#' @references Willems et al. (2024+). Flexible control function approach under competing risks (in preparation).
+#' @references Willems, I., Rutten, S., Crommen, G., Van Keilegom, I. (2026). A
+#' Flexible Control Function Approach for Survival Data Subject to Different
+#' Types of Censoring. In: Nagler, T., Kurowicka, D., Cooke, R., Joe, H. (eds)
+#' Statistical Dependence Modeling. Springer, Cham.
+#' https://doi.org/10.1007/978-3-032-14252-8_11
 #'
 #' @param par Vector of all second step model parameters, consisting of the
 #' regression parameters, variance-covariance matrix elements and transformation
@@ -574,9 +583,13 @@ LikI.bis <- function(par, data, admin, conf, cf) {
 #'
 #' @description This function defines the log-likelihood used to estimate
 #' the second step in the competing risks extension assuming independence of
-#' some of the competing risks in the model described in Willems et al. (2024+).
+#' some of the competing risks in the model described in Willems et al. (2026).
 #'
-#' @references Willems et al. (2024+). Flexible control function approach under competing risks (in preparation).
+#' @references Willems, I., Rutten, S., Crommen, G., Van Keilegom, I. (2026). A
+#' Flexible Control Function Approach for Survival Data Subject to Different
+#' Types of Censoring. In: Nagler, T., Kurowicka, D., Cooke, R., Joe, H. (eds)
+#' Statistical Dependence Modeling. Springer, Cham.
+#' https://doi.org/10.1007/978-3-032-14252-8_11
 #'
 #' @param par Vector of all second step model parameters, consisting of the
 #' regression parameters, variance-covariance matrix elements and transformation
@@ -596,8 +609,6 @@ LikI.bis <- function(par, data, admin, conf, cf) {
 #' variable, or (iv) nothing (\code{cf = NULL}). Option (ii) is used when
 #' comparing the two-step estimator to the oracle estimator, and option (iii) is
 #' used to compare the two-step estimator with the naive estimator.
-#'
-#' @import mvtnorm pbivnorm
 #'
 #' @return Log-likelihood evaluation for the second step in the esimation
 #' procedure.
@@ -720,8 +731,6 @@ LikI.cmprsk <- function(par, data, eoi.indicator.names, admin, conf, cf) {
 #' @param eps Minimum value for the diagonal elements in the covariance matrix.
 #' Default is \code{eps = 0.001}.
 #'
-#' @import mvtnorm pbivnorm
-#'
 #' @return Log-likelihood evaluation for the second step in the estimation
 #' procedure.
 #'
@@ -843,8 +852,6 @@ LikI.cmprsk.Cholesky <- function(par.chol, data, eoi.indicator.names, admin,
 #' binary.
 #' @param inst Type of instrumental function to be used.
 #'
-#' @import mvtnorm pbivnorm
-#'
 #' @return Full model log-likelihood evaluation.
 #'
 #' @noRd
@@ -912,7 +919,8 @@ likIFG.cmprsk.Cholesky <- function(parhatG, data, eoi.indicator.names, admin,
 #' @param gammaest Vector of pre-estimated parameter vector. If \code{NULL},
 #' this function will first estimate \code{gammaest}. Default value is
 #' \code{gammaest = NULL}.
-#' @import nloptr
+#'
+#' @importFrom nloptr nloptr
 #' @importFrom stats lm
 #'
 #' @return List containing the vector of values for the control function and
@@ -962,8 +970,14 @@ estimate.cf <- function(XandW, Z, Zbin, gammaest = NULL) {
 #' extends the model of Crommen, Beyhum and Van Keilegom (2024) and as such, this
 #' function also implements their methodology.
 #'
-#' @references Willems et al. (2025). Flexible control function approach under competing risks (submitted).
-#' @references Crommen, G., Beyhum, J., and Van Keilegom, I. (2024). An instrumental variable approach under dependent censoring. Test, 33(2), 473-495.
+#' @references Willems, I., Rutten, S., Crommen, G., Van Keilegom, I. (2026). A
+#' Flexible Control Function Approach for Survival Data Subject to Different
+#' Types of Censoring. In: Nagler, T., Kurowicka, D., Cooke, R., Joe, H. (eds)
+#' Statistical Dependence Modeling. Springer, Cham.
+#' https://doi.org/10.1007/978-3-032-14252-8_11#'
+#' @references Crommen, G., Beyhum, J., and Van Keilegom, I. (2024). An
+#' instrumental variable approach under dependent censoring. Test, 33(2),
+#' 473-495.
 #'
 #' @param data A data frame, adhering to the following formatting rules:
 #' \itemize{
@@ -1012,8 +1026,7 @@ estimate.cf <- function(XandW, Z, Zbin, gammaest = NULL) {
 #' @param eps Value that will be added to the diagonal of the covariance matrix
 #' during estimation in order to ensure strictly positive variances.
 #'
-#' @import matrixcalc nloptr numDeriv pbivnorm mvtnorm stats
-#' @importFrom MASS mvrnorm
+#' @importFrom nloptr nloptr
 #'
 #' @return A list of parameter estimates in the second stage of the estimation
 #' algorithm (hence omitting the estimates for the control function), as well
@@ -1583,7 +1596,7 @@ dchol2par <- function(par.chol1) {
 #' @param totparl Total number of covariate effects (including intercepts) in
 #' all of the transformation models combined.
 #'
-#' @import numDeriv
+#' @importFrom numDeriv hessian jacobian
 #' @importFrom stats dlogis plogis var
 #'
 #' @return Variance estimates of the provided vector of estimated parameters.
