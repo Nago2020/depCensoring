@@ -1,4 +1,5 @@
 # depCensoring 0.1.10
+* Improving the manual
 
 # depCensoring 0.1.7
 

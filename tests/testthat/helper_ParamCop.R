@@ -1,6 +1,5 @@
 library(depCensoring)
 library(rvinecopulib)
-library(rafalib)
 tau = 0.75
 Copula = "frank"
 Dist.T = "weibull"

@@ -10,7 +10,6 @@
 #'
 #' @param start Initial values for the finite dimensional parameters. If \code{start} is NULL, the initial values will be obtained
 #' by fitting a Cox model for survival time T and a Weibull model for dependent censoring C.
-#'
 #' @param resData Data matrix with three columns;  Z = the observed survival time, d1 = the censoring indicator of T
 #' and  d2 =  the censoring indicator of C.
 #' @param X Data matrix with covariates related to T.
@@ -26,14 +25,13 @@
 #' @param n.boot Number of bootstrap samples to use in the estimation of bootstrap standard errors if \code{bootstrap = TRUE}. The default is n.boot = 150. But, higher
 #' values  of \code{n.boot} are recommended for obtaining good estimates of bootstrap standard errors.
 #' @param ncore The number of cores to use for parallel computation in bootstrapping, with the default \code{ncore = 7}.
-#' @importFrom copula pCopula frankCopula gumbelCopula tau
-#' @importFrom stats nlminb pnorm  qnorm
+#'
+#' @importFrom copula frankCopula gumbelCopula tau
+#' @importFrom stats nlminb
 #' @importFrom survival coxph survreg Surv
 #'
 #' @return This function returns a fit of dependent censoring model; parameter estimates, estimate of the cumulative hazard function, bootstrap standard
 #' errors for finite-dimensional parameters, the nonparametric cumulative hazard function, etc.
-#'
-#'
 #'
 #' @examples
 #' \donttest{
@@ -75,11 +73,11 @@
 #'}
 #'
 #' @export
-
-
 fitDepCens = function(resData,X,W,
                       cop = c("Frank","Gumbel", "Normal"),
-                      dist = c("Weibull", "lognormal"), start = NULL, n.iter = 50, bootstrap = TRUE, n.boot = 150, ncore = 7, eps = 1e-4){
+                      dist = c("Weibull", "lognormal"),
+                      start = NULL, n.iter = 50, bootstrap = TRUE, n.boot = 150,
+                      ncore = 7, eps = 1e-4) {
 
   cop <- match.arg(cop)
   dist <- match.arg(dist)
@@ -198,10 +196,6 @@ fitDepCens = function(resData,X,W,
   return(depObj)
 }
 
-
-
-
-
 #' @title Fit Independent Censoring Models
 #'
 #' @description This function allows to estimate all model parameters under the assumption of independent censoring. First, estimates the cumulative hazard function, and
@@ -210,7 +204,6 @@ fitDepCens = function(resData,X,W,
 #'
 #' @param start Initial values for the finite dimensional parameters. If \code{start} is NULL, the initial values will be obtained
 #' by fitting a Cox model for survival time T and a Weibull model for censoring time C.
-#'
 #' @param resData Data matrix with three columns;  Z = the observed survival time, d1 = the censoring indicator of T
 #' and  d2 =  the censoring indicator of C.
 #' @param X Data matrix with covariates related to T.
@@ -224,13 +217,12 @@ fitDepCens = function(resData,X,W,
 #' @param n.boot Number of bootstrap samples to use in the estimation of bootstrap standard errors if \code{bootstrap = TRUE}. The default is n.boot = 150. But, higher
 #' values  of \code{n.boot} are recommended for obtaining good estimates of bootstrap standard errors.
 #' @param ncore The number of cores to use for parallel computation is configurable, with the default \code{ncore = 7}.
-#' @importFrom stats nlminb pnorm  qnorm sd
+#'
+#' @importFrom stats nlminb
 #' @importFrom survival coxph survreg Surv
 #'
 #' @return This function returns a fit of independent censoring model; parameter estimates, estimate of the cumulative hazard function, bootstrap standard
 #' errors for finite-dimensional parameters, the nonparametric cumulative hazard function, etc.
-#'
-#'
 #'
 #' @examples
 #' \donttest{

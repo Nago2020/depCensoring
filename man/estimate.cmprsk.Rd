@@ -145,7 +145,13 @@ estimate.cmprsk(data, admin, conf, eoi.indicator.names, Zbin, inst, realV,
 
 }
 \references{
-Willems et al. (2025). Flexible control function approach under competing risks (submitted).
+Willems, I., Rutten, S., Crommen, G., Van Keilegom, I. (2026). A
+Flexible Control Function Approach for Survival Data Subject to Different
+Types of Censoring. In: Nagler, T., Kurowicka, D., Cooke, R., Joe, H. (eds)
+Statistical Dependence Modeling. Springer, Cham.
+https://doi.org/10.1007/978-3-032-14252-8_11#'
 
-Crommen, G., Beyhum, J., and Van Keilegom, I. (2024). An instrumental variable approach under dependent censoring. Test, 33(2), 473-495.
+Crommen, G., Beyhum, J., and Van Keilegom, I. (2024). An
+instrumental variable approach under dependent censoring. Test, 33(2),
+473-495.
 }

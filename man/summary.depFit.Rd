@@ -7,12 +7,12 @@
 \method{summary}{depFit}(object, ...)
 }
 \arguments{
-\item{object}{Output of \code{\link{fitDepCens}} function}
+\item{object}{Output of \code{\link{fitDepCens}} function.}
 
-\item{...}{Further arguments}
+\item{...}{Further arguments.}
 }
 \value{
-Summary of dependent censoring model fit in the form of table
+Summary of dependent censoring model fit in the form of table.
 }
 \description{
 Summary of \code{depCensoringFit} object

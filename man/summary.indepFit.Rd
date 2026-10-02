@@ -7,12 +7,12 @@
 \method{summary}{indepFit}(object, ...)
 }
 \arguments{
-\item{object}{Output of \code{\link{fitIndepCens}} function}
+\item{object}{Output of \code{\link{fitIndepCens}} function.}
 
-\item{...}{Further arguments}
+\item{...}{Further arguments.}
 }
 \value{
-Summary of independent censoring model fit in the form of table
+Summary of independent censoring model fit in the form of table.
 }
 \description{
 Summary of \code{indepCensoringFit} object

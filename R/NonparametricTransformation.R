@@ -11,14 +11,13 @@
 #'   and  d2 =  the censoring indicator of C.
 #' @param X Data matrix with covariates related to T.
 #' @param W Data matrix with covariates related to C.
-#' @importFrom stats pnorm  dnorm qnorm sd
-#' @import pbivnorm
-#' @import nleqslv
+#' @importFrom stats pnorm dnorm
+#' @importFrom nleqslv nleqslv
 #'
 #' @return Returns the estimated transformation function H for a fixed value of parameters theta.
 #'
 #' @noRd
-SolveH <- function(theta,resData, X, W){                                 # Z,nu,X,W,beta,eta,rho
+SolveH <- function(theta, resData, X, W) {                                 # Z,nu,X,W,beta,eta,rho
   k = ncol(X)
   l = ncol(W)
   beta = theta[1:k]
@@ -74,6 +73,8 @@ SolveH <- function(theta,resData, X, W){                                 # Z,nu,
 #' @param X Data matrix with covariates related to T.
 #' @param W Data matrix with covariates related to C.
 #'
+#' @importFrom pbivnorm pbivnorm
+#'
 #' @noRd
 SolveHt1 <- function(Ht1,Z,nu,t,X,W,theta){
   k = ncol(X)
@@ -110,12 +111,17 @@ SearchIndicate = function(t,T1){
 }
 
 #' @title Distance between vectors
+#'
 #' @description This function computes distance between two vectors based on L2-norm
 #' @param a First vector
 #' @param b Second vector
 #'
+#' @note
+#' This function is doubly defined, in the following script:
+#' 'CopulaBasedCoxPH_pseudoLikelihoodFunctions.R'
+#'
 #' @noRd
-Distance = function(b,a){   # L2-norm of difference
+Distance = function(b, a){   # L2-norm of difference
   x = b-a
   n = length(x)
   l2norm = sqrt(sum(x^2)/n)
@@ -123,26 +129,28 @@ Distance = function(b,a){   # L2-norm of difference
 }
 
 #' @title Compute bivariate survival probability
+#'
 #' @description This function calculates a bivariate survival probability based on multivariate normal distribution.
+#'
 #' @param lx The first lower bound of integration
 #' @param ly The second lower bound
 #' @param rho  Association parameter
-#' @import MASS
-#' @import mvtnorm
+#'
+#' @importFrom mvtnorm pmvnorm
 #'
 #' @noRd
 Bvprob = function(lx,ly,rho) { # compute bivariate prob.
   cor = diag(2)
   cor[1,2] = rho
   cor[2,1] = rho
-  bvprob = pmvnorm(lower=c(lx,ly), upper=c(Inf,Inf), mean=c(0,0), corr = cor,algorithm = "GenzBretz");
+  bvprob = pmvnorm(lower=c(lx,ly), upper=c(Inf,Inf), mean=c(0,0), corr = cor, algorithm = "GenzBretz");
   return(bvprob)
 }
 
-#' @title Change H to long format
+#' @title Change H to long format.
 #'
 #' @description
-#'  Change a nonparametric transformation function to long format
+#' Change a nonparametric transformation function to long format.
 #'
 #' @param Z Observed survival time, which is the minimum of T, C and A, where A is the administrative censoring time.
 #' @param T1 Distinct observed survival time
@@ -160,8 +168,8 @@ LongNPT = function(Z,T1,H){
 return(Hlong)
 }
 
-
 #' @title Score equations of finite parameters
+#'
 #' @description This function computes the score vectors  and the Jacobean matrix for finite model parameters.
 #'
 #' @param theta Vector of parameters in the semiparametric transformation model.
@@ -170,10 +178,11 @@ return(Hlong)
 #' @param X Data matrix with covariates related to T.
 #' @param W Data matrix with covariates related to C.
 #' @param H The estimated non-parametric transformation function for a given value of theta
-#' @importFrom stats pnorm  dnorm qnorm sd
+#'
+#' @importFrom stats pnorm dnorm
 #'
 #' @noRd
-ScoreEqn = function(theta,resData,X,W,H){
+ScoreEqn = function(theta, resData, X, W, H) {
   k = ncol(X)
   l = ncol(W)
   u = k+l
@@ -411,6 +420,7 @@ ScoreEqn = function(theta,resData,X,W,H){
 
 
 #' @title  Estimate finite parameters based on score equations
+#'
 #' @description This function estimates the model parameters
 #'
 #' @inheritParams SolveH
@@ -418,7 +428,7 @@ ScoreEqn = function(theta,resData,X,W,H){
 #' @param eps Convergence error.
 #'
 #' @noRd
-SolveScore = function(theta,resData,X,W,H, eps = 1e-3){   # Estimate model parameters
+SolveScore = function(theta, resData, X, W, H, eps = 1e-3){   # Estimate model parameters
 
   PEst = ScoreEqn(theta,resData,X,W,H)
 
@@ -450,6 +460,7 @@ SolveScore = function(theta,resData,X,W,H, eps = 1e-3){   # Estimate model param
   return(b)
 }
 
+
 #' @title Fit a semiparametric transformation model for dependent censoring
 #'
 #' @description This function allows to estimate the dependency parameter along all other model parameters. First, estimates a non-parametric transformation function, and
@@ -469,10 +480,9 @@ SolveScore = function(theta,resData,X,W,H, eps = 1e-3){   # Estimate model param
 #' @param bootstrap A boolean indicating whether to compute bootstrap standard errors for making inferences.
 #' @param n.boot Number of bootstrap samples to use in the estimation of bootstrap standard errors if \code{bootstrap = TRUE}. The default is n.boot = 50. But, higher
 #' values  of \code{n.boot} are recommended for obtaining good estimates of bootstrap standard errors.
-#' @importFrom stats pnorm  qnorm sd
+#'
+#' @importFrom stats pnorm
 #' @importFrom survival survreg Surv
-#' @importFrom MASS mvrnorm
-#' @import pbivnorm nleqslv
 #'
 #' @return This function returns a fit of a semiparametric transformation model; parameter estimates, estimate of the non-parametric transformation function, bootstrap standard
 #' errors for finite-dimensional parameters, the nonparametric cumulative hazard function, etc.
@@ -504,7 +514,8 @@ SolveScore = function(theta,resData,X,W,H, eps = 1e-3){   # Estimate model param
 #' }
 #
 #' @export
-NonParTrans = function(resData, X, W, start = NULL, n.iter = 15,  bootstrap = FALSE, n.boot = 50, eps = 1e-3){
+NonParTrans = function(resData, X, W, start = NULL, n.iter = 15,
+                       bootstrap = FALSE, n.boot = 50, eps = 1e-3) {
   X = as.matrix(X)
   W = as.matrix(W)
 
@@ -590,12 +601,10 @@ NonParTrans = function(resData, X, W, start = NULL, n.iter = 15,  bootstrap = FA
 
 }
 
-
 #' @title Nonparametric bootstrap approach for a Semiparametric transformation model under dependent censpring
-
+#'
 #' @description This function estimates the bootstrap standard errors for the finite-dimensional model parameters and for the non-parametric transformation
 #' function. Parallel computing using foreach has been used to speed up the estimation of standard errors.
-#'
 #'
 #' @param init Initial values for the finite dimensional parameters obtained from the fit of \code{\link{NonParTrans}}
 #' @param resData Data matrix with three columns;  Z = the observed survival time, d1 = the censoring indicator of T
@@ -605,8 +614,8 @@ NonParTrans = function(resData, X, W, start = NULL, n.iter = 15,  bootstrap = FA
 #' @param eps Convergence error. This is set by the user in such away that the desired convergence is met; the default is \code{eps = 1e-3}
 #' @param n.iter Number of iterations; the default is \code{n.iter = 15}. The larger the number of iterations, the longer the computational time.
 #' @param n.boot Number of bootstraps to use in the estimation of bootstrap standard errors.
-#' @importFrom stats pnorm  qnorm sd
-#' @importFrom survival survreg Surv
+#'
+#' @importFrom stats sd
 #' @import pbivnorm MASS mvtnorm nleqslv foreach parallel
 #'
 #' @return Bootstrap standard errors for parameter estimates and for estimated cumulative hazard function.

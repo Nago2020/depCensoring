@@ -9,9 +9,12 @@
 #' @inheritParams SolveL
 #' @param lhat The estimated hazard function obtained from the output of \code{\link{SolveL}}.
 #' @param cumL The estimated cumulative hazard function from the output of \code{\link{SolveL}}.
+#'
 #' @importFrom copula pCopula frankCopula gumbelCopula tau
-#' @import pbivnorm
+#' @importFrom pbivnorm pbivnorm
+#'
 #' @return maximized log-likelihood value
+#'
 #' @noRd
 PseudoL = function(theta,resData,X,W,lhat,cumL,cop,dist){
   Z = resData$Z
@@ -107,9 +110,6 @@ PseudoL = function(theta,resData,X,W,lhat,cumL,cop,dist){
   return(Logn)
 }
 
-
-
-
 #' @title Loglikehood function under independent censoring
 #'
 #' @inheritParams SolveLI
@@ -117,11 +117,12 @@ PseudoL = function(theta,resData,X,W,lhat,cumL,cop,dist){
 #' @param lhat The estimated hazard function obtained from the output of \code{\link{SolveLI}}.
 #' @param cumL The estimated cumulative hazard function from the output of \code{\link{SolveLI}}.
 #' @param dist The distribution to  be used for the dependent censoring C. Only two distributions are allowed, i.e, Weibull
-#' and lognormal distributions. With the value \code{"Weibull"} as the
-#'   default.
-#'  @importFrom stats nlminb pnorm  qnorm sd
+#' and lognormal distributions. With the value \code{"Weibull"} as the default.
+#'
+#' @importFrom stats nlminb pnorm  qnorm sd
 #'
 #' @return Maximized log-likelihood value
+#'
 #' @noRd
 LikCopInd <- function(theta,resData,X,W,lhat,cumL,dist){ # gamma = 0
   Z = resData$Z
@@ -186,6 +187,7 @@ LikCopInd <- function(theta,resData,X,W,lhat,cumL,dist){ # gamma = 0
 #' @param dist The distribution to  be used for the dependent censoring C. Only two distributions are allowed, i.e, Weibull
 #' and lognormal distributions. With the value \code{"Weibull"} as the
 #'   default.
+#'
 #' @importFrom copula pCopula frankCopula gumbelCopula
 #'
 #' @return This function returns an estimated hazard function, cumulative hazard function and distinct observed survival times;
@@ -222,9 +224,9 @@ LikCopInd <- function(theta,resData,X,W,lhat,cumL,dist){ # gamma = 0
 #'}
 #'
 #' @export
-SolveL = function(theta,resData,X,W,
-                  cop = c("Frank", "Gumbel",  "Normal"),
-                  dist = c("Weibull", "lognormal")){
+SolveL = function(theta, resData, X, W,
+                  cop = c("Frank", "Gumbel", "Normal"),
+                  dist = c("Weibull", "lognormal")) {
 
   cop <- match.arg(cop)
   dist <- match.arg(dist)
@@ -262,10 +264,6 @@ SolveL = function(theta,resData,X,W,
   res <- list(lambda = L,cumhaz = cumsum(L), times = T1)
 }
 
-
-
-
-
 #' @title Cumulative hazard function of survival time under independent censoring
 #'
 #' @description
@@ -276,7 +274,6 @@ SolveL = function(theta,resData,X,W,
 #' @param resData Data matrix with three columns;  Z = the observed survival time, d1 = the censoring indicator of T
 #' and  d2 =  the censoring indicator of C.
 #' @param X Data matrix with covariates related to T
-#'
 #'
 #' @return This function returns an estimated hazard function,  cumulative hazard function and distinct observed survival times;
 #'
@@ -313,7 +310,6 @@ SolveL = function(theta,resData,X,W,
 #'
 #'}
 #'
-#'
 #' @export
 SolveLI = function(theta,resData,X){
 
@@ -343,8 +339,6 @@ SolveLI = function(theta,resData,X){
   res <- list(lambda = L,cumhaz = cumsum(L), times = T1)
 }
 
-
-
 #' @title Compute phi function
 #'
 #' @description  This function estimates phi function at fixed time point t
@@ -352,8 +346,10 @@ SolveLI = function(theta,resData,X){
 #' @inheritParams SolveL
 #' @param t A fixed time point
 #' @param ld Output of \code{\link{SolveL}} function at a fixed time t
+#'
 #' @importFrom copula pCopula frankCopula gumbelCopula tau
-#' @import pbivnorm
+#' @importFrom pbivnorm pbivnorm
+#'
 #' @noRd
 CompC = function(theta,t,X,W,ld,cop,dist){
 
@@ -431,11 +427,9 @@ CompC = function(theta,t,X,W,ld,cop,dist){
   return(tot)
 }
 
-
 #' @title Long format
 #'
-#' @description
-#'  Change hazard and cumulative hazard to long format
+#' @description Change hazard and cumulative hazard to long format
 #'
 #' @param Z Observed survival time, which is the minimum of T, C and A, where A is the administrative censoring time.
 #' @param T1 Distinct observed survival time
@@ -456,11 +450,16 @@ Longfun = function(Z,T1,lhat,Lhat){
   long = cbind(llong,Llong)
 }
 
-
 #' @title Distance between vectors
+#'
 #' @description This function computes distance between two vectors based on L2-norm
 #' @param a First vector
 #' @param b Second vector
+#'
+#' @note
+#' This function is doubly defined, in the following script:
+#' 'NonparametricTransformation.R'
+#'
 #' @noRd
 Distance = function(a,b){
   x = b-a
